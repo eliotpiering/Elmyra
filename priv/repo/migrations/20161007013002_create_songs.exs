@@ -1,4 +1,4 @@
-defmodule ElixirMedia.Repo.Migrations.CreateSongs do
+defmodule Elmira.Repo.Migrations.CreateSongs do
   use Ecto.Migration
 
   def change do

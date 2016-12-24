@@ -1,4 +1,4 @@
-defmodule ElixirMedia.Repo.Migrations.CreateAlbums do
+defmodule Elmira.Repo.Migrations.CreateAlbums do
   use Ecto.Migration
 
   def change do
