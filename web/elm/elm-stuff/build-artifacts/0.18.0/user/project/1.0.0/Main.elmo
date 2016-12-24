@@ -1,0 +1,590 @@
+var _user$project$Main$currentMouseLocation = function (model) {
+	return model.browser.isMouseOver ? _user$project$MyModels$BrowserWindow : (model.queue.mouseOver ? _user$project$MyModels$QueueWindow : _user$project$MyModels$OtherWindow);
+};
+var _user$project$Main$initialModel = {
+	queue: {currentSong: 0, array: _elm_lang$core$Array$empty, mouseOver: false, mouseOverItem: 1},
+	browser: _user$project$Browser$initialModel,
+	albumArt: 'nothing',
+	currentMousePos: {x: 0, y: 0},
+	dragStart: _elm_lang$core$Maybe$Nothing,
+	keysBeingTyped: '',
+	isShiftDown: false
+};
+var _user$project$Main$init = function (location) {
+	return {ctor: '_Tuple2', _0: _user$project$Main$initialModel, _1: _elm_lang$core$Platform_Cmd$none};
+};
+var _user$project$Main$UrlUpdate = function (a) {
+	return {ctor: 'UrlUpdate', _0: a};
+};
+var _user$project$Main$ResetKeysBeingTyped = function (a) {
+	return {ctor: 'ResetKeysBeingTyped', _0: a};
+};
+var _user$project$Main$UpdateAlbumArt = function (a) {
+	return {ctor: 'UpdateAlbumArt', _0: a};
+};
+var _user$project$Main$MouseMoves = function (a) {
+	return {ctor: 'MouseMoves', _0: a};
+};
+var _user$project$Main$MouseUps = function (a) {
+	return {ctor: 'MouseUps', _0: a};
+};
+var _user$project$Main$MouseDowns = function (a) {
+	return {ctor: 'MouseDowns', _0: a};
+};
+var _user$project$Main$KeyDown = function (a) {
+	return {ctor: 'KeyDown', _0: a};
+};
+var _user$project$Main$KeyUp = function (a) {
+	return {ctor: 'KeyUp', _0: a};
+};
+var _user$project$Main$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		{
+			ctor: '::',
+			_0: _user$project$Port$resetKeysBeingTyped(_user$project$Main$ResetKeysBeingTyped),
+			_1: {
+				ctor: '::',
+				_0: _user$project$Port$updateAlbumArt(_user$project$Main$UpdateAlbumArt),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$keyboard$Keyboard$ups(_user$project$Main$KeyUp),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$keyboard$Keyboard$downs(_user$project$Main$KeyDown),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$mouse$Mouse$downs(_user$project$Main$MouseDowns),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$mouse$Mouse$ups(_user$project$Main$MouseUps),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$mouse$Mouse$moves(_user$project$Main$MouseMoves),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				}
+			}
+		});
+};
+var _user$project$Main$UpdateGroups = function (a) {
+	return {ctor: 'UpdateGroups', _0: a};
+};
+var _user$project$Main$OpenSongsInBrowser = function (a) {
+	return {ctor: 'OpenSongsInBrowser', _0: a};
+};
+var _user$project$Main$AddSongToQueue = function (a) {
+	return {ctor: 'AddSongToQueue', _0: a};
+};
+var _user$project$Main$AddSongsToQueue = function (a) {
+	return {ctor: 'AddSongsToQueue', _0: a};
+};
+var _user$project$Main$UpdateSongs = function (a) {
+	return {ctor: 'UpdateSongs', _0: a};
+};
+var _user$project$Main$update = F2(
+	function (action, model) {
+		var _p0 = action;
+		switch (_p0.ctor) {
+			case 'KeyUp':
+				var textSearchUpdateHelper = function (code) {
+					var maybefirstMatch = _elm_lang$core$List$head(
+						A2(
+							_elm_lang$core$List$filter,
+							function (_p1) {
+								var _p2 = _p1;
+								return A2(
+									_elm_lang$core$String$startsWith,
+									model.keysBeingTyped,
+									_elm_lang$core$String$toUpper(
+										_user$project$Helpers$getItemTitle(_p2._1)));
+							},
+							_elm_lang$core$Dict$toList(model.browser.items)));
+					var cString = _elm_lang$core$String$fromChar(
+						_elm_lang$core$Char$fromCode(code));
+					var _p3 = maybefirstMatch;
+					if (_p3.ctor === 'Just') {
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{
+									keysBeingTyped: A2(_elm_lang$core$Basics_ops['++'], model.keysBeingTyped, cString)
+								}),
+							_1: _user$project$Port$scrollToElement(
+								A2(_elm_lang$core$Basics_ops['++'], 'group-item-', _p3._0._0))
+						};
+					} else {
+						return {
+							ctor: '_Tuple2',
+							_0: model,
+							_1: _user$project$Port$scrollToElement('no-id')
+						};
+					}
+				};
+				var _p4 = _p0._0;
+				switch (_p4) {
+					case 37:
+						var queue_ = A2(_user$project$Queue$update, _user$project$Queue$PreviousSong, model.queue);
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{queue: queue_}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					case 39:
+						var queue_ = A2(_user$project$Queue$update, _user$project$Queue$NextSong, model.queue);
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{queue: queue_}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					case 32:
+						return (_elm_lang$core$Native_Utils.cmp(
+							_elm_lang$core$String$length(model.keysBeingTyped),
+							0) > 0) ? textSearchUpdateHelper(32) : {
+							ctor: '_Tuple2',
+							_0: model,
+							_1: _user$project$Port$pause('null')
+						};
+					case 16:
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{isShiftDown: false}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					default:
+						return textSearchUpdateHelper(_p4);
+				}
+			case 'KeyDown':
+				var _p5 = _p0._0;
+				if (_p5 === 16) {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{isShiftDown: true}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'ResetKeysBeingTyped':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{keysBeingTyped: ''}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'QueueMsg':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							queue: A2(_user$project$Queue$update, _p0._0, model.queue)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'BrowserMsg':
+				var _p6 = A3(_user$project$Browser$update, _p0._0, model.isShiftDown, model.browser);
+				var browser_ = _p6._0;
+				var browserCmd = _p6._1;
+				var model_ = _elm_lang$core$Native_Utils.update(
+					model,
+					{browser: browser_});
+				var _p7 = browserCmd;
+				switch (_p7.ctor) {
+					case 'AddSong':
+						var _p8 = _p7._0.data;
+						if (_p8.ctor === 'Song') {
+							var songItemModels = _user$project$Helpers$makeSongItemList(
+								{
+									ctor: '::',
+									_0: _p8._0,
+									_1: {ctor: '[]'}
+								});
+							return {
+								ctor: '_Tuple2',
+								_0: _elm_lang$core$Native_Utils.update(
+									model_,
+									{
+										queue: A2(
+											_user$project$Queue$update,
+											_user$project$Queue$Drop(songItemModels),
+											model.queue)
+									}),
+								_1: _elm_lang$core$Platform_Cmd$none
+							};
+						} else {
+							return {ctor: '_Tuple2', _0: model_, _1: _elm_lang$core$Platform_Cmd$none};
+						}
+					case 'OpenGroup':
+						var _p9 = _p7._0.data;
+						if (_p9.ctor === 'Song') {
+							return {ctor: '_Tuple2', _0: model_, _1: _elm_lang$core$Platform_Cmd$none};
+						} else {
+							var _p10 = _p9._0;
+							return {
+								ctor: '_Tuple2',
+								_0: model_,
+								_1: _elm_lang$navigation$Navigation$newUrl(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'#',
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											_p10.kind,
+											A2(
+												_elm_lang$core$Basics_ops['++'],
+												'/',
+												_elm_lang$core$Basics$toString(_p10.id)))))
+							};
+						}
+					case 'ChangeRoute':
+						var _p11 = _p7._0;
+						switch (_p11.ctor) {
+							case 'SongsRoute':
+								return {
+									ctor: '_Tuple2',
+									_0: model_,
+									_1: _elm_lang$navigation$Navigation$newUrl('#songs')
+								};
+							case 'AlbumsRoute':
+								return {
+									ctor: '_Tuple2',
+									_0: model_,
+									_1: _elm_lang$navigation$Navigation$newUrl('#albums')
+								};
+							case 'ArtistsRoute':
+								return {
+									ctor: '_Tuple2',
+									_0: model_,
+									_1: _elm_lang$navigation$Navigation$newUrl('#artists')
+								};
+							default:
+								return {ctor: '_Tuple2', _0: model_, _1: _elm_lang$core$Platform_Cmd$none};
+						}
+					default:
+						return {ctor: '_Tuple2', _0: model_, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'UpdateSongs':
+				if (_p0._0.ctor === 'Ok') {
+					var browser = _user$project$Browser$initialModel;
+					var browser_ = _elm_lang$core$Native_Utils.update(
+						browser,
+						{
+							items: _user$project$Helpers$makeSongItemDictionary(_p0._0._0)
+						});
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{browser: browser_}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'UpdateGroups':
+				if (_p0._0.ctor === 'Ok') {
+					var browser = _user$project$Browser$initialModel;
+					var browser_ = _elm_lang$core$Native_Utils.update(
+						browser,
+						{
+							items: _user$project$Helpers$makeGroupItemDictionary(_p0._0._0)
+						});
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{browser: browser_}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'AddSongsToQueue':
+				if (_p0._0.ctor === 'Ok') {
+					var model_ = _elm_lang$core$Native_Utils.update(
+						model,
+						{dragStart: _elm_lang$core$Maybe$Nothing});
+					var newItems = _user$project$Helpers$makeSongItemList(_p0._0._0);
+					var queue_ = A2(
+						_user$project$Queue$update,
+						_user$project$Queue$Drop(newItems),
+						model_.queue);
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model_,
+							{
+								queue: queue_,
+								browser: _elm_lang$core$Tuple$first(
+									A3(_user$project$Browser$update, _user$project$Browser$Reset, false, model.browser))
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'AddSongToQueue':
+				if (_p0._0.ctor === 'Ok') {
+					var model_ = _elm_lang$core$Native_Utils.update(
+						model,
+						{dragStart: _elm_lang$core$Maybe$Nothing});
+					var newItems = _user$project$Helpers$makeSongItemList(
+						{
+							ctor: '::',
+							_0: _p0._0._0,
+							_1: {ctor: '[]'}
+						});
+					var queue_ = A2(
+						_user$project$Queue$update,
+						_user$project$Queue$Drop(newItems),
+						model_.queue);
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model_,
+							{
+								queue: queue_,
+								browser: _elm_lang$core$Tuple$first(
+									A3(_user$project$Browser$update, _user$project$Browser$Reset, false, model.browser))
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'OpenSongsInBrowser':
+				if (_p0._0.ctor === 'Ok') {
+					var model_ = _elm_lang$core$Native_Utils.update(
+						model,
+						{dragStart: _elm_lang$core$Maybe$Nothing});
+					var newItems = _user$project$Helpers$makeSongItemDictionary(_p0._0._0);
+					var _p12 = A3(
+						_user$project$Browser$update,
+						_user$project$Browser$UpdateSongs(newItems),
+						model.isShiftDown,
+						model_.browser);
+					var browser_ = _p12._0;
+					var browserCmd = _p12._1;
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model_,
+							{browser: browser_}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'MouseDowns':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							dragStart: _elm_lang$core$Maybe$Just(
+								_user$project$Main$currentMouseLocation(model))
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'MouseUps':
+				var model_ = _elm_lang$core$Native_Utils.update(
+					model,
+					{dragStart: _elm_lang$core$Maybe$Nothing});
+				var dragEnd = _user$project$Main$currentMouseLocation(model);
+				var maybeDragStart = model.dragStart;
+				var _p13 = maybeDragStart;
+				_v9_2:
+				do {
+					if (_p13.ctor === 'Just') {
+						switch (_p13._0.ctor) {
+							case 'BrowserWindow':
+								var _p14 = dragEnd;
+								if (_p14.ctor === 'QueueWindow') {
+									var _p15 = A3(_user$project$Browser$update, _user$project$Browser$Reset, false, model.browser);
+									var browser_ = _p15._0;
+									var selectedSongItems = _user$project$Helpers$itemListToSongItemList(
+										A2(
+											_elm_lang$core$List$filter,
+											function (_) {
+												return _.isSelected;
+											},
+											_elm_lang$core$Dict$values(model.browser.items)));
+									var queue_ = A2(
+										_user$project$Queue$update,
+										_user$project$Queue$Drop(selectedSongItems),
+										model.queue);
+									var selectedGroupItems = A2(
+										_elm_lang$core$List$filter,
+										function (_p16) {
+											return !_user$project$Helpers$isSong(_p16);
+										},
+										A2(
+											_elm_lang$core$List$filter,
+											function (_) {
+												return _.isSelected;
+											},
+											_elm_lang$core$Dict$values(model.browser.items)));
+									var updateGroupCmds = _elm_lang$core$Platform_Cmd$batch(
+										A2(_user$project$ApiHelpers$fetchSongsFromGroups, selectedGroupItems, _user$project$Main$AddSongsToQueue));
+									return {
+										ctor: '_Tuple2',
+										_0: _elm_lang$core$Native_Utils.update(
+											model_,
+											{queue: queue_, browser: browser_}),
+										_1: updateGroupCmds
+									};
+								} else {
+									return {ctor: '_Tuple2', _0: model_, _1: _elm_lang$core$Platform_Cmd$none};
+								}
+							case 'QueueWindow':
+								var _p17 = dragEnd;
+								if (_p17.ctor === 'QueueWindow') {
+									var queue_ = A2(_user$project$Queue$update, _user$project$Queue$Reorder, model.queue);
+									return {
+										ctor: '_Tuple2',
+										_0: _elm_lang$core$Native_Utils.update(
+											model_,
+											{queue: queue_}),
+										_1: _elm_lang$core$Platform_Cmd$none
+									};
+								} else {
+									var queue_ = A2(_user$project$Queue$update, _user$project$Queue$Remove, model.queue);
+									return {
+										ctor: '_Tuple2',
+										_0: _elm_lang$core$Native_Utils.update(
+											model_,
+											{queue: queue_}),
+										_1: _elm_lang$core$Platform_Cmd$none
+									};
+								}
+							default:
+								break _v9_2;
+						}
+					} else {
+						break _v9_2;
+					}
+				} while(false);
+				return {ctor: '_Tuple2', _0: model_, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'MouseMoves':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{currentMousePos: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'UpdateAlbumArt':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{albumArt: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				var _p18 = _user$project$NavigationParser$urlParser(_p0._0);
+				switch (_p18.ctor) {
+					case 'ArtistsRoute':
+						return {
+							ctor: '_Tuple2',
+							_0: model,
+							_1: _user$project$ApiHelpers$fetchAllArtists(_user$project$Main$UpdateGroups)
+						};
+					case 'AlbumsRoute':
+						return {
+							ctor: '_Tuple2',
+							_0: model,
+							_1: _user$project$ApiHelpers$fetchAllAlbums(_user$project$Main$UpdateGroups)
+						};
+					case 'SongsRoute':
+						return {
+							ctor: '_Tuple2',
+							_0: model,
+							_1: _user$project$ApiHelpers$fetchAllSongs(_user$project$Main$UpdateSongs)
+						};
+					case 'ArtistRoute':
+						return {
+							ctor: '_Tuple2',
+							_0: model,
+							_1: A2(_user$project$ApiHelpers$fetchSongsFromArtist, _p18._0, _user$project$Main$OpenSongsInBrowser)
+						};
+					case 'AlbumRoute':
+						return {
+							ctor: '_Tuple2',
+							_0: model,
+							_1: A2(_user$project$ApiHelpers$fetchSongsFromAlbum, _p18._0, _user$project$Main$OpenSongsInBrowser)
+						};
+					default:
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+		}
+	});
+var _user$project$Main$BrowserMsg = function (a) {
+	return {ctor: 'BrowserMsg', _0: a};
+};
+var _user$project$Main$browserView = function (model) {
+	var maybeMousePos = function () {
+		var _p19 = model.dragStart;
+		if ((_p19.ctor === 'Just') && (_p19._0.ctor === 'BrowserWindow')) {
+			return _elm_lang$core$Maybe$Just(model.currentMousePos);
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	}();
+	return A2(
+		_elm_lang$html$Html$map,
+		_user$project$Main$BrowserMsg,
+		A2(_user$project$Browser$view, maybeMousePos, model.browser));
+};
+var _user$project$Main$QueueMsg = function (a) {
+	return {ctor: 'QueueMsg', _0: a};
+};
+var _user$project$Main$queueView = function (model) {
+	var maybeMousePos = function () {
+		var _p20 = model.dragStart;
+		if ((_p20.ctor === 'Just') && (_p20._0.ctor === 'QueueWindow')) {
+			return _elm_lang$core$Maybe$Just(model.currentMousePos);
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	}();
+	return A2(
+		_elm_lang$html$Html$map,
+		_user$project$Main$QueueMsg,
+		A2(_user$project$Queue$view, maybeMousePos, model.queue));
+};
+var _user$project$Main$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$id('main-container'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _user$project$Main$browserView(model),
+			_1: {
+				ctor: '::',
+				_0: _user$project$Main$queueView(model),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Main$main = A2(
+	_elm_lang$navigation$Navigation$program,
+	_user$project$Main$UrlUpdate,
+	{init: _user$project$Main$init, view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subscriptions})();

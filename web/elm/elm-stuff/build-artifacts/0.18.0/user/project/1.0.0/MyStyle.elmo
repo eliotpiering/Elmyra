@@ -1,0 +1,130 @@
+var _user$project$MyStyle$darkGrey = '#565656';
+var _user$project$MyStyle$dragging = F2(
+	function (maybeDragPos, isSelected) {
+		var _p0 = maybeDragPos;
+		if (_p0.ctor === 'Just') {
+			if (isSelected) {
+				var yPos = A2(
+					_elm_lang$core$Basics_ops['++'],
+					_elm_lang$core$Basics$toString(_p0._0.y),
+					'px');
+				var xPos = A2(
+					_elm_lang$core$Basics_ops['++'],
+					_elm_lang$core$Basics$toString(_p0._0.x),
+					'px');
+				return _elm_lang$html$Html_Attributes$style(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'position', _1: 'fixed'},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'left', _1: xPos},
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'top', _1: yPos},
+								_1: {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'z-index', _1: '99'},
+									_1: {
+										ctor: '::',
+										_0: {ctor: '_Tuple2', _0: 'color', _1: 'white'},
+										_1: {
+											ctor: '::',
+											_0: {ctor: '_Tuple2', _0: 'background-color', _1: _user$project$MyStyle$darkGrey},
+											_1: {
+												ctor: '::',
+												_0: {ctor: '_Tuple2', _0: 'padding', _1: '10px'},
+												_1: {
+													ctor: '::',
+													_0: {ctor: '_Tuple2', _0: 'border-radius', _1: '8px'},
+													_1: {
+														ctor: '::',
+														_0: {ctor: '_Tuple2', _0: 'pointer-events', _1: 'none'},
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					});
+			} else {
+				return _elm_lang$html$Html_Attributes$style(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'display', _1: 'none'},
+						_1: {ctor: '[]'}
+					});
+			}
+		} else {
+			return _elm_lang$html$Html_Attributes$style(
+				{
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'display', _1: 'none'},
+					_1: {ctor: '[]'}
+				});
+		}
+	});
+var _user$project$MyStyle$isSelected = function (isSelected) {
+	return isSelected ? _elm_lang$html$Html_Attributes$style(
+		{
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'color', _1: 'white'},
+			_1: {
+				ctor: '::',
+				_0: {ctor: '_Tuple2', _0: 'background-color', _1: _user$project$MyStyle$darkGrey},
+				_1: {ctor: '[]'}
+			}
+		}) : _elm_lang$html$Html_Attributes$style(
+		{ctor: '[]'});
+};
+var _user$project$MyStyle$grey = '#989898';
+var _user$project$MyStyle$queueViewContainer = function (canDrop) {
+	return canDrop ? _elm_lang$html$Html_Attributes$style(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'border',
+				_1: A2(
+					_elm_lang$core$Basics_ops['++'],
+					'solid ',
+					A2(_elm_lang$core$Basics_ops['++'], _user$project$MyStyle$grey, ' 2px'))
+			},
+			_1: {ctor: '[]'}
+		}) : _elm_lang$html$Html_Attributes$style(
+		{ctor: '[]'});
+};
+var _user$project$MyStyle$mouseOver = function (isMouseOver) {
+	return isMouseOver ? _elm_lang$html$Html_Attributes$style(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'border',
+				_1: A2(_elm_lang$core$Basics_ops['++'], '1px solid ', _user$project$MyStyle$grey)
+			},
+			_1: {ctor: '[]'}
+		}) : _elm_lang$html$Html_Attributes$style(
+		{ctor: '[]'});
+};
+var _user$project$MyStyle$lightGrey = '#D3D9DF';
+var _user$project$MyStyle$pale = '#E1E1D6';
+var _user$project$MyStyle$blue = '#004489';
+var _user$project$MyStyle$currentSong = function (isCurrentSong) {
+	return isCurrentSong ? _elm_lang$html$Html_Attributes$style(
+		{
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'color', _1: 'white'},
+			_1: {
+				ctor: '::',
+				_0: {ctor: '_Tuple2', _0: 'background-color', _1: _user$project$MyStyle$blue},
+				_1: {ctor: '[]'}
+			}
+		}) : _elm_lang$html$Html_Attributes$style(
+		{ctor: '[]'});
+};
+var _user$project$MyStyle$none = _elm_lang$html$Html_Attributes$style(
+	{ctor: '[]'});

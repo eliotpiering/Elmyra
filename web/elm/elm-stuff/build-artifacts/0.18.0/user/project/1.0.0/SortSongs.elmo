@@ -1,0 +1,27 @@
+var _user$project$SortSongs$byGroupTitle = _elm_lang$core$List$sortWith(
+	F2(
+		function (_p1, _p0) {
+			var _p2 = _p1;
+			var _p3 = _p0;
+			var _p4 = _p2._1.data;
+			if (_p4.ctor === 'Group') {
+				var _p5 = _p3._1.data;
+				if (_p5.ctor === 'Group') {
+					return A2(_elm_lang$core$Basics$compare, _p4._0.title, _p5._0.title);
+				} else {
+					return _elm_lang$core$Basics$EQ;
+				}
+			} else {
+				return _elm_lang$core$Basics$EQ;
+			}
+		}));
+var _user$project$SortSongs$byAlbumAndTrack = _elm_lang$core$List$sortWith(
+	F2(
+		function (item1, item2) {
+			var _p6 = A2(_elm_lang$core$Basics$compare, item1.song.album, item2.song.album);
+			if (_p6.ctor === 'EQ') {
+				return A2(_elm_lang$core$Basics$compare, item1.song.track, item2.song.track);
+			} else {
+				return _p6;
+			}
+		}));

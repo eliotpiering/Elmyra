@@ -1,0 +1,61 @@
+var _user$project$NavigationParser$NotFoundRoute = {ctor: 'NotFoundRoute'};
+var _user$project$NavigationParser$AlbumRoute = function (a) {
+	return {ctor: 'AlbumRoute', _0: a};
+};
+var _user$project$NavigationParser$ArtistRoute = function (a) {
+	return {ctor: 'ArtistRoute', _0: a};
+};
+var _user$project$NavigationParser$SongsRoute = {ctor: 'SongsRoute'};
+var _user$project$NavigationParser$AlbumsRoute = {ctor: 'AlbumsRoute'};
+var _user$project$NavigationParser$ArtistsRoute = {ctor: 'ArtistsRoute'};
+var _user$project$NavigationParser$route = _evancz$url_parser$UrlParser$oneOf(
+	{
+		ctor: '::',
+		_0: A2(
+			_evancz$url_parser$UrlParser$map,
+			_user$project$NavigationParser$ArtistsRoute,
+			_evancz$url_parser$UrlParser$s('artists')),
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_evancz$url_parser$UrlParser$map,
+				_user$project$NavigationParser$AlbumsRoute,
+				_evancz$url_parser$UrlParser$s('albums')),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_evancz$url_parser$UrlParser$map,
+					_user$project$NavigationParser$SongsRoute,
+					_evancz$url_parser$UrlParser$s('songs')),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_evancz$url_parser$UrlParser$map,
+						_user$project$NavigationParser$ArtistRoute,
+						A2(
+							_evancz$url_parser$UrlParser_ops['</>'],
+							_evancz$url_parser$UrlParser$s('artists'),
+							_evancz$url_parser$UrlParser$int)),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_evancz$url_parser$UrlParser$map,
+							_user$project$NavigationParser$AlbumRoute,
+							A2(
+								_evancz$url_parser$UrlParser_ops['</>'],
+								_evancz$url_parser$UrlParser$s('albums'),
+								_evancz$url_parser$UrlParser$int)),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		}
+	});
+var _user$project$NavigationParser$urlParser = function (location) {
+	var _p0 = A2(_evancz$url_parser$UrlParser$parseHash, _user$project$NavigationParser$route, location);
+	if (_p0.ctor === 'Just') {
+		return _p0._0;
+	} else {
+		return _user$project$NavigationParser$NotFoundRoute;
+	}
+};

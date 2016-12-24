@@ -1,0 +1,17 @@
+var _user$project$Port$scrollToElement = _elm_lang$core$Native_Platform.outgoingPort(
+	'scrollToElement',
+	function (v) {
+		return v;
+	});
+var _user$project$Port$resetKeysBeingTyped = _elm_lang$core$Native_Platform.incomingPort('resetKeysBeingTyped', _elm_lang$core$Json_Decode$string);
+var _user$project$Port$pause = _elm_lang$core$Native_Platform.outgoingPort(
+	'pause',
+	function (v) {
+		return v;
+	});
+var _user$project$Port$lookupAlbumArt = _elm_lang$core$Native_Platform.outgoingPort(
+	'lookupAlbumArt',
+	function (v) {
+		return v;
+	});
+var _user$project$Port$updateAlbumArt = _elm_lang$core$Native_Platform.incomingPort('updateAlbumArt', _elm_lang$core$Json_Decode$string);

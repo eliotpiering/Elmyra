@@ -1,0 +1,110 @@
+var _user$project$Item$commonHtml = F3(
+	function (model, maybeDragPos, data) {
+		return {
+			ctor: '::',
+			_0: _elm_lang$html$Html$text(data.title),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{
+						ctor: '::',
+						_0: A2(_user$project$MyStyle$dragging, maybeDragPos, model.isSelected),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(data.title),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		};
+	});
+var _user$project$Item$Pos = F2(
+	function (a, b) {
+		return {x: a, y: b};
+	});
+var _user$project$Item$Reset = {ctor: 'Reset'};
+var _user$project$Item$ItemDoubleClicked = {ctor: 'ItemDoubleClicked'};
+var _user$project$Item$ItemClicked = {ctor: 'ItemClicked'};
+var _user$project$Item$commonAttrubutes = function (model) {
+	return {
+		ctor: '::',
+		_0: _elm_lang$html$Html_Events$onMouseDown(_user$project$Item$ItemClicked),
+		_1: {
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onDoubleClick(_user$project$Item$ItemDoubleClicked),
+			_1: {
+				ctor: '::',
+				_0: _user$project$MyStyle$isSelected(model.isSelected),
+				_1: {
+					ctor: '::',
+					_0: _user$project$MyStyle$mouseOver(model.isMouseOver),
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	};
+};
+var _user$project$Item$view = F3(
+	function (maybeDragPos, id, model) {
+		var _p0 = model.data;
+		if (_p0.ctor === 'Song') {
+			return A2(
+				_elm_lang$html$Html$li,
+				A2(
+					_elm_lang$core$List$append,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('song-item'),
+						_1: {ctor: '[]'}
+					},
+					_user$project$Item$commonAttrubutes(model)),
+				A3(_user$project$Item$commonHtml, model, maybeDragPos, _p0._0));
+		} else {
+			return A2(
+				_elm_lang$html$Html$li,
+				A2(
+					_elm_lang$core$List$append,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('group-item'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$id(
+								A2(_elm_lang$core$Basics_ops['++'], 'group-item-', id)),
+							_1: {ctor: '[]'}
+						}
+					},
+					_user$project$Item$commonAttrubutes(model)),
+				A3(_user$project$Item$commonHtml, model, maybeDragPos, _p0._0));
+		}
+	});
+var _user$project$Item$None = {ctor: 'None'};
+var _user$project$Item$Clicked = {ctor: 'Clicked'};
+var _user$project$Item$DoubleClicked = {ctor: 'DoubleClicked'};
+var _user$project$Item$update = F2(
+	function (msg, model) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
+			case 'ItemClicked':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{isSelected: !model.isSelected}),
+					_1: _user$project$Item$Clicked
+				};
+			case 'ItemDoubleClicked':
+				return {ctor: '_Tuple2', _0: model, _1: _user$project$Item$DoubleClicked};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{isSelected: false}),
+					_1: _user$project$Item$None
+				};
+		}
+	});
