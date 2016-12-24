@@ -1,7 +1,7 @@
-defmodule ElixirMedia.AlbumController do
-  use ElixirMedia.Web, :controller
+defmodule Elmira.AlbumController do
+  use Elmira.Web, :controller
 
-  alias ElixirMedia.Album
+  alias Elmira.Album
 
   def index(conn, _params) do
     query = from a in Album

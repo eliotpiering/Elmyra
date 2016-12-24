@@ -1,10 +1,10 @@
-import ElixirMedia.ModelCase
-import ElixirMedia.Factory
+import Elmira.ModelCase
+import Elmira.Factory
 
-defmodule ElixirMedia.SongViewTest do
-  use ElixirMedia.ModelCase
+defmodule Elmira.SongViewTest do
+  use Elmira.ModelCase
 
-  alias ElixirMedia.SongView
+  alias Elmira.SongView
 
   test "song_json" do
     song = insert(:song)

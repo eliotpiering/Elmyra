@@ -1,10 +1,10 @@
-defmodule ElixirMedia.Album do
-  use ElixirMedia.Web, :model
+defmodule Elmira.Album do
+  use Elmira.Web, :model
 
   schema "albums" do
     field :title
-    has_many :artists, ElixirMedia.Artist
-    has_many :songs, ElixirMedia.Song
+    has_many :artists, Elmira.Artist
+    has_many :songs, Elmira.Song
 
     timestamps
   end

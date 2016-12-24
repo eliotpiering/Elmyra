@@ -1,7 +1,7 @@
-defmodule ElixirMedia.SongController do
-  use ElixirMedia.Web, :controller
+defmodule Elmira.SongController do
+  use Elmira.Web, :controller
 
-  alias ElixirMedia.Song
+  alias Elmira.Song
 
   def index(conn, _params) do
     #TODO figure out preloading and just getting the artist album name b/c thats all we need

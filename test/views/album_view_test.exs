@@ -1,10 +1,10 @@
-import ElixirMedia.ModelCase
-import ElixirMedia.Factory
+import Elmira.ModelCase
+import Elmira.Factory
 
-defmodule ElixirMedia.AlbumViewTest do
-  use ElixirMedia.ModelCase
+defmodule Elmira.AlbumViewTest do
+  use Elmira.ModelCase
 
-  alias ElixirMedia.AlbumView
+  alias Elmira.AlbumView
 
   test "album_json" do
     album = insert(:album)

@@ -1,13 +1,13 @@
-defmodule ElixirMedia.Song do
-  use ElixirMedia.Web, :model
+defmodule Elmira.Song do
+  use Elmira.Web, :model
 
   schema "songs" do
     field :path
     field :title
     field :year, :integer
     field :track, :integer
-    belongs_to :artist, ElixirMedia.Artist
-    belongs_to :album, ElixirMedia.Album
+    belongs_to :artist, Elmira.Artist
+    belongs_to :album, Elmira.Album
 
     timestamps
   end

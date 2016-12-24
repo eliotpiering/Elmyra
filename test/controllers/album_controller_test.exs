@@ -1,9 +1,9 @@
-import ElixirMedia.ConnCase
-import ElixirMedia.Factory
+import Elmira.ConnCase
+import Elmira.Factory
 
 
-defmodule ElixirMedia.AlbumControllerTest do
-  use ElixirMedia.ConnCase
+defmodule Elmira.AlbumControllerTest do
+  use Elmira.ConnCase
 
   test "#index renders a list of albums" do
     conn = build_conn()
@@ -11,7 +11,7 @@ defmodule ElixirMedia.AlbumControllerTest do
 
     conn = get conn, album_path(conn, :index)
 
-    assert json_response(conn, 200) == render_json(ElixirMedia.AlbumView, "index.json", albums: [album])
+    assert json_response(conn, 200) == render_json(Elmira.AlbumView, "index.json", albums: [album])
   end
 
   test "#show renders a single album" do
@@ -20,6 +20,6 @@ defmodule ElixirMedia.AlbumControllerTest do
 
     conn = get conn, album_path(conn, :show, album)
 
-    assert json_response(conn, 200) == render_json(ElixirMedia.AlbumView, "show.json", album: album)
+    assert json_response(conn, 200) == render_json(Elmira.AlbumView, "show.json", album: album)
   end
 end

@@ -1,7 +1,7 @@
-defmodule ElixirMedia.ArtistController do
-  use ElixirMedia.Web, :controller
+defmodule Elmira.ArtistController do
+  use Elmira.Web, :controller
 
-  alias ElixirMedia.Artist
+  alias Elmira.Artist
 
   def index(conn, _params) do
     query = from a in Artist

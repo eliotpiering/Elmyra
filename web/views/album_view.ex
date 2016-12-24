@@ -1,5 +1,5 @@
-defmodule ElixirMedia.AlbumView do
-  use ElixirMedia.Web, :view
+defmodule Elmira.AlbumView do
+  use Elmira.Web, :view
 
   def render("index.json", %{albums: albums}) do
     %{
@@ -15,7 +15,7 @@ defmodule ElixirMedia.AlbumView do
 
   def render("songs.json", %{album: album}) do
     %{
-      songs: ElixirMedia.SongView.songs_json(album.songs),
+      songs: Elmira.SongView.songs_json(album.songs),
     }
   end
 

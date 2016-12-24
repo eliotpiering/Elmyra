@@ -1,10 +1,10 @@
-defmodule ElixirMedia.StreamController do
-  use ElixirMedia.Web, :controller
+defmodule Elmira.StreamController do
+  use Elmira.Web, :controller
 
-  alias ElixirMedia.Stream
+  alias Elmira.Stream
 
   def show(%{req_headers: headers} = conn, %{"id" => id}) do
-    song = Repo.get!(ElixirMedia.Song, id)
+    song = Repo.get!(Elmira.Song, id)
     path = song.path
     offset = get_offset(headers)
     file_size = get_file_size(path)
