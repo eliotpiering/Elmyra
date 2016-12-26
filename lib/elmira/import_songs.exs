@@ -1,5 +1,9 @@
 defmodule ImportSongs do
 
+  alias Elmira.Repo
+  import Ecto
+  import Ecto.Query
+
   #TODO test this
   def import(file_name) do
     case File.ls(file_name) do
@@ -42,10 +46,10 @@ defmodule ImportSongs do
   defp find_or_new_artist(artist_name) do
     #TODO figure out why artists imported with ? in name are duplicated,
     #### probably an encoding issue with apostrophes
-    repo_artist = Elmira.Repo.get_by(Elmira.Artist, title: artist_name)
+    repo_artist = Repo.get_by(Elmira.Artist, title: artist_name)
     if is_nil repo_artist do
       model = %Elmira.Artist{title: artist_name}
-      case Elmira.Repo.insert(model) do
+      case Repo.insert(model) do
         {:ok, artist} ->
           artist.id
         {:error, _changeset} ->
@@ -58,11 +62,13 @@ defmodule ImportSongs do
   end
 
   defp find_or_new_album(album_name, artist_id) do
-    query = from a in Elmira.Album, where: [title: album_name, artist_id: artist_id]
-    repo_album = (Elmira.Repo.all query) |> List.first
+    # query = from a in Elmira.Album, where: [title: ^album_name, artist_id: ^artist_id]
+    # repo_album = (Repo.all query) |> List.first
+    repo_album = Repo.get_by(Elmira.Album, title: album_name)
+
     if is_nil repo_album do
       model = %Elmira.Album{title: album_name}
-      case Elmira.Repo.insert(model) do
+      case Repo.insert(model) do
         {:ok, artist} ->
           artist.id
         {:error, _changeset} ->
@@ -79,12 +85,12 @@ defmodule ImportSongs do
     year = song.year || 0
     track = song.track || 0
 
-    query = from s in Elmira.Song, where: [title: song.title, album_id: album_id, artist_id: artist_id]
-    repo_song = (Elmira.Repo.all query) |> List.first
+    query = from s in Elmira.Song, where: [title: ^song.title, album_id: ^album_id, artist_id: ^artist_id]
+    repo_song = (Repo.all query) |> List.first
 
     if is_nil repo_song do
       model = %Elmira.Song{title: song.title, path: song.path, year: year, track: track, artist_id: artist_id, album_id: album_id}
-      Elmira.Repo.insert(model)
+      Repo.insert(model)
     end
   end
 

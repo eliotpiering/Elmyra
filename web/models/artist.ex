@@ -3,7 +3,7 @@ defmodule Elmira.Artist do
 
   schema "artists" do
     field :title
-    has_many :albums, Elmira.Album
+    many_to_many :albums, Elmira.Album, join_through: "artists_albums"
     has_many :songs, Elmira.Song
 
     timestamps
