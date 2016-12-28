@@ -5,8 +5,10 @@
     "evancz/url-parser": "2.0.1",
     "elm-community/array-extra": "1.0.2",
     "elm-lang/dom": "1.1.1",
+    "elm-lang/websocket": "1.0.2",
     "elm-lang/html": "2.0.0",
     "elm-lang/keyboard": "1.0.1",
+    "fbonetti/elm-phoenix-socket": "2.0.1",
     "elm-lang/http": "1.0.0",
     "elm-lang/core": "5.0.0"
 }

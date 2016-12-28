@@ -65,6 +65,11 @@ html, body {
     -webkit-user-select: none;
 }
 
+#chat-container {
+    position: absolute;
+    bottom: 0;
+}
+
 .scroll-box {
     overflow: auto;
     position: static;

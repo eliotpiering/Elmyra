@@ -13,10 +13,15 @@ import Mouse
 import MyModels exposing (..)
 import Queue
 import Browser
+import Chat
 import Helpers
 import ApiHelpers
 import Navigation exposing (Location)
 import NavigationParser exposing (..)
+import Phoenix.Socket as Socket exposing (Socket)
+import Phoenix.Channel
+import Phoenix.Push
+import Json.Encode as JE
 
 
 main : Program Never Model Msg
@@ -32,19 +37,56 @@ main =
 
 init : Location -> ( Model, Cmd Msg )
 init location =
-    ( initialModel, Cmd.none )
+    let
+        ( socket, socketCmd ) =
+            initialSocket
+    in
+        ( initialModel socket, Cmd.map PhoenixMsg socketCmd )
 
 
-initialModel : Model
-initialModel =
+type alias Model =
+    { browser : BrowserModel
+    , queue : QueueModel
+    , chat : Chat.ChatModel
+    , albumArt : String
+    , currentMousePos : { x : Int, y : Int }
+    , dragStart : Maybe MouseLocation
+    , keysBeingTyped : String
+    , isShiftDown : Bool
+    , socket : Socket Msg
+    }
+
+
+initialModel : Socket Msg -> Model
+initialModel socket =
     { queue = { currentSong = 0, array = Array.empty, mouseOver = False, mouseOverItem = 1 }
     , browser = Browser.initialModel
+    , chat = Chat.initialModel
     , albumArt = "nothing"
     , currentMousePos = { x = 0, y = 0 }
     , dragStart = Nothing
     , keysBeingTyped = ""
     , isShiftDown = False
+    , socket = socket
     }
+
+
+initialSocket : ( Socket Msg, Cmd (Socket.Msg Msg) )
+initialSocket =
+    Socket.init socketServer
+        |> Socket.withDebug
+        |> Socket.on "new:msg" "room:lobby" ReceiveChatMessage
+        |> Socket.join mainChannel
+
+
+socketServer : String
+socketServer =
+    "ws://localhost:4000/socket/websocket"
+
+
+mainChannel : Phoenix.Channel.Channel msg
+mainChannel =
+    Phoenix.Channel.init "room:lobby"
 
 
 
@@ -54,6 +96,8 @@ initialModel =
 type Msg
     = QueueMsg Queue.Msg
     | BrowserMsg Browser.Msg
+    | ChatMsg Chat.Msg
+    | ReceiveChatMessage JE.Value
     | UpdateSongs (Result Http.Error (List SongModel))
     | AddSongsToQueue (Result Http.Error (List SongModel))
     | AddSongToQueue (Result Http.Error SongModel)
@@ -67,6 +111,7 @@ type Msg
     | UpdateAlbumArt String
     | ResetKeysBeingTyped String
     | UrlUpdate Location
+    | PhoenixMsg (Socket.Msg Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -188,6 +233,38 @@ update action model =
 
                     Browser.None ->
                         ( model_, Cmd.none )
+
+        ChatMsg msg ->
+            let
+                ( chat_, chatCmd ) =
+                    Chat.update msg model.chat
+            in
+                case chatCmd of
+                    Chat.PushMessage str ->
+                        let
+                            payload =
+                                JE.object [ ( "body", JE.string str ) ]
+
+                            push_ =
+                                Phoenix.Push.init "new:msg" "room:lobby"
+                                    |> Phoenix.Push.withPayload payload
+
+                            ( socket_, socketCmd ) =
+                                Debug.log "socket and cmd are " <| Socket.push push_ model.socket
+                        in
+                            ( { model
+                                | chat = chat_
+                                , socket = socket_
+                              }
+                            , Cmd.map PhoenixMsg socketCmd
+                            )
+
+                    Chat.None ->
+                        ( { model
+                            | chat = chat_
+                          }
+                        , Cmd.none
+                        )
 
         UpdateSongs (Ok songs) ->
             let
@@ -384,6 +461,22 @@ update action model =
                 NotFoundRoute ->
                     ( model, Cmd.none )
 
+        PhoenixMsg msg ->
+            let
+                ( socket_, phxCmd ) =
+                    Socket.update msg model.socket
+            in
+                ( { model | socket = socket_ }
+                , Cmd.map PhoenixMsg phxCmd
+                )
+
+        ReceiveChatMessage raw ->
+            let
+                ( chat_, chatCmd ) =
+                    Chat.update (Chat.ReceiveMessage raw) model.chat
+            in
+                ( { model | chat = chat_ }, Cmd.none )
+
 
 currentMouseLocation : Model -> MouseLocation
 currentMouseLocation model =
@@ -409,6 +502,7 @@ subscriptions model =
         , Mouse.downs MouseDowns
         , Mouse.ups MouseUps
         , Mouse.moves MouseMoves
+        , Socket.listen model.socket PhoenixMsg
         ]
 
 
@@ -417,6 +511,7 @@ view model =
     Html.div [ Attr.id "main-container" ]
         [ browserView model
         , queueView model
+        , chatView model
         ]
 
 
@@ -446,3 +541,8 @@ queueView model =
                     Nothing
     in
         Html.map QueueMsg (Queue.view maybeMousePos model.queue)
+
+
+chatView : Model -> Html Msg
+chatView model =
+    Html.map ChatMsg (Chat.view model.chat)

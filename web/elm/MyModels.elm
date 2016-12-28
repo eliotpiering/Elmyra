@@ -2,17 +2,7 @@ module MyModels exposing (..)
 
 import Array exposing (Array)
 import Dict exposing (Dict)
-
-
-type alias Model =
-    { browser : BrowserModel
-    , queue : QueueModel
-    , albumArt : String
-    , currentMousePos : { x : Int, y : Int }
-    , dragStart : Maybe MouseLocation
-    , keysBeingTyped : String
-    , isShiftDown : Bool
-    }
+import Phoenix.Socket as Socket exposing (Socket)
 
 
 type alias SongModel =

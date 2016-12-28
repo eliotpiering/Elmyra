@@ -1,7 +1,3 @@
-var _user$project$MyModels$Model = F7(
-	function (a, b, c, d, e, f, g) {
-		return {browser: a, queue: b, albumArt: c, currentMousePos: d, dragStart: e, keysBeingTyped: f, isShiftDown: g};
-	});
 var _user$project$MyModels$SongModel = F6(
 	function (a, b, c, d, e, f) {
 		return {id: a, path: b, title: c, artist: d, album: e, track: f};

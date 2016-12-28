@@ -2,7 +2,7 @@ defmodule Elmira.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", Elmira.RoomChannel
+  channel "room:*", Elmira.RoomChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
@@ -19,7 +19,9 @@ defmodule Elmira.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
+  def connect(params, socket) do
+    IO.puts "connect-----------------------"
+    IO.inspect params
     {:ok, socket}
   end
 
