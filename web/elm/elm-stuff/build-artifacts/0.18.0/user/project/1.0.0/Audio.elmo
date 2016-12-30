@@ -85,6 +85,7 @@ var _user$project$Audio$streamPath = function (id) {
 			'stream/',
 			_elm_lang$core$Basics$toString(id)));
 };
+var _user$project$Audio$NextSong = {ctor: 'NextSong'};
 var _user$project$Audio$htmlAudio = function (id) {
 	return A2(
 		_elm_lang$html$Html$audio,
@@ -101,7 +102,14 @@ var _user$project$Audio$htmlAudio = function (id) {
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$html$Html_Attributes$autoplay(true),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html_Events$on,
+								'ended',
+								_elm_lang$core$Json_Decode$succeed(_user$project$Audio$NextSong)),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
@@ -118,19 +126,18 @@ var _user$project$Audio$view = function (model) {
 		},
 		{
 			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$div,
-				{ctor: '[]'},
-				{
+			_0: _user$project$Audio$currentSongInfo(model),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$br,
+					{ctor: '[]'},
+					{ctor: '[]'}),
+				_1: {
 					ctor: '::',
 					_0: _user$project$Audio$htmlAudio(model.id),
-					_1: {
-						ctor: '::',
-						_0: _user$project$Audio$currentSongInfo(model),
-						_1: {ctor: '[]'}
-					}
-				}),
-			_1: {ctor: '[]'}
+					_1: {ctor: '[]'}
+				}
+			}
 		});
 };
-var _user$project$Audio$NextSong = {ctor: 'NextSong'};

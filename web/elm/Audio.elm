@@ -1,21 +1,19 @@
-module Audio exposing (view, Msg)
+module Audio exposing (..)
 
 import Html exposing (Html)
 import Html.Events as Events
 import Html.Attributes as Attr
-import Json.Decode as JsonD exposing (Decoder)
-import MyStyle
-import Array
+import Json.Decode as JD exposing (Decoder)
 import MyModels
-import Helpers
 import ApiHelpers
 
 
 type alias Model =
     MyModels.SongModel
 
-type Msg = NextSong
 
+type Msg
+    = NextSong
 
 streamPath : Int -> String
 streamPath id =
@@ -25,10 +23,9 @@ streamPath id =
 view : Model -> Html Msg
 view model =
     Html.div [ Attr.id "audio-view-container" ]
-        [ Html.div []
-            [ htmlAudio model.id
-            , currentSongInfo model
-            ]
+        [ currentSongInfo model
+        , Html.br [] []
+        , htmlAudio model.id
         ]
 
 
@@ -39,7 +36,7 @@ htmlAudio id =
         , Attr.type_ "audio/mp3"
         , Attr.controls True
         , Attr.autoplay True
-        -- , Events.on "ended" (JsonD.succeed NextSong)
+        , Events.on "ended" (JD.succeed NextSong)
         ]
         []
 

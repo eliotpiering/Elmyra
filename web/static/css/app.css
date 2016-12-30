@@ -1,90 +1,105 @@
+/* Reset Styles */
+html, body, div, span,
+h1, h2, h3, h4, h5, h6, p, a, ul, li
+table, tbody, tfoot, thead, tr, th, td, audio
+{
+	  margin: 0;
+	  padding: 0;
+	  border: 0;
+	  font-size: 100%;
+	  font: inherit;
+	  vertical-align: baseline;
+    -webkit-user-select: none;
+}
+
+body {
+	  line-height: 1;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+table {
+	  border-collapse: collapse;
+	  border-spacing: 0;
+}
+
 /* blue    pale    light grey  grey    dark grey */
 /* #004489 #E1E1D6 #D3D9DF     #989898 #565656  */
-
-html, body {
-    overflow: hidden;
-  	font: 14px Montserrat;
-    background-color: #D3D9DF;
-}
-
+/* -------------------------------------
+    Main styles
+--------------------------------------- */
 #main-container {
-    width: 100%; 
-    height: 100%; 
-    overflow: hidden; 
+  	font: 14px Montserrat;
+  	overflow: hidden;
+    background-color: #D3D9DF;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-flow: row wrap;
 }
 
-#audio-view-container {
-    position: fixed;
-    margin: 0px;
-    top: 0px;
-    right: 0px;
-    height: 140px; 
-    width: 50%; 
-    background-color: #565656;
-}
+
+/* -------------------------------------
+    Left side Browser styles
+--------------------------------------- */
 
 #file-view-container {
-    position: fixed;
-    margin: 0px;
-    top: 150px;
-    left: 0px;
-    width: 49%; 
-    float: left; 
-    height: 100%; 
-    -webkit-user-select: none;
+    order: 1;
+    flex: 1 49%;
+}
+
+#browser-list {
+    height: 90vh;
+    padding-left: 30px;
+}
+#browser-list ul>li:nth-child(even) {
+    background-color: #E1E1D6;
 }
 
 #navigation-view-container {
-    position: fixed;
-    margin: 0px;
-    top: 0px;
-    left: 0px;
-    height: 105px;
-    padding-top: 35px;
-    width: 50%;
-    -webkit-user-select: none;
-    list-style: none;
     background-color: #565656;
     color: white;
-    z-index: 99;
+    height: 10vh;
 }
 
 #navigation-view-container li {
     padding-bottom: 8px;
+    background-color: #989898;
+    display: inline-block;
+    padding: 10px;
+    margin: 5px 2px 5px 2px;
+    border-radius: 15px;
 }
 
+
+/* -----------------------------------
+   Right side Queue styles
+------------------------------------ */
 #queue-view-container {
-    position: fixed;
-    margin: 0px;
-    top: 150px;
-    right: 0px;
-    width: 49%; 
-    max-height: 100%;
-    float: left; 
-    min-height: 400px;
-    -webkit-user-select: none;
+    flex: 1 49%;
+    order: 2;
 }
 
-#chat-container {
-    position: absolute;
-    bottom: 0;
+#queue-view-container ul>li:nth-child(even) {
+    background-color: #E1E1D6;
 }
 
-.scroll-box {
-    overflow: auto;
-    position: static;
+#queue-list {
+    height: 90vh;
+    padding-left: 30px;
 }
 
-#audio-view-container > div {
-    text-align: center;
+#audio-view-container {
+    background-color: #565656;
+    height: 10vh;
     color: white;
-    display: block;
-    margin-top: 15px;
+    text-align: center;
 }
 
-#audio-view-container audio, #audio-view-container table {
-    margin-left: auto;
-    margin-right: auto;
+#audio-view-container table {
+    margin: auto;
 }
 
 #audio-view-container td {
@@ -92,42 +107,51 @@ html, body {
 }
 
 
-#file-view-container ul {
-    list-style: none;
-    -webkit-user-select: none;
+/* -----------------------------------
+    Styles for the Chat box
+----------------------------------- */
+#chat-container {
+    order: 3;
+    flex: 0 0 auto;
+    position: fixed;
+    bottom: 0;
+    height: 15vh;
+    width: 100vw;
+    z-index: 100;
+    background-color: #565656;
+    color: #E1E1D6;
+    padding-left: 30px;
+    padding-top: 15px;
 }
 
-#file-view-container ul>li:nth-child(even) {
-    background-color: #E1E1D6;
+#chat-message-list {
 }
 
-#queue-view-container ul {
-    margin: 0px;
-    list-style: none;
-    -webkit-user-select: none;
+#chat-container input {
+    width: 80%;
 }
 
-#queue-view-container ul>li:nth-child(even) {
-    background-color: #E1E1D6;
+/* ------------------------------------
+   Utility Styles
+------------------------------------ */
+.scroll-box {
+    overflow: scroll;
+    -webkit-overflow-scrolling: touch;
 }
 
 .song-item, .group-item {
     padding-top: 5px;
     padding-bottom: 5px;
-    -webkit-user-select: none;
 }
 
 .button {
-    position: relative;
     padding: 10%;
     width: 80%;
 }
 
 .button-container {
-    width: 33%; 
-    float: left; 
-    padding: auto; 
-    margin: auto; 
-    text-align: center;
+    width: 33%;
+    float: left;
+    padding: auto;
 }
 

@@ -7,9 +7,6 @@ import MyModels exposing (..)
 import MyStyle exposing (..)
 import Array exposing (Array)
 import SortSongs
-import Dict exposing (Dict)
-import Http
-import Helpers
 import Array.Extra
 import Audio
 import QueueItem
@@ -162,22 +159,7 @@ update msg model =
                         model
 
         NextSong ->
-            let
-                shouldReset =
-                    model.currentSong >= (Array.length model.array) - 1
-            in
-                if shouldReset then
-                    { model
-                        | currentSong = 0
-                    }
-                else
-                    let
-                        newCurrentSong =
-                            model.currentSong + 1
-                    in
-                        { model
-                            | currentSong = newCurrentSong
-                        }
+            nextSong model
 
         PreviousSong ->
             let
@@ -202,7 +184,29 @@ update msg model =
                         }
 
         AudioMsg msg ->
-            model
+            case msg of
+                Audio.NextSong ->
+                    nextSong model
+
+
+nextSong : QueueModel -> QueueModel
+nextSong model =
+    let
+        shouldReset =
+            model.currentSong >= (Array.length model.array) - 1
+    in
+        if shouldReset then
+            { model
+                | currentSong = 0
+            }
+        else
+            let
+                newCurrentSong =
+                    model.currentSong + 1
+            in
+                { model
+                    | currentSong = newCurrentSong
+                }
 
 
 resetQueue : Array QueueItemModel -> Array QueueItemModel
@@ -218,16 +222,20 @@ itemToHtml maybePos currentSong ( id, song ) =
 view : Maybe Pos -> QueueModel -> Html Msg
 view maybePos model =
     Html.div
-        [ Attr.id "queue-view-container"
-        , Attr.class "scroll-box"
-        , Events.onMouseEnter MouseEnter
-        , Events.onMouseLeave MouseLeave
-        , MyStyle.mouseOver model.mouseOver
-        ]
+        [ Attr.id "queue-view-container" ]
         [ audioPlayer <| getMaybeCurrentSong model
-        , Html.ul [] <|
+        , Html.ul
+            [ Attr.class "scroll-box"
+            , Attr.id "queue-list"
+            , Events.onMouseEnter MouseEnter
+            , Events.onMouseLeave MouseLeave
+            , MyStyle.mouseOver model.mouseOver
+            ]
+          <|
             Array.toList <|
-                Array.indexedMap ((\id item -> itemToHtml maybePos model.currentSong ( id, item ))) model.array
+                Array.indexedMap
+                    ((\id item -> itemToHtml maybePos model.currentSong ( id, item )))
+                    model.array
         ]
 
 

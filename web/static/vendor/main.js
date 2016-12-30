@@ -11823,6 +11823,150 @@ var _user$project$ApiHelpers$fetchAllAlbums = function (successAction) {
 		A2(_elm_lang$http$Http$get, url, _user$project$ApiHelpers$albumsDecoder));
 };
 
+var _user$project$Audio$tableItem = function (str) {
+	return A2(
+		_elm_lang$html$Html$td,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text(str),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$Audio$tableHeaderItem = function (str) {
+	return A2(
+		_elm_lang$html$Html$th,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text(str),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$Audio$currentSongInfo = function (model) {
+	return A2(
+		_elm_lang$html$Html$table,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$thead,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$tr,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _user$project$Audio$tableHeaderItem('Artist'),
+							_1: {
+								ctor: '::',
+								_0: _user$project$Audio$tableHeaderItem('Album'),
+								_1: {
+									ctor: '::',
+									_0: _user$project$Audio$tableHeaderItem('Song'),
+									_1: {ctor: '[]'}
+								}
+							}
+						}),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$tbody,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$tr,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _user$project$Audio$tableItem(model.artist),
+								_1: {
+									ctor: '::',
+									_0: _user$project$Audio$tableItem(model.album),
+									_1: {
+										ctor: '::',
+										_0: _user$project$Audio$tableItem(model.title),
+										_1: {ctor: '[]'}
+									}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Audio$streamPath = function (id) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		_user$project$ApiHelpers$apiEndpoint,
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'stream/',
+			_elm_lang$core$Basics$toString(id)));
+};
+var _user$project$Audio$NextSong = {ctor: 'NextSong'};
+var _user$project$Audio$htmlAudio = function (id) {
+	return A2(
+		_elm_lang$html$Html$audio,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$src(
+				_user$project$Audio$streamPath(id)),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$type_('audio/mp3'),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$controls(true),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$autoplay(true),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html_Events$on,
+								'ended',
+								_elm_lang$core$Json_Decode$succeed(_user$project$Audio$NextSong)),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
+			}
+		},
+		{ctor: '[]'});
+};
+var _user$project$Audio$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$id('audio-view-container'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _user$project$Audio$currentSongInfo(model),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$br,
+					{ctor: '[]'},
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: _user$project$Audio$htmlAudio(model.id),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
+
 var _user$project$MyStyle$darkGrey = '#565656';
 var _user$project$MyStyle$dragging = F2(
 	function (maybeDragPos, isSelected) {
@@ -11954,6 +12098,117 @@ var _user$project$MyStyle$currentSong = function (isCurrentSong) {
 var _user$project$MyStyle$none = _elm_lang$html$Html_Attributes$style(
 	{ctor: '[]'});
 
+var _user$project$Item$commonHtml = F3(
+	function (model, maybeDragPos, data) {
+		return {
+			ctor: '::',
+			_0: _elm_lang$html$Html$text(data.title),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{
+						ctor: '::',
+						_0: A2(_user$project$MyStyle$dragging, maybeDragPos, model.isSelected),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(data.title),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		};
+	});
+var _user$project$Item$Pos = F2(
+	function (a, b) {
+		return {x: a, y: b};
+	});
+var _user$project$Item$Reset = {ctor: 'Reset'};
+var _user$project$Item$ItemDoubleClicked = {ctor: 'ItemDoubleClicked'};
+var _user$project$Item$ItemClicked = {ctor: 'ItemClicked'};
+var _user$project$Item$commonAttrubutes = function (model) {
+	return {
+		ctor: '::',
+		_0: _elm_lang$html$Html_Events$onMouseDown(_user$project$Item$ItemClicked),
+		_1: {
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onDoubleClick(_user$project$Item$ItemDoubleClicked),
+			_1: {
+				ctor: '::',
+				_0: _user$project$MyStyle$isSelected(model.isSelected),
+				_1: {
+					ctor: '::',
+					_0: _user$project$MyStyle$mouseOver(model.isMouseOver),
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	};
+};
+var _user$project$Item$view = F3(
+	function (maybeDragPos, id, model) {
+		var _p0 = model.data;
+		if (_p0.ctor === 'Song') {
+			return A2(
+				_elm_lang$html$Html$li,
+				A2(
+					_elm_lang$core$List$append,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('song-item'),
+						_1: {ctor: '[]'}
+					},
+					_user$project$Item$commonAttrubutes(model)),
+				A3(_user$project$Item$commonHtml, model, maybeDragPos, _p0._0));
+		} else {
+			return A2(
+				_elm_lang$html$Html$li,
+				A2(
+					_elm_lang$core$List$append,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('group-item'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$id(
+								A2(_elm_lang$core$Basics_ops['++'], 'group-item-', id)),
+							_1: {ctor: '[]'}
+						}
+					},
+					_user$project$Item$commonAttrubutes(model)),
+				A3(_user$project$Item$commonHtml, model, maybeDragPos, _p0._0));
+		}
+	});
+var _user$project$Item$None = {ctor: 'None'};
+var _user$project$Item$Clicked = {ctor: 'Clicked'};
+var _user$project$Item$DoubleClicked = {ctor: 'DoubleClicked'};
+var _user$project$Item$update = F2(
+	function (msg, model) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
+			case 'ItemClicked':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{isSelected: !model.isSelected}),
+					_1: _user$project$Item$Clicked
+				};
+			case 'ItemDoubleClicked':
+				return {ctor: '_Tuple2', _0: model, _1: _user$project$Item$DoubleClicked};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{isSelected: false}),
+					_1: _user$project$Item$None
+				};
+		}
+	});
+
 var _user$project$Port$scrollToElement = _elm_lang$core$Native_Platform.outgoingPort(
 	'scrollToElement',
 	function (v) {
@@ -12072,254 +12327,6 @@ var _user$project$Helpers$itemListToSongItemList = function (itemModels) {
 		{ctor: '[]'},
 		itemModels);
 };
-
-var _user$project$Audio$tableItem = function (str) {
-	return A2(
-		_elm_lang$html$Html$td,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(str),
-			_1: {ctor: '[]'}
-		});
-};
-var _user$project$Audio$tableHeaderItem = function (str) {
-	return A2(
-		_elm_lang$html$Html$th,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(str),
-			_1: {ctor: '[]'}
-		});
-};
-var _user$project$Audio$currentSongInfo = function (model) {
-	return A2(
-		_elm_lang$html$Html$table,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$thead,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$tr,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: _user$project$Audio$tableHeaderItem('Artist'),
-							_1: {
-								ctor: '::',
-								_0: _user$project$Audio$tableHeaderItem('Album'),
-								_1: {
-									ctor: '::',
-									_0: _user$project$Audio$tableHeaderItem('Song'),
-									_1: {ctor: '[]'}
-								}
-							}
-						}),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$tbody,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$tr,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _user$project$Audio$tableItem(model.artist),
-								_1: {
-									ctor: '::',
-									_0: _user$project$Audio$tableItem(model.album),
-									_1: {
-										ctor: '::',
-										_0: _user$project$Audio$tableItem(model.title),
-										_1: {ctor: '[]'}
-									}
-								}
-							}),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			}
-		});
-};
-var _user$project$Audio$streamPath = function (id) {
-	return A2(
-		_elm_lang$core$Basics_ops['++'],
-		_user$project$ApiHelpers$apiEndpoint,
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			'stream/',
-			_elm_lang$core$Basics$toString(id)));
-};
-var _user$project$Audio$htmlAudio = function (id) {
-	return A2(
-		_elm_lang$html$Html$audio,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$src(
-				_user$project$Audio$streamPath(id)),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$type_('audio/mp3'),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$controls(true),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$autoplay(true),
-						_1: {ctor: '[]'}
-					}
-				}
-			}
-		},
-		{ctor: '[]'});
-};
-var _user$project$Audio$view = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$id('audio-view-container'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$div,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: _user$project$Audio$htmlAudio(model.id),
-					_1: {
-						ctor: '::',
-						_0: _user$project$Audio$currentSongInfo(model),
-						_1: {ctor: '[]'}
-					}
-				}),
-			_1: {ctor: '[]'}
-		});
-};
-var _user$project$Audio$NextSong = {ctor: 'NextSong'};
-
-var _user$project$Item$commonHtml = F3(
-	function (model, maybeDragPos, data) {
-		return {
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(data.title),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$span,
-					{
-						ctor: '::',
-						_0: A2(_user$project$MyStyle$dragging, maybeDragPos, model.isSelected),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(data.title),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			}
-		};
-	});
-var _user$project$Item$Pos = F2(
-	function (a, b) {
-		return {x: a, y: b};
-	});
-var _user$project$Item$Reset = {ctor: 'Reset'};
-var _user$project$Item$ItemDoubleClicked = {ctor: 'ItemDoubleClicked'};
-var _user$project$Item$ItemClicked = {ctor: 'ItemClicked'};
-var _user$project$Item$commonAttrubutes = function (model) {
-	return {
-		ctor: '::',
-		_0: _elm_lang$html$Html_Events$onMouseDown(_user$project$Item$ItemClicked),
-		_1: {
-			ctor: '::',
-			_0: _elm_lang$html$Html_Events$onDoubleClick(_user$project$Item$ItemDoubleClicked),
-			_1: {
-				ctor: '::',
-				_0: _user$project$MyStyle$isSelected(model.isSelected),
-				_1: {
-					ctor: '::',
-					_0: _user$project$MyStyle$mouseOver(model.isMouseOver),
-					_1: {ctor: '[]'}
-				}
-			}
-		}
-	};
-};
-var _user$project$Item$view = F3(
-	function (maybeDragPos, id, model) {
-		var _p0 = model.data;
-		if (_p0.ctor === 'Song') {
-			return A2(
-				_elm_lang$html$Html$li,
-				A2(
-					_elm_lang$core$List$append,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('song-item'),
-						_1: {ctor: '[]'}
-					},
-					_user$project$Item$commonAttrubutes(model)),
-				A3(_user$project$Item$commonHtml, model, maybeDragPos, _p0._0));
-		} else {
-			return A2(
-				_elm_lang$html$Html$li,
-				A2(
-					_elm_lang$core$List$append,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('group-item'),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$id(
-								A2(_elm_lang$core$Basics_ops['++'], 'group-item-', id)),
-							_1: {ctor: '[]'}
-						}
-					},
-					_user$project$Item$commonAttrubutes(model)),
-				A3(_user$project$Item$commonHtml, model, maybeDragPos, _p0._0));
-		}
-	});
-var _user$project$Item$None = {ctor: 'None'};
-var _user$project$Item$Clicked = {ctor: 'Clicked'};
-var _user$project$Item$DoubleClicked = {ctor: 'DoubleClicked'};
-var _user$project$Item$update = F2(
-	function (msg, model) {
-		var _p1 = msg;
-		switch (_p1.ctor) {
-			case 'ItemClicked':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{isSelected: !model.isSelected}),
-					_1: _user$project$Item$Clicked
-				};
-			case 'ItemDoubleClicked':
-				return {ctor: '_Tuple2', _0: model, _1: _user$project$Item$DoubleClicked};
-			default:
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{isSelected: false}),
-					_1: _user$project$Item$None
-				};
-		}
-	});
 
 var _user$project$SortSongs$byGroupTitle = _elm_lang$core$List$sortWith(
 	F2(
@@ -12444,7 +12451,7 @@ var _user$project$Browser$navigationView = A2(
 			},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text('Group By album'),
+				_0: _elm_lang$html$Html$text('Albums'),
 				_1: {ctor: '[]'}
 			}),
 		_1: {
@@ -12459,7 +12466,7 @@ var _user$project$Browser$navigationView = A2(
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('Group By artist'),
+					_0: _elm_lang$html$Html$text('Artists'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -12474,7 +12481,7 @@ var _user$project$Browser$navigationView = A2(
 					},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text('Group By song'),
+						_0: _elm_lang$html$Html$text('Songs'),
 						_1: {ctor: '[]'}
 					}),
 				_1: {ctor: '[]'}
@@ -12507,23 +12514,7 @@ var _user$project$Browser$view = F2(
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$id('file-view-container'),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('scroll-box'),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onMouseEnter(_user$project$Browser$MouseEnter),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onMouseLeave(_user$project$Browser$MouseLeave),
-							_1: {
-								ctor: '::',
-								_0: _user$project$MyStyle$mouseOver(model.isMouseOver),
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				}
+				_1: {ctor: '[]'}
 			},
 			{
 				ctor: '::',
@@ -12532,7 +12523,27 @@ var _user$project$Browser$view = F2(
 					ctor: '::',
 					_0: A2(
 						_elm_lang$html$Html$ul,
-						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('scroll-box'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$id('browser-list'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onMouseEnter(_user$project$Browser$MouseEnter),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onMouseLeave(_user$project$Browser$MouseLeave),
+										_1: {
+											ctor: '::',
+											_0: _user$project$MyStyle$mouseOver(model.isMouseOver),
+											_1: {ctor: '[]'}
+										}
+									}
+								}
+							}
+						},
 						A2(
 							_elm_lang$core$List$map,
 							_user$project$Browser$itemToHtml(maybePos),
@@ -12668,11 +12679,7 @@ var _user$project$Browser$update = F3(
 
 var _user$project$Chat$chatMessageDecoder = A2(_elm_lang$core$Json_Decode$field, 'body', _elm_lang$core$Json_Decode$string);
 var _user$project$Chat$initialModel = {
-	messages: {
-		ctor: '::',
-		_0: 'hello this is a message',
-		_1: {ctor: '[]'}
-	},
+	messages: {ctor: '[]'},
 	newMessage: ''
 };
 var _user$project$Chat$ChatModel = F2(
@@ -12721,7 +12728,11 @@ var _user$project$Chat$view = function (model) {
 		{
 			ctor: '::',
 			_0: _elm_lang$html$Html_Attributes$id('chat-container'),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('scroll-box'),
+				_1: {ctor: '[]'}
+			}
 		},
 		{
 			ctor: '::',
@@ -12730,7 +12741,11 @@ var _user$project$Chat$view = function (model) {
 				ctor: '::',
 				_0: A2(
 					_elm_lang$html$Html$ul,
-					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$id('chat-message-list'),
+						_1: {ctor: '[]'}
+					},
 					A2(
 						_elm_lang$core$List$map,
 						function (message) {
@@ -12918,6 +12933,21 @@ var _user$project$Queue$resetQueue = _elm_lang$core$Array$map(
 		return _elm_lang$core$Tuple$first(
 			A2(_user$project$QueueItem$update, _user$project$QueueItem$Reset, _p1));
 	});
+var _user$project$Queue$nextSong = function (model) {
+	var shouldReset = _elm_lang$core$Native_Utils.cmp(
+		model.currentSong,
+		_elm_lang$core$Array$length(model.array) - 1) > -1;
+	if (shouldReset) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{currentSong: 0});
+	} else {
+		var newCurrentSong = model.currentSong + 1;
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{currentSong: newCurrentSong});
+	}
+};
 var _user$project$Queue$update = F2(
 	function (msg, model) {
 		var _p2 = msg;
@@ -13050,19 +13080,7 @@ var _user$project$Queue$update = F2(
 					return model;
 				}
 			case 'NextSong':
-				var shouldReset = _elm_lang$core$Native_Utils.cmp(
-					model.currentSong,
-					_elm_lang$core$Array$length(model.array) - 1) > -1;
-				if (shouldReset) {
-					return _elm_lang$core$Native_Utils.update(
-						model,
-						{currentSong: 0});
-				} else {
-					var newCurrentSong = model.currentSong + 1;
-					return _elm_lang$core$Native_Utils.update(
-						model,
-						{currentSong: newCurrentSong});
-				}
+				return _user$project$Queue$nextSong(model);
 			case 'PreviousSong':
 				var shouldReset = _elm_lang$core$Native_Utils.eq(model.currentSong, 0);
 				if (shouldReset) {
@@ -13077,7 +13095,8 @@ var _user$project$Queue$update = F2(
 						{currentSong: newCurrentSong});
 				}
 			default:
-				return model;
+				var _p16 = _p2._0;
+				return _user$project$Queue$nextSong(model);
 		}
 	});
 var _user$project$Queue$Pos = F2(
@@ -13095,12 +13114,12 @@ var _user$project$Queue$AudioMsg = function (a) {
 	return {ctor: 'AudioMsg', _0: a};
 };
 var _user$project$Queue$audioPlayer = function (maybeSong) {
-	var _p16 = maybeSong;
-	if (_p16.ctor === 'Just') {
+	var _p17 = maybeSong;
+	if (_p17.ctor === 'Just') {
 		return A2(
 			_elm_lang$html$Html$map,
 			_user$project$Queue$AudioMsg,
-			_user$project$Audio$view(_p16._0));
+			_user$project$Audio$view(_p17._0));
 	} else {
 		return A2(
 			_elm_lang$html$Html$div,
@@ -13117,18 +13136,18 @@ var _user$project$Queue$QueueItemMsg = F2(
 		return {ctor: 'QueueItemMsg', _0: a, _1: b};
 	});
 var _user$project$Queue$itemToHtml = F3(
-	function (maybePos, currentSong, _p17) {
-		var _p18 = _p17;
-		var _p19 = _p18._0;
+	function (maybePos, currentSong, _p18) {
+		var _p19 = _p18;
+		var _p20 = _p19._0;
 		return A2(
 			_elm_lang$html$Html$map,
-			_user$project$Queue$QueueItemMsg(_p19),
+			_user$project$Queue$QueueItemMsg(_p20),
 			A4(
 				_user$project$QueueItem$view,
 				maybePos,
-				_elm_lang$core$Native_Utils.eq(_p19, currentSong),
-				_elm_lang$core$Basics$toString(_p19),
-				_p18._1));
+				_elm_lang$core$Native_Utils.eq(_p20, currentSong),
+				_elm_lang$core$Basics$toString(_p20),
+				_p19._1));
 	});
 var _user$project$Queue$MouseLeave = {ctor: 'MouseLeave'};
 var _user$project$Queue$MouseEnter = {ctor: 'MouseEnter'};
@@ -13139,23 +13158,7 @@ var _user$project$Queue$view = F2(
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$id('queue-view-container'),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('scroll-box'),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onMouseEnter(_user$project$Queue$MouseEnter),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onMouseLeave(_user$project$Queue$MouseLeave),
-							_1: {
-								ctor: '::',
-								_0: _user$project$MyStyle$mouseOver(model.mouseOver),
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				}
+				_1: {ctor: '[]'}
 			},
 			{
 				ctor: '::',
@@ -13165,7 +13168,27 @@ var _user$project$Queue$view = F2(
 					ctor: '::',
 					_0: A2(
 						_elm_lang$html$Html$ul,
-						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('scroll-box'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$id('queue-list'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onMouseEnter(_user$project$Queue$MouseEnter),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onMouseLeave(_user$project$Queue$MouseLeave),
+										_1: {
+											ctor: '::',
+											_0: _user$project$MyStyle$mouseOver(model.mouseOver),
+											_1: {ctor: '[]'}
+										}
+									}
+								}
+							}
+						},
 						_elm_lang$core$Array$toList(
 							A2(
 								_elm_lang$core$Array$indexedMap,

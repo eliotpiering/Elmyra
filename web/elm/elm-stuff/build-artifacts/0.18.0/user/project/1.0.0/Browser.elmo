@@ -31,7 +31,7 @@ var _user$project$Browser$navigationView = A2(
 			},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text('Group By album'),
+				_0: _elm_lang$html$Html$text('Albums'),
 				_1: {ctor: '[]'}
 			}),
 		_1: {
@@ -46,7 +46,7 @@ var _user$project$Browser$navigationView = A2(
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('Group By artist'),
+					_0: _elm_lang$html$Html$text('Artists'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -61,7 +61,7 @@ var _user$project$Browser$navigationView = A2(
 					},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text('Group By song'),
+						_0: _elm_lang$html$Html$text('Songs'),
 						_1: {ctor: '[]'}
 					}),
 				_1: {ctor: '[]'}
@@ -94,23 +94,7 @@ var _user$project$Browser$view = F2(
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$id('file-view-container'),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('scroll-box'),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onMouseEnter(_user$project$Browser$MouseEnter),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onMouseLeave(_user$project$Browser$MouseLeave),
-							_1: {
-								ctor: '::',
-								_0: _user$project$MyStyle$mouseOver(model.isMouseOver),
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				}
+				_1: {ctor: '[]'}
 			},
 			{
 				ctor: '::',
@@ -119,7 +103,27 @@ var _user$project$Browser$view = F2(
 					ctor: '::',
 					_0: A2(
 						_elm_lang$html$Html$ul,
-						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('scroll-box'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$id('browser-list'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onMouseEnter(_user$project$Browser$MouseEnter),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onMouseLeave(_user$project$Browser$MouseLeave),
+										_1: {
+											ctor: '::',
+											_0: _user$project$MyStyle$mouseOver(model.isMouseOver),
+											_1: {ctor: '[]'}
+										}
+									}
+								}
+							}
+						},
 						A2(
 							_elm_lang$core$List$map,
 							_user$project$Browser$itemToHtml(maybePos),

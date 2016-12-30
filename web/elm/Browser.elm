@@ -114,13 +114,15 @@ view : Maybe Pos -> BrowserModel -> Html Msg
 view maybePos model =
     Html.div
         [ Attr.id "file-view-container"
-        , Attr.class "scroll-box"
-        , Events.onMouseEnter MouseEnter
-        , Events.onMouseLeave MouseLeave
-        , MyStyle.mouseOver model.isMouseOver
         ]
         [ navigationView
-        , Html.ul []
+        , Html.ul
+            [ Attr.class "scroll-box"
+            , Attr.id "browser-list"
+            , Events.onMouseEnter MouseEnter
+            , Events.onMouseLeave MouseLeave
+            , MyStyle.mouseOver model.isMouseOver
+            ]
             (List.map (itemToHtml maybePos) <| SortSongs.byGroupTitle <| Dict.toList model.items)
         ]
 
@@ -133,7 +135,7 @@ itemToHtml maybePos ( id, item ) =
 navigationView : Html Msg
 navigationView =
     Html.ul [ Attr.id "navigation-view-container" ]
-        [ Html.li [ Events.onClick (GroupBy "album") ] [ Html.text "Group By album" ]
-        , Html.li [ Events.onClick (GroupBy "artist") ] [ Html.text "Group By artist" ]
-        , Html.li [ Events.onClick (GroupBy "song") ] [ Html.text "Group By song" ]
+        [ Html.li [ Events.onClick (GroupBy "album") ] [ Html.text "Albums" ]
+        , Html.li [ Events.onClick (GroupBy "artist") ] [ Html.text "Artists" ]
+        , Html.li [ Events.onClick (GroupBy "song") ] [ Html.text "Songs" ]
         ]

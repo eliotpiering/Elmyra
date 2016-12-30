@@ -15,7 +15,7 @@ type alias ChatModel =
 
 initialModel : ChatModel
 initialModel =
-    { messages = [ "hello this is a message" ], newMessage = "" }
+    { messages = [], newMessage = "" }
 
 
 type Msg
@@ -56,9 +56,9 @@ update action model =
 
 view : ChatModel -> Html Msg
 view model =
-    Html.div [ Attr.id "chat-container" ]
+    Html.div [ Attr.id "chat-container", Attr.class "scroll-box" ]
         [ newMessageForm model
-        , Html.ul []
+        , Html.ul [Attr.id "chat-message-list"]
             (List.map
                 (\message ->
                     Html.li [] [ Html.text message ]
