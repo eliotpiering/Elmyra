@@ -62,31 +62,10 @@ update msg model =
 
         Drop newSongs ->
             let
-                left =
-                    Array.slice 0 model.mouseOverItem model.array
-
-                right =
-                    Array.slice model.mouseOverItem (Array.length model.array) model.array
-
-                newArrayItems =
-                    Array.fromList <| SortSongs.byAlbumAndTrack newSongs
-
-                currentQueueIndex =
-                    model.currentSong
-
-                newQueueIndex =
-                    if currentQueueIndex > model.mouseOverItem then
-                        currentQueueIndex + (Array.length newArrayItems)
-                    else
-                        currentQueueIndex
+              newArrayItems =
+                Array.fromList <| SortSongs.byAlbumAndTrack newSongs
             in
-                { model
-                    | array =
-                        resetQueue <|
-                            Array.append left <|
-                                Array.append newArrayItems right
-                    , currentSong = newQueueIndex
-                }
+                { model | array = resetQueue <| Array.append model.array newArrayItems }
 
         Reorder ->
             let

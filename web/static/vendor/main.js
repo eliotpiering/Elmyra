@@ -12997,25 +12997,13 @@ var _user$project$Queue$update = F2(
 					return model;
 				}
 			case 'Drop':
-				var currentQueueIndex = model.currentSong;
 				var newArrayItems = _elm_lang$core$Array$fromList(
 					_user$project$SortSongs$byAlbumAndTrack(_p2._0));
-				var newQueueIndex = (_elm_lang$core$Native_Utils.cmp(currentQueueIndex, model.mouseOverItem) > 0) ? (currentQueueIndex + _elm_lang$core$Array$length(newArrayItems)) : currentQueueIndex;
-				var right = A3(
-					_elm_lang$core$Array$slice,
-					model.mouseOverItem,
-					_elm_lang$core$Array$length(model.array),
-					model.array);
-				var left = A3(_elm_lang$core$Array$slice, 0, model.mouseOverItem, model.array);
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
 						array: _user$project$Queue$resetQueue(
-							A2(
-								_elm_lang$core$Array$append,
-								left,
-								A2(_elm_lang$core$Array$append, newArrayItems, right))),
-						currentSong: newQueueIndex
+							A2(_elm_lang$core$Array$append, model.array, newArrayItems))
 					});
 			case 'Reorder':
 				var maybeIndexedItemToReorder = _elm_lang$core$List$head(
