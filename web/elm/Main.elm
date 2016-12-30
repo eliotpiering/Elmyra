@@ -80,6 +80,7 @@ initialSocket =
                 |> Socket.withDebug
                 |> Socket.on "new:msg" "room:lobby" ReceiveChatMessage
                 |> Socket.on "next_song" "queue:lobby" ReceiveNextSong
+                |> Socket.on "previous_song" "queue:lobby" ReceivePreviousSong
                 |> Socket.join chatChannel
 
         ( socketMsg_, socketCmd_ ) =
@@ -128,6 +129,8 @@ type Msg
     | ReceiveChatMessage JE.Value
     | ReceiveNextSong JE.Value
     | SendNextSong
+    | ReceivePreviousSong JE.Value
+    | SendPreviousSong
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -156,19 +159,10 @@ update action model =
             in
                 case keyCode of
                     37 ->
-                        let
-                            queue_ =
-                                Queue.update (Queue.PreviousSong) model.queue
-                        in
-                            ( { model | queue = queue_ }, Cmd.none )
+                        update (SendPreviousSong) model
 
                     39 ->
                         update (SendNextSong) model
-                        -- let
-                        --     queue_ =
-                        --         Queue.update (Queue.NextSong) model.queue
-                        -- in
-                        --     ( { model | queue = queue_ }, Cmd.none )
 
                     32 ->
                         if (String.length model.keysBeingTyped > 0) then
@@ -505,6 +499,23 @@ update action model =
             let
                 push_ =
                     Phoenix.Push.init "next_song" "queue:lobby"
+
+                ( socket_, socketCmd ) =
+                    Socket.push push_ model.socket
+            in
+                ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
+
+        ReceivePreviousSong _ ->
+            let
+                queue_ =
+                    Queue.update (Queue.PreviousSong) model.queue
+            in
+                ( { model | queue = queue_ }, Cmd.none )
+
+        SendPreviousSong ->
+            let
+                push_ =
+                    Phoenix.Push.init "previous_song" "queue:lobby"
 
                 ( socket_, socketCmd ) =
                     Socket.push push_ model.socket

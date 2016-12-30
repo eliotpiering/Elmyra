@@ -21,6 +21,10 @@ var _user$project$Main$Model = F9(
 	function (a, b, c, d, e, f, g, h, i) {
 		return {browser: a, queue: b, chat: c, albumArt: d, currentMousePos: e, dragStart: f, keysBeingTyped: g, isShiftDown: h, socket: i};
 	});
+var _user$project$Main$SendPreviousSong = {ctor: 'SendPreviousSong'};
+var _user$project$Main$ReceivePreviousSong = function (a) {
+	return {ctor: 'ReceivePreviousSong', _0: a};
+};
 var _user$project$Main$SendNextSong = {ctor: 'SendNextSong'};
 var _user$project$Main$ReceiveNextSong = function (a) {
 	return {ctor: 'ReceiveNextSong', _0: a};
@@ -34,16 +38,21 @@ var _user$project$Main$initialSocket = function () {
 		_user$project$Main$chatChannel,
 		A4(
 			_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-			'next_song',
+			'previous_song',
 			'queue:lobby',
-			_user$project$Main$ReceiveNextSong,
+			_user$project$Main$ReceivePreviousSong,
 			A4(
 				_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-				'new:msg',
-				'room:lobby',
-				_user$project$Main$ReceiveChatMessage,
-				_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
-					_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer)))));
+				'next_song',
+				'queue:lobby',
+				_user$project$Main$ReceiveNextSong,
+				A4(
+					_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
+					'new:msg',
+					'room:lobby',
+					_user$project$Main$ReceiveChatMessage,
+					_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
+						_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer))))));
 	var socketMsg = _p0._0;
 	var socketCmd = _p0._1;
 	var _p1 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, _user$project$Main$queueChannel, socketMsg);
@@ -197,19 +206,16 @@ var _user$project$Main$update = F2(
 					var _p7 = _p3._0;
 					switch (_p7) {
 						case 37:
-							var queue_ = A2(_user$project$Queue$update, _user$project$Queue$PreviousSong, model.queue);
-							return {
-								ctor: '_Tuple2',
-								_0: _elm_lang$core$Native_Utils.update(
-									model,
-									{queue: queue_}),
-								_1: _elm_lang$core$Platform_Cmd$none
-							};
-						case 39:
-							var _v4 = _user$project$Main$SendNextSong,
+							var _v4 = _user$project$Main$SendPreviousSong,
 								_v5 = model;
 							action = _v4;
 							model = _v5;
+							continue update;
+						case 39:
+							var _v6 = _user$project$Main$SendNextSong,
+								_v7 = model;
+							action = _v6;
+							model = _v7;
 							continue update;
 						case 32:
 							return (_elm_lang$core$Native_Utils.cmp(
@@ -515,7 +521,7 @@ var _user$project$Main$update = F2(
 					var dragEnd = _user$project$Main$currentMouseLocation(model);
 					var maybeDragStart = model.dragStart;
 					var _p19 = maybeDragStart;
-					_v12_2:
+					_v14_2:
 					do {
 						if (_p19.ctor === 'Just') {
 							switch (_p19._0.ctor) {
@@ -580,10 +586,10 @@ var _user$project$Main$update = F2(
 										};
 									}
 								default:
-									break _v12_2;
+									break _v14_2;
 							}
 						} else {
-							break _v12_2;
+							break _v14_2;
 						}
 					} while(false);
 					return {ctor: '_Tuple2', _0: model_, _1: _elm_lang$core$Platform_Cmd$none};
@@ -673,11 +679,32 @@ var _user$project$Main$update = F2(
 							{queue: queue_}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
-				default:
+				case 'SendNextSong':
 					var push_ = A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'next_song', 'queue:lobby');
 					var _p27 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
 					var socket_ = _p27._0;
 					var socketCmd = _p27._1;
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{socket: socket_}),
+						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, socketCmd)
+					};
+				case 'ReceivePreviousSong':
+					var queue_ = A2(_user$project$Queue$update, _user$project$Queue$PreviousSong, model.queue);
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{queue: queue_}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				default:
+					var push_ = A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'previous_song', 'queue:lobby');
+					var _p28 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
+					var socket_ = _p28._0;
+					var socketCmd = _p28._1;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -702,8 +729,8 @@ var _user$project$Main$BrowserMsg = function (a) {
 };
 var _user$project$Main$browserView = function (model) {
 	var maybeMousePos = function () {
-		var _p28 = model.dragStart;
-		if ((_p28.ctor === 'Just') && (_p28._0.ctor === 'BrowserWindow')) {
+		var _p29 = model.dragStart;
+		if ((_p29.ctor === 'Just') && (_p29._0.ctor === 'BrowserWindow')) {
 			return _elm_lang$core$Maybe$Just(model.currentMousePos);
 		} else {
 			return _elm_lang$core$Maybe$Nothing;
@@ -719,8 +746,8 @@ var _user$project$Main$QueueMsg = function (a) {
 };
 var _user$project$Main$queueView = function (model) {
 	var maybeMousePos = function () {
-		var _p29 = model.dragStart;
-		if ((_p29.ctor === 'Just') && (_p29._0.ctor === 'QueueWindow')) {
+		var _p30 = model.dragStart;
+		if ((_p30.ctor === 'Just') && (_p30._0.ctor === 'QueueWindow')) {
 			return _elm_lang$core$Maybe$Just(model.currentMousePos);
 		} else {
 			return _elm_lang$core$Maybe$Nothing;
