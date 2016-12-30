@@ -3,6 +3,7 @@ defmodule Elmira.UserSocket do
 
   ## Channels
   channel "room:*", Elmira.RoomChannel
+  channel "queue:*", Elmira.QueueChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

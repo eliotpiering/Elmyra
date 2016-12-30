@@ -73,10 +73,19 @@ initialModel socket =
 
 initialSocket : ( Socket Msg, Cmd (Socket.Msg Msg) )
 initialSocket =
-    Socket.init socketServer
-        |> Socket.withDebug
-        |> Socket.on "new:msg" "room:lobby" ReceiveChatMessage
-        |> Socket.join mainChannel
+    -- TODO is there a better way to join two channels at one time?
+    let
+        ( socketMsg, socketCmd ) =
+            Socket.init socketServer
+                |> Socket.withDebug
+                |> Socket.on "new:msg" "room:lobby" ReceiveChatMessage
+                |> Socket.on "next_song" "queue:lobby" ReceiveNextSong
+                |> Socket.join chatChannel
+
+        ( socketMsg_, socketCmd_ ) =
+            Socket.join queueChannel socketMsg
+    in
+        ( socketMsg_, Cmd.batch [ socketCmd, socketCmd_ ] )
 
 
 socketServer : String
@@ -84,9 +93,14 @@ socketServer =
     "ws://localhost:4000/socket/websocket"
 
 
-mainChannel : Phoenix.Channel.Channel msg
-mainChannel =
+chatChannel : Phoenix.Channel.Channel msg
+chatChannel =
     Phoenix.Channel.init "room:lobby"
+
+
+queueChannel : Phoenix.Channel.Channel msg
+queueChannel =
+    Phoenix.Channel.init "queue:lobby"
 
 
 
@@ -97,7 +111,6 @@ type Msg
     = QueueMsg Queue.Msg
     | BrowserMsg Browser.Msg
     | ChatMsg Chat.Msg
-    | ReceiveChatMessage JE.Value
     | UpdateSongs (Result Http.Error (List SongModel))
     | AddSongsToQueue (Result Http.Error (List SongModel))
     | AddSongToQueue (Result Http.Error SongModel)
@@ -112,6 +125,9 @@ type Msg
     | ResetKeysBeingTyped String
     | UrlUpdate Location
     | PhoenixMsg (Socket.Msg Msg)
+    | ReceiveChatMessage JE.Value
+    | ReceiveNextSong JE.Value
+    | SendNextSong
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -147,11 +163,12 @@ update action model =
                             ( { model | queue = queue_ }, Cmd.none )
 
                     39 ->
-                        let
-                            queue_ =
-                                Queue.update (Queue.NextSong) model.queue
-                        in
-                            ( { model | queue = queue_ }, Cmd.none )
+                        update (SendNextSong) model
+                        -- let
+                        --     queue_ =
+                        --         Queue.update (Queue.NextSong) model.queue
+                        -- in
+                        --     ( { model | queue = queue_ }, Cmd.none )
 
                     32 ->
                         if (String.length model.keysBeingTyped > 0) then
@@ -476,6 +493,23 @@ update action model =
                     Chat.update (Chat.ReceiveMessage raw) model.chat
             in
                 ( { model | chat = chat_ }, Cmd.none )
+
+        ReceiveNextSong _ ->
+            let
+                queue_ =
+                    Queue.update (Queue.NextSong) model.queue
+            in
+                ( { model | queue = queue_ }, Cmd.none )
+
+        SendNextSong ->
+            let
+                push_ =
+                    Phoenix.Push.init "next_song" "queue:lobby"
+
+                ( socket_, socketCmd ) =
+                    Socket.push push_ model.socket
+            in
+                ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
 
 
 currentMouseLocation : Model -> MouseLocation
