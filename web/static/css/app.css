@@ -51,17 +51,19 @@ table {
 }
 
 #browser-list {
-    height: 90vh;
+    height: 85vh;
     padding-left: 30px;
 }
 #browser-list ul>li:nth-child(even) {
     background-color: #E1E1D6;
 }
 
+/* total height 15 vh */
 #navigation-view-container {
     background-color: #565656;
     color: white;
-    height: 10vh;
+    height: 14vh;
+    padding: 1vh 0 0 2vw;
 }
 
 #navigation-view-container li {
@@ -87,15 +89,20 @@ table {
 }
 
 #queue-list {
-    height: 90vh;
-    padding-left: 30px;
+    height: 85vh;
 }
 
+#queue-list li {
+    padding-left: 2vw;
+}
+
+/* total height 15 vh */
 #audio-view-container {
     background-color: #565656;
-    height: 10vh;
+    height: 14vh;
     color: white;
     text-align: center;
+    padding: 1vh 0 0 2vw;
 }
 
 #audio-view-container table {
@@ -115,13 +122,15 @@ table {
     flex: 0 0 auto;
     position: fixed;
     bottom: 0;
-    height: 15vh;
+    /* height: 15vh;
+    Chat container height is set in MyStyles.chatContainerHeight
+   */
     width: 100vw;
     z-index: 100;
     background-color: #565656;
     color: #E1E1D6;
-    padding-left: 30px;
-    padding-top: 15px;
+    padding-left: 2vw;
+    padding-top: 1vh;
 }
 
 #chat-message-list {
@@ -136,7 +145,6 @@ table {
 ------------------------------------ */
 .scroll-box {
     overflow: scroll;
-    -webkit-overflow-scrolling: touch;
 }
 
 .song-item, .group-item {

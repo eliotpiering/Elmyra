@@ -19,4 +19,13 @@ defmodule Elmira.QueueChannel do
     {:noreply, socket}
   end
 
+  def handle_out("add_songs", %{"body" => body}, socket) do
+    broadcast! socket, "add_songs", %{body: body}
+    IO.puts "handle in --------------- add_songs"
+    IO.inspect(body)
+    {:noreply, socket}
+  end
+
+
+
 end

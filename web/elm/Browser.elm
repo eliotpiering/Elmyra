@@ -7,7 +7,6 @@ import MyModels exposing (..)
 import MyStyle exposing (..)
 import Dict exposing (Dict)
 import Item
-import Helpers
 import SortSongs
 import NavigationParser exposing (..)
 
@@ -19,6 +18,7 @@ type Msg
     | MouseEnter
     | MouseLeave
     | GroupBy String
+    | Upload
 
 
 type BrowserCmd
@@ -103,6 +103,8 @@ update msg isShiftDown model =
 
                 _ ->
                     ( model, None )
+        Upload ->
+            (model, None)
 
 
 resetItems : ItemDictionary -> ItemDictionary
@@ -138,4 +140,5 @@ navigationView =
         [ Html.li [ Events.onClick (GroupBy "album") ] [ Html.text "Albums" ]
         , Html.li [ Events.onClick (GroupBy "artist") ] [ Html.text "Artists" ]
         , Html.li [ Events.onClick (GroupBy "song") ] [ Html.text "Songs" ]
+        , Html.li [ Events.onClick (Upload) ] [ Html.text "Upload (not working yet)" ]
         ]

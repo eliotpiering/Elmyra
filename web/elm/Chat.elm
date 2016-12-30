@@ -5,23 +5,26 @@ import Html.Events as Events
 import Html.Attributes as Attr
 import Json.Encode as JE
 import Json.Decode as JD
+import MyStyle
 
 
 type alias ChatModel =
     { messages : List String
     , newMessage : String
+    , isMinimized : Bool
     }
 
 
 initialModel : ChatModel
 initialModel =
-    { messages = [], newMessage = "" }
+    { messages = [], newMessage = "", isMinimized = True }
 
 
 type Msg
     = SendMessage
     | ReceiveMessage JE.Value
     | SetNewMessage String
+    | ToggleMinimize
 
 
 type ChatCmd
@@ -53,12 +56,21 @@ update action model =
         SetNewMessage str ->
             ( { model | newMessage = str }, None )
 
+        ToggleMinimize ->
+            ( { model | isMinimized = not model.isMinimized }, None )
+
 
 view : ChatModel -> Html Msg
 view model =
-    Html.div [ Attr.id "chat-container", Attr.class "scroll-box" ]
-        [ newMessageForm model
-        , Html.ul [Attr.id "chat-message-list"]
+    Html.div [
+         Attr.id "chat-container",
+         Attr.class "scroll-box",
+         MyStyle.chatBoxHeight model.isMinimized
+        ]
+        [ minimizeButon model.isMinimized
+        , Html.hr [] []
+        , newMessageForm model
+        , Html.ul [ Attr.id "chat-message-list" ]
             (List.map
                 (\message ->
                     Html.li [] [ Html.text message ]
@@ -72,4 +84,16 @@ newMessageForm : ChatModel -> Html Msg
 newMessageForm model =
     Html.form [ Events.onSubmit SendMessage ]
         [ Html.input [ Attr.type_ "text", Attr.value model.newMessage, Events.onInput SetNewMessage ] []
+        ]
+
+
+minimizeButon : Bool -> Html Msg
+minimizeButon isMinimized =
+    Html.span [ Events.onClick ToggleMinimize ]
+        [ Html.text
+            (if isMinimized then
+                "+ show chat"
+             else
+                "- hide chat"
+            )
         ]

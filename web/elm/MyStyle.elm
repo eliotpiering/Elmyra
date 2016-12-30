@@ -34,7 +34,7 @@ darkGrey =
 
 queueViewContainer canDrop =
     if canDrop then
-        style [ ( "border", "solid " ++ grey ++ " 2px" ) ]
+        style [ ( "border", "3px solid " ++ grey) ]
     else
         style []
 
@@ -72,7 +72,7 @@ dragging maybeDragPos isSelected =
 mouseOver isMouseOver =
     if isMouseOver then
         style
-            [ ( "border", ("1px solid " ++ grey) )
+            [ ( "border", ("3px solid " ++ grey) )
             ]
     else
         style []
@@ -93,3 +93,11 @@ isSelected isSelected =
             ]
     else
         style []
+
+chatBoxHeight isMinimized =
+    if isMinimized then
+        style
+            [ ( "height", "4vh" )]
+    else
+        style
+            [ ( "height", "20vh" )]

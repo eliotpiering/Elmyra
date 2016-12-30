@@ -26,6 +26,9 @@ var _user$project$ApiHelpers$albumsDecoder = A2(
 	_elm_lang$core$Json_Decode$field,
 	'albums',
 	_elm_lang$core$Json_Decode$list(_user$project$ApiHelpers$groupDecoder));
+var _user$project$ApiHelpers$decodeSongs = function (raw) {
+	return A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$ApiHelpers$songsDecoder, raw);
+};
 var _user$project$ApiHelpers$apiEndpoint = 'http://localhost:4000/api/';
 var _user$project$ApiHelpers$fetchSongsFromArtist = F2(
 	function (id, groupAction) {

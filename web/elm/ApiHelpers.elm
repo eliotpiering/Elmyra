@@ -1,7 +1,8 @@
-module ApiHelpers exposing (apiEndpoint, fetchAllAlbums, fetchAllArtists, fetchAllSongs, fetchSongsFromGroups, fetchSongsFromArtist, fetchSongsFromAlbum)
+module ApiHelpers exposing (apiEndpoint, fetchAllAlbums, fetchAllArtists, fetchAllSongs, fetchSongsFromGroups, fetchSongsFromArtist, fetchSongsFromAlbum, decodeSongs)
 
 import Http
-import Json.Decode as Json exposing (Decoder)
+import Json.Decode as JD exposing (Decoder)
+import Json.Encode as JE
 import MyModels exposing (..)
 
 
@@ -82,36 +83,40 @@ fetchAllAlbums successAction =
             Http.get url albumsDecoder
 
 
+decodeSongs : JE.Value -> Result String (List SongModel)
+decodeSongs raw =
+    JD.decodeValue songsDecoder raw
+
 albumsDecoder : Decoder (List GroupModel)
 albumsDecoder =
-    Json.field "albums" <| Json.list groupDecoder
+    JD.field "albums" <| JD.list groupDecoder
 
 
 artistsDecoder : Decoder (List GroupModel)
 artistsDecoder =
-    Json.field "artists" <| Json.list groupDecoder
+    JD.field "artists" <| JD.list groupDecoder
 
 
 songsDecoder : Decoder (List SongModel)
 songsDecoder =
-    Json.field "songs" <| Json.list songDecoder
+    JD.field "songs" <| JD.list songDecoder
 
 
 groupDecoder : Decoder GroupModel
 groupDecoder =
-    Json.map4 GroupModel
-        (Json.field "id" Json.int)
-        (Json.field "kind" Json.string)
-        (Json.field "title" Json.string)
+    JD.map4 GroupModel
+        (JD.field "id" JD.int)
+        (JD.field "kind" JD.string)
+        (JD.field "title" JD.string)
         songsDecoder
 
 
 songDecoder : Decoder SongModel
 songDecoder =
-    Json.map6 SongModel
-        (Json.field "id" Json.int)
-        (Json.field "path" Json.string)
-        (Json.field "title" Json.string)
-        (Json.field "artist" Json.string)
-        (Json.field "album" Json.string)
-        (Json.field "track" Json.int)
+    JD.map6 SongModel
+        (JD.field "id" JD.int)
+        (JD.field "path" JD.string)
+        (JD.field "title" JD.string)
+        (JD.field "artist" JD.string)
+        (JD.field "album" JD.string)
+        (JD.field "track" JD.int)

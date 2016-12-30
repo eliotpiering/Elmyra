@@ -9,6 +9,7 @@ var _user$project$Browser$Pos = F2(
 	function (a, b) {
 		return {x: a, y: b};
 	});
+var _user$project$Browser$Upload = {ctor: 'Upload'};
 var _user$project$Browser$GroupBy = function (a) {
 	return {ctor: 'GroupBy', _0: a};
 };
@@ -64,7 +65,22 @@ var _user$project$Browser$navigationView = A2(
 						_0: _elm_lang$html$Html$text('Songs'),
 						_1: {ctor: '[]'}
 					}),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$li,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(_user$project$Browser$Upload),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Upload (not working yet)'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
 			}
 		}
 	});
@@ -230,7 +246,7 @@ var _user$project$Browser$update = F3(
 						{isMouseOver: false}),
 					_1: _user$project$Browser$None
 				};
-			default:
+			case 'GroupBy':
 				var _p9 = _p3._0;
 				switch (_p9) {
 					case 'song':
@@ -254,5 +270,7 @@ var _user$project$Browser$update = F3(
 					default:
 						return {ctor: '_Tuple2', _0: model, _1: _user$project$Browser$None};
 				}
+			default:
+				return {ctor: '_Tuple2', _0: model, _1: _user$project$Browser$None};
 		}
 	});

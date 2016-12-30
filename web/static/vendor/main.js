@@ -11735,6 +11735,9 @@ var _user$project$ApiHelpers$albumsDecoder = A2(
 	_elm_lang$core$Json_Decode$field,
 	'albums',
 	_elm_lang$core$Json_Decode$list(_user$project$ApiHelpers$groupDecoder));
+var _user$project$ApiHelpers$decodeSongs = function (raw) {
+	return A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$ApiHelpers$songsDecoder, raw);
+};
 var _user$project$ApiHelpers$apiEndpoint = 'http://localhost:4000/api/';
 var _user$project$ApiHelpers$fetchSongsFromArtist = F2(
 	function (id, groupAction) {
@@ -11967,6 +11970,19 @@ var _user$project$Audio$view = function (model) {
 		});
 };
 
+var _user$project$MyStyle$chatBoxHeight = function (isMinimized) {
+	return isMinimized ? _elm_lang$html$Html_Attributes$style(
+		{
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'height', _1: '4vh'},
+			_1: {ctor: '[]'}
+		}) : _elm_lang$html$Html_Attributes$style(
+		{
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'height', _1: '20vh'},
+			_1: {ctor: '[]'}
+		});
+};
 var _user$project$MyStyle$darkGrey = '#565656';
 var _user$project$MyStyle$dragging = F2(
 	function (maybeDragPos, isSelected) {
@@ -12057,10 +12073,7 @@ var _user$project$MyStyle$queueViewContainer = function (canDrop) {
 			_0: {
 				ctor: '_Tuple2',
 				_0: 'border',
-				_1: A2(
-					_elm_lang$core$Basics_ops['++'],
-					'solid ',
-					A2(_elm_lang$core$Basics_ops['++'], _user$project$MyStyle$grey, ' 2px'))
+				_1: A2(_elm_lang$core$Basics_ops['++'], '3px solid ', _user$project$MyStyle$grey)
 			},
 			_1: {ctor: '[]'}
 		}) : _elm_lang$html$Html_Attributes$style(
@@ -12073,7 +12086,7 @@ var _user$project$MyStyle$mouseOver = function (isMouseOver) {
 			_0: {
 				ctor: '_Tuple2',
 				_0: 'border',
-				_1: A2(_elm_lang$core$Basics_ops['++'], '1px solid ', _user$project$MyStyle$grey)
+				_1: A2(_elm_lang$core$Basics_ops['++'], '3px solid ', _user$project$MyStyle$grey)
 			},
 			_1: {ctor: '[]'}
 		}) : _elm_lang$html$Html_Attributes$style(
@@ -12209,125 +12222,6 @@ var _user$project$Item$update = F2(
 		}
 	});
 
-var _user$project$Port$scrollToElement = _elm_lang$core$Native_Platform.outgoingPort(
-	'scrollToElement',
-	function (v) {
-		return v;
-	});
-var _user$project$Port$resetKeysBeingTyped = _elm_lang$core$Native_Platform.incomingPort('resetKeysBeingTyped', _elm_lang$core$Json_Decode$string);
-var _user$project$Port$pause = _elm_lang$core$Native_Platform.outgoingPort(
-	'pause',
-	function (v) {
-		return v;
-	});
-var _user$project$Port$lookupAlbumArt = _elm_lang$core$Native_Platform.outgoingPort(
-	'lookupAlbumArt',
-	function (v) {
-		return v;
-	});
-var _user$project$Port$updateAlbumArt = _elm_lang$core$Native_Platform.incomingPort('updateAlbumArt', _elm_lang$core$Json_Decode$string);
-
-var _user$project$Helpers$generateIdList = F2(
-	function (len, list) {
-		return _elm_lang$core$Native_Utils.eq(len, 0) ? list : {
-			ctor: '::',
-			_0: len,
-			_1: A2(_user$project$Helpers$generateIdList, len - 1, list)
-		};
-	});
-var _user$project$Helpers$makeItemDictionary = function (itemDatas) {
-	var ids = A2(
-		_elm_lang$core$List$map,
-		_elm_lang$core$Basics$toString,
-		A2(
-			_user$project$Helpers$generateIdList,
-			_elm_lang$core$List$length(itemDatas),
-			{ctor: '[]'}));
-	var pairs = A3(
-		_elm_lang$core$List$map2,
-		F2(
-			function (v0, v1) {
-				return {ctor: '_Tuple2', _0: v0, _1: v1};
-			}),
-		ids,
-		itemDatas);
-	return A3(
-		_elm_lang$core$List$foldl,
-		F2(
-			function (_p0, dict) {
-				var _p1 = _p0;
-				return A3(
-					_elm_lang$core$Dict$insert,
-					_p1._0,
-					{isSelected: false, isMouseOver: false, data: _p1._1},
-					dict);
-			}),
-		_elm_lang$core$Dict$empty,
-		pairs);
-};
-var _user$project$Helpers$lookupAlbumArt = F2(
-	function (currentSong, queueList) {
-		var _p2 = A2(_elm_lang$core$Array$get, currentSong, queueList);
-		if (_p2.ctor === 'Just') {
-			var _p3 = _p2._0.data;
-			if (_p3.ctor === 'Song') {
-				return _user$project$Port$lookupAlbumArt(_p3._0.album);
-			} else {
-				return _elm_lang$core$Platform_Cmd$none;
-			}
-		} else {
-			return _elm_lang$core$Platform_Cmd$none;
-		}
-	});
-var _user$project$Helpers$isSong = function (item) {
-	var _p4 = item.data;
-	if (_p4.ctor === 'Song') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var _user$project$Helpers$getItemTitle = function (item) {
-	var _p5 = item.data;
-	if (_p5.ctor === 'Song') {
-		return _p5._0.title;
-	} else {
-		return _p5._0.title;
-	}
-};
-var _user$project$Helpers$makeGroupItemDictionary = function (groups) {
-	return _user$project$Helpers$makeItemDictionary(
-		A2(_elm_lang$core$List$map, _user$project$MyModels$Group, groups));
-};
-var _user$project$Helpers$makeSongItemDictionary = function (songs) {
-	return _user$project$Helpers$makeItemDictionary(
-		A2(_elm_lang$core$List$map, _user$project$MyModels$Song, songs));
-};
-var _user$project$Helpers$makeSongItemList = function (songs) {
-	return A2(
-		_elm_lang$core$List$map,
-		function (s) {
-			return {song: s, isSelected: false, isMouseOver: false};
-		},
-		songs);
-};
-var _user$project$Helpers$itemListToSongItemList = function (itemModels) {
-	return A3(
-		_elm_lang$core$List$foldl,
-		F2(
-			function (item, acc) {
-				var _p6 = item.data;
-				if (_p6.ctor === 'Song') {
-					var songItem = {song: _p6._0, isSelected: false, isMouseOver: false};
-					return {ctor: '::', _0: songItem, _1: acc};
-				} else {
-					return acc;
-				}
-			}),
-		{ctor: '[]'},
-		itemModels);
-};
-
 var _user$project$SortSongs$byGroupTitle = _elm_lang$core$List$sortWith(
 	F2(
 		function (_p1, _p0) {
@@ -12429,6 +12323,7 @@ var _user$project$Browser$Pos = F2(
 	function (a, b) {
 		return {x: a, y: b};
 	});
+var _user$project$Browser$Upload = {ctor: 'Upload'};
 var _user$project$Browser$GroupBy = function (a) {
 	return {ctor: 'GroupBy', _0: a};
 };
@@ -12484,7 +12379,22 @@ var _user$project$Browser$navigationView = A2(
 						_0: _elm_lang$html$Html$text('Songs'),
 						_1: {ctor: '[]'}
 					}),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$li,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(_user$project$Browser$Upload),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Upload (not working yet)'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
 			}
 		}
 	});
@@ -12650,7 +12560,7 @@ var _user$project$Browser$update = F3(
 						{isMouseOver: false}),
 					_1: _user$project$Browser$None
 				};
-			default:
+			case 'GroupBy':
 				var _p9 = _p3._0;
 				switch (_p9) {
 					case 'song':
@@ -12674,18 +12584,37 @@ var _user$project$Browser$update = F3(
 					default:
 						return {ctor: '_Tuple2', _0: model, _1: _user$project$Browser$None};
 				}
+			default:
+				return {ctor: '_Tuple2', _0: model, _1: _user$project$Browser$None};
 		}
 	});
 
 var _user$project$Chat$chatMessageDecoder = A2(_elm_lang$core$Json_Decode$field, 'body', _elm_lang$core$Json_Decode$string);
 var _user$project$Chat$initialModel = {
 	messages: {ctor: '[]'},
-	newMessage: ''
+	newMessage: '',
+	isMinimized: true
 };
-var _user$project$Chat$ChatModel = F2(
-	function (a, b) {
-		return {messages: a, newMessage: b};
+var _user$project$Chat$ChatModel = F3(
+	function (a, b, c) {
+		return {messages: a, newMessage: b, isMinimized: c};
 	});
+var _user$project$Chat$ToggleMinimize = {ctor: 'ToggleMinimize'};
+var _user$project$Chat$minimizeButon = function (isMinimized) {
+	return A2(
+		_elm_lang$html$Html$span,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(_user$project$Chat$ToggleMinimize),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text(
+				isMinimized ? '+ show chat' : '- hide chat'),
+			_1: {ctor: '[]'}
+		});
+};
 var _user$project$Chat$SetNewMessage = function (a) {
 	return {ctor: 'SetNewMessage', _0: a};
 };
@@ -12731,35 +12660,50 @@ var _user$project$Chat$view = function (model) {
 			_1: {
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$class('scroll-box'),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: _user$project$MyStyle$chatBoxHeight(model.isMinimized),
+					_1: {ctor: '[]'}
+				}
 			}
 		},
 		{
 			ctor: '::',
-			_0: _user$project$Chat$newMessageForm(model),
+			_0: _user$project$Chat$minimizeButon(model.isMinimized),
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$ul,
-					{
+					_elm_lang$html$Html$hr,
+					{ctor: '[]'},
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: _user$project$Chat$newMessageForm(model),
+					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$id('chat-message-list'),
+						_0: A2(
+							_elm_lang$html$Html$ul,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$id('chat-message-list'),
+								_1: {ctor: '[]'}
+							},
+							A2(
+								_elm_lang$core$List$map,
+								function (message) {
+									return A2(
+										_elm_lang$html$Html$li,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(message),
+											_1: {ctor: '[]'}
+										});
+								},
+								model.messages)),
 						_1: {ctor: '[]'}
-					},
-					A2(
-						_elm_lang$core$List$map,
-						function (message) {
-							return A2(
-								_elm_lang$html$Html$li,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text(message),
-									_1: {ctor: '[]'}
-								});
-						},
-						model.messages)),
-				_1: {ctor: '[]'}
+					}
+				}
 			}
 		});
 };
@@ -12794,7 +12738,7 @@ var _user$project$Chat$update = F2(
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _user$project$Chat$None};
 				}
-			default:
+			case 'SetNewMessage':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -12802,8 +12746,135 @@ var _user$project$Chat$update = F2(
 						{newMessage: _p0._0}),
 					_1: _user$project$Chat$None
 				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{isMinimized: !model.isMinimized}),
+					_1: _user$project$Chat$None
+				};
 		}
 	});
+
+var _user$project$Port$scrollToElement = _elm_lang$core$Native_Platform.outgoingPort(
+	'scrollToElement',
+	function (v) {
+		return v;
+	});
+var _user$project$Port$resetKeysBeingTyped = _elm_lang$core$Native_Platform.incomingPort('resetKeysBeingTyped', _elm_lang$core$Json_Decode$string);
+var _user$project$Port$pause = _elm_lang$core$Native_Platform.outgoingPort(
+	'pause',
+	function (v) {
+		return v;
+	});
+var _user$project$Port$lookupAlbumArt = _elm_lang$core$Native_Platform.outgoingPort(
+	'lookupAlbumArt',
+	function (v) {
+		return v;
+	});
+var _user$project$Port$updateAlbumArt = _elm_lang$core$Native_Platform.incomingPort('updateAlbumArt', _elm_lang$core$Json_Decode$string);
+
+var _user$project$Helpers$generateIdList = F2(
+	function (len, list) {
+		return _elm_lang$core$Native_Utils.eq(len, 0) ? list : {
+			ctor: '::',
+			_0: len,
+			_1: A2(_user$project$Helpers$generateIdList, len - 1, list)
+		};
+	});
+var _user$project$Helpers$makeItemDictionary = function (itemDatas) {
+	var ids = A2(
+		_elm_lang$core$List$map,
+		_elm_lang$core$Basics$toString,
+		A2(
+			_user$project$Helpers$generateIdList,
+			_elm_lang$core$List$length(itemDatas),
+			{ctor: '[]'}));
+	var pairs = A3(
+		_elm_lang$core$List$map2,
+		F2(
+			function (v0, v1) {
+				return {ctor: '_Tuple2', _0: v0, _1: v1};
+			}),
+		ids,
+		itemDatas);
+	return A3(
+		_elm_lang$core$List$foldl,
+		F2(
+			function (_p0, dict) {
+				var _p1 = _p0;
+				return A3(
+					_elm_lang$core$Dict$insert,
+					_p1._0,
+					{isSelected: false, isMouseOver: false, data: _p1._1},
+					dict);
+			}),
+		_elm_lang$core$Dict$empty,
+		pairs);
+};
+var _user$project$Helpers$lookupAlbumArt = F2(
+	function (currentSong, queueList) {
+		var _p2 = A2(_elm_lang$core$Array$get, currentSong, queueList);
+		if (_p2.ctor === 'Just') {
+			var _p3 = _p2._0.data;
+			if (_p3.ctor === 'Song') {
+				return _user$project$Port$lookupAlbumArt(_p3._0.album);
+			} else {
+				return _elm_lang$core$Platform_Cmd$none;
+			}
+		} else {
+			return _elm_lang$core$Platform_Cmd$none;
+		}
+	});
+var _user$project$Helpers$isSong = function (item) {
+	var _p4 = item.data;
+	if (_p4.ctor === 'Song') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var _user$project$Helpers$getItemTitle = function (item) {
+	var _p5 = item.data;
+	if (_p5.ctor === 'Song') {
+		return _p5._0.title;
+	} else {
+		return _p5._0.title;
+	}
+};
+var _user$project$Helpers$makeGroupItemDictionary = function (groups) {
+	return _user$project$Helpers$makeItemDictionary(
+		A2(_elm_lang$core$List$map, _user$project$MyModels$Group, groups));
+};
+var _user$project$Helpers$makeSongItemDictionary = function (songs) {
+	return _user$project$Helpers$makeItemDictionary(
+		A2(_elm_lang$core$List$map, _user$project$MyModels$Song, songs));
+};
+var _user$project$Helpers$makeSongItemList = function (songs) {
+	return A2(
+		_elm_lang$core$List$map,
+		function (s) {
+			return {song: s, isSelected: false, isMouseOver: false};
+		},
+		songs);
+};
+var _user$project$Helpers$itemListToSongItemList = function (itemModels) {
+	return A3(
+		_elm_lang$core$List$foldl,
+		F2(
+			function (item, acc) {
+				var _p6 = item.data;
+				if (_p6.ctor === 'Song') {
+					var songItem = {song: _p6._0, isSelected: false, isMouseOver: false};
+					return {ctor: '::', _0: songItem, _1: acc};
+				} else {
+					return acc;
+				}
+			}),
+		{ctor: '[]'},
+		itemModels);
+};
 
 var _user$project$QueueItem$Pos = F2(
 	function (a, b) {
@@ -13217,6 +13288,12 @@ var _user$project$Main$Model = F9(
 	function (a, b, c, d, e, f, g, h, i) {
 		return {browser: a, queue: b, chat: c, albumArt: d, currentMousePos: e, dragStart: f, keysBeingTyped: g, isShiftDown: h, socket: i};
 	});
+var _user$project$Main$SendAddSongs = function (a) {
+	return {ctor: 'SendAddSongs', _0: a};
+};
+var _user$project$Main$ReceiveAddSongs = function (a) {
+	return {ctor: 'ReceiveAddSongs', _0: a};
+};
 var _user$project$Main$SendPreviousSong = {ctor: 'SendPreviousSong'};
 var _user$project$Main$ReceivePreviousSong = function (a) {
 	return {ctor: 'ReceivePreviousSong', _0: a};
@@ -13234,21 +13311,26 @@ var _user$project$Main$initialSocket = function () {
 		_user$project$Main$chatChannel,
 		A4(
 			_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-			'previous_song',
+			'add_songs',
 			'queue:lobby',
-			_user$project$Main$ReceivePreviousSong,
+			_user$project$Main$ReceiveAddSongs,
 			A4(
 				_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-				'next_song',
+				'previous_song',
 				'queue:lobby',
-				_user$project$Main$ReceiveNextSong,
+				_user$project$Main$ReceivePreviousSong,
 				A4(
 					_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-					'new:msg',
-					'room:lobby',
-					_user$project$Main$ReceiveChatMessage,
-					_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
-						_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer))))));
+					'next_song',
+					'queue:lobby',
+					_user$project$Main$ReceiveNextSong,
+					A4(
+						_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
+						'new:msg',
+						'room:lobby',
+						_user$project$Main$ReceiveChatMessage,
+						_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
+							_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer)))))));
 	var socketMsg = _p0._0;
 	var socketCmd = _p0._1;
 	var _p1 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, _user$project$Main$queueChannel, socketMsg);
@@ -13896,11 +13978,39 @@ var _user$project$Main$update = F2(
 							{queue: queue_}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
-				default:
+				case 'SendPreviousSong':
 					var push_ = A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'previous_song', 'queue:lobby');
 					var _p28 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
 					var socket_ = _p28._0;
 					var socketCmd = _p28._1;
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{socket: socket_}),
+						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, socketCmd)
+					};
+				case 'ReceiveAddSongs':
+					var queue_ = A2(
+						_user$project$Queue$update,
+						_user$project$Queue$Drop(
+							{ctor: '[]'}),
+						model.queue);
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{queue: queue_}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				default:
+					var push_ = A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+						_p3._0,
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'add_songs', 'queue:lobby'));
+					var _p29 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
+					var socket_ = _p29._0;
+					var socketCmd = _p29._1;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -13925,8 +14035,8 @@ var _user$project$Main$BrowserMsg = function (a) {
 };
 var _user$project$Main$browserView = function (model) {
 	var maybeMousePos = function () {
-		var _p29 = model.dragStart;
-		if ((_p29.ctor === 'Just') && (_p29._0.ctor === 'BrowserWindow')) {
+		var _p30 = model.dragStart;
+		if ((_p30.ctor === 'Just') && (_p30._0.ctor === 'BrowserWindow')) {
 			return _elm_lang$core$Maybe$Just(model.currentMousePos);
 		} else {
 			return _elm_lang$core$Maybe$Nothing;
@@ -13942,8 +14052,8 @@ var _user$project$Main$QueueMsg = function (a) {
 };
 var _user$project$Main$queueView = function (model) {
 	var maybeMousePos = function () {
-		var _p30 = model.dragStart;
-		if ((_p30.ctor === 'Just') && (_p30._0.ctor === 'QueueWindow')) {
+		var _p31 = model.dragStart;
+		if ((_p31.ctor === 'Just') && (_p31._0.ctor === 'QueueWindow')) {
 			return _elm_lang$core$Maybe$Just(model.currentMousePos);
 		} else {
 			return _elm_lang$core$Maybe$Nothing;

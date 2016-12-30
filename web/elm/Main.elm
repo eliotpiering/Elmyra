@@ -81,6 +81,7 @@ initialSocket =
                 |> Socket.on "new:msg" "room:lobby" ReceiveChatMessage
                 |> Socket.on "next_song" "queue:lobby" ReceiveNextSong
                 |> Socket.on "previous_song" "queue:lobby" ReceivePreviousSong
+                |> Socket.on "add_songs" "queue:lobby" ReceiveAddSongs
                 |> Socket.join chatChannel
 
         ( socketMsg_, socketCmd_ ) =
@@ -131,6 +132,8 @@ type Msg
     | SendNextSong
     | ReceivePreviousSong JE.Value
     | SendPreviousSong
+    | ReceiveAddSongs JE.Value
+    | SendAddSongs JE.Value
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -516,6 +519,27 @@ update action model =
             let
                 push_ =
                     Phoenix.Push.init "previous_song" "queue:lobby"
+
+                ( socket_, socketCmd ) =
+                    Socket.push push_ model.socket
+            in
+                ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
+
+        ReceiveAddSongs raw ->
+            let
+                -- songs =
+                --     ApiHelpers.decodeSongs raw |> Helpers.makeSongItemList
+
+                queue_ =
+                    Queue.update (Queue.Drop []) model.queue
+            in
+                ( { model | queue = queue_ }, Cmd.none )
+
+        SendAddSongs json ->
+            let
+                push_ =
+                    Phoenix.Push.init "add_songs" "queue:lobby"
+                        |> Phoenix.Push.withPayload json
 
                 ( socket_, socketCmd ) =
                     Socket.push push_ model.socket
