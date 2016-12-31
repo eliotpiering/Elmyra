@@ -1,8 +1,8 @@
-module ApiHelpers exposing (apiEndpoint, fetchAllAlbums, fetchAllArtists, fetchAllSongs, fetchSongsFromGroups, fetchSongsFromArtist, fetchSongsFromAlbum, decodeSongs)
+module ApiHelpers exposing (..)
 
 import Http
 import Json.Decode as JD exposing (Decoder)
-import Json.Encode as JE
+import Json.Encode as JE 
 import MyModels exposing (..)
 
 
@@ -87,6 +87,7 @@ decodeSongs : JE.Value -> Result String (List SongModel)
 decodeSongs raw =
     JD.decodeValue songsDecoder raw
 
+
 albumsDecoder : Decoder (List GroupModel)
 albumsDecoder =
     JD.field "albums" <| JD.list groupDecoder
@@ -101,6 +102,11 @@ songsDecoder : Decoder (List SongModel)
 songsDecoder =
     JD.field "songs" <| JD.list songDecoder
 
+songsEncoder: List SongModel -> JE.Value
+songsEncoder songs =
+   JE.object [("songs", JE.list <| List.map songEncoder songs)]
+
+
 
 groupDecoder : Decoder GroupModel
 groupDecoder =
@@ -109,7 +115,6 @@ groupDecoder =
         (JD.field "kind" JD.string)
         (JD.field "title" JD.string)
         songsDecoder
-
 
 songDecoder : Decoder SongModel
 songDecoder =
@@ -120,3 +125,14 @@ songDecoder =
         (JD.field "artist" JD.string)
         (JD.field "album" JD.string)
         (JD.field "track" JD.int)
+
+songEncoder : SongModel -> JE.Value
+songEncoder song =
+    JE.object
+      [ ("id", JE.int song.id)
+      , ("path", JE.string song.path)
+      , ("title", JE.string song.title)
+      , ("artist", JE.string song.artist)
+      , ("album", JE.string song.album)
+      , ("track", JE.int song.track)
+      ]

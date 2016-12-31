@@ -133,7 +133,7 @@ type Msg
     | ReceivePreviousSong JE.Value
     | SendPreviousSong
     | ReceiveAddSongs JE.Value
-    | SendAddSongs JE.Value
+    | SendAddSongs (List SongModel)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -318,20 +318,14 @@ update action model =
 
         AddSongsToQueue (Ok songs) ->
             let
-                newItems =
-                    Helpers.makeSongItemList songs
-
-                model_ =
-                    { model | dragStart = Nothing }
-
-                queue_ =
-                    Queue.update (Queue.Drop newItems) model_.queue
+                ( model_, socketCmds ) =
+                    update (SendAddSongs songs) model
             in
                 ( { model_
-                    | queue = queue_
-                    , browser = Browser.update Browser.Reset False model.browser |> Tuple.first
+                    | browser = Browser.update Browser.Reset False model_.browser |> Tuple.first
+                    , dragStart = Nothing
                   }
-                , Cmd.none
+                , socketCmds
                 )
 
         AddSongsToQueue (Err _) ->
@@ -339,20 +333,14 @@ update action model =
 
         AddSongToQueue (Ok song) ->
             let
-                newItems =
-                    Helpers.makeSongItemList [ song ]
-
-                model_ =
-                    { model | dragStart = Nothing }
-
-                queue_ =
-                    Queue.update (Queue.Drop newItems) model_.queue
+                ( model_, socketCmds ) =
+                    update (SendAddSongs [ song ]) model
             in
                 ( { model_
-                    | queue = queue_
-                    , browser = Browser.update Browser.Reset False model.browser |> Tuple.first
+                    | browser = Browser.update Browser.Reset False model.browser |> Tuple.first
+                    , dragStart = Nothing
                   }
-                , Cmd.none
+                , socketCmds
                 )
 
         AddSongToQueue (Err _) ->
@@ -402,23 +390,24 @@ update action model =
                                     selectedGroupItems =
                                         model.browser.items |> Dict.values |> List.filter .isSelected |> List.filter (not << Helpers.isSong)
 
+                                    selectedSongItems =
+                                        model.browser.items |> Dict.values |> List.filter .isSelected |> Helpers.itemListToSongModelList
+
+                                    (model__, cmds_) = update (SendAddSongs selectedSongItems) model_
                                     updateGroupCmds =
                                         Cmd.batch (ApiHelpers.fetchSongsFromGroups selectedGroupItems AddSongsToQueue)
 
-                                    selectedSongItems =
-                                        model.browser.items |> Dict.values |> List.filter .isSelected |> Helpers.itemListToSongItemList
-
-                                    queue_ =
-                                        Queue.update (Queue.Drop selectedSongItems) model.queue
+                                    -- -- queue_ =
+                                    --     Queue.update (Queue.Drop selectedSongItems) model.queue
 
                                     ( browser_, _ ) =
-                                        Browser.update Browser.Reset False model.browser
+                                        Browser.update Browser.Reset False model__.browser
                                 in
-                                    ( { model_
-                                        | queue = queue_
-                                        , browser = browser_
+                                    ( { model__
+                                        -- | queue = queue_
+                                        | browser = browser_
                                       }
-                                    , updateGroupCmds
+                                    , Cmd.batch [updateGroupCmds, cmds_]
                                     )
 
                             anythingElse ->
@@ -526,17 +515,25 @@ update action model =
                 ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
 
         ReceiveAddSongs raw ->
-            let
-                -- songs =
-                --     ApiHelpers.decodeSongs raw |> Helpers.makeSongItemList
+            case ApiHelpers.decodeSongs raw of
+                Ok songs ->
+                    let
+                        queueItems =
+                            Helpers.makeSongItemList songs
 
-                queue_ =
-                    Queue.update (Queue.Drop []) model.queue
-            in
-                ( { model | queue = queue_ }, Cmd.none )
+                        queue_ =
+                            Queue.update (Queue.Drop queueItems) model.queue
+                    in
+                        ( { model | queue = queue_ }, Cmd.none )
 
-        SendAddSongs json ->
+                Err _ ->
+                    ( model, Cmd.none )
+
+        SendAddSongs songs ->
             let
+                json =
+                    Debug.log "json is ---  " <| ApiHelpers.songsEncoder songs
+
                 push_ =
                     Phoenix.Push.init "add_songs" "queue:lobby"
                         |> Phoenix.Push.withPayload json

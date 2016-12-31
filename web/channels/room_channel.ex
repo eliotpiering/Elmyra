@@ -13,12 +13,4 @@ defmodule Elmira.RoomChannel do
     IO.inspect(body)
     {:noreply, socket}
   end
-
-  def handle_out("new:msg", payload, socket) do
-    push socket, "new:msg", payload
-    IO.puts "handle out ---------------"
-    IO.inspect(payload)
-    {:noreply, socket}
-  end
-
 end

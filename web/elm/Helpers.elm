@@ -1,4 +1,4 @@
-module Helpers exposing (itemListToSongItemList, makeSongItemDictionary, makeGroupItemDictionary, getItemTitle, lookupAlbumArt, makeSongItemList, isSong)
+module Helpers exposing (itemListToSongModelList, makeSongItemDictionary, makeGroupItemDictionary, getItemTitle, lookupAlbumArt, makeSongItemList, isSong)
 
 import Dict exposing (Dict)
 import Array exposing (Array)
@@ -8,24 +8,20 @@ import Port
 
 -- Public
 
-
-itemListToSongItemList : List ItemModel -> List QueueItemModel
-itemListToSongItemList itemModels =
+itemListToSongModelList : List ItemModel -> List SongModel
+itemListToSongModelList =
     List.foldl
         (\item acc ->
             case item.data of
                 Song s ->
-                    let
-                        songItem =
-                            { song = s, isSelected = False, isMouseOver = False }
-                    in
-                        songItem :: acc
+                    s :: acc
 
                 Group _ ->
                     acc
         )
         []
-        itemModels
+
+
 
 
 makeSongItemList : List SongModel -> List QueueItemModel

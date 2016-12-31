@@ -82,19 +82,15 @@ var _user$project$Helpers$makeSongItemList = function (songs) {
 		},
 		songs);
 };
-var _user$project$Helpers$itemListToSongItemList = function (itemModels) {
-	return A3(
-		_elm_lang$core$List$foldl,
-		F2(
-			function (item, acc) {
-				var _p6 = item.data;
-				if (_p6.ctor === 'Song') {
-					var songItem = {song: _p6._0, isSelected: false, isMouseOver: false};
-					return {ctor: '::', _0: songItem, _1: acc};
-				} else {
-					return acc;
-				}
-			}),
-		{ctor: '[]'},
-		itemModels);
-};
+var _user$project$Helpers$itemListToSongModelList = A2(
+	_elm_lang$core$List$foldl,
+	F2(
+		function (item, acc) {
+			var _p6 = item.data;
+			if (_p6.ctor === 'Song') {
+				return {ctor: '::', _0: _p6._0, _1: acc};
+			} else {
+				return acc;
+			}
+		}),
+	{ctor: '[]'});

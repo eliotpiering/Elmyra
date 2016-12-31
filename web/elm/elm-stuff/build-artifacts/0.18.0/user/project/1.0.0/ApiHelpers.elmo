@@ -1,3 +1,55 @@
+var _user$project$ApiHelpers$songEncoder = function (song) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'id',
+				_1: _elm_lang$core$Json_Encode$int(song.id)
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'path',
+					_1: _elm_lang$core$Json_Encode$string(song.path)
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'title',
+						_1: _elm_lang$core$Json_Encode$string(song.title)
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'artist',
+							_1: _elm_lang$core$Json_Encode$string(song.artist)
+						},
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'album',
+								_1: _elm_lang$core$Json_Encode$string(song.album)
+							},
+							_1: {
+								ctor: '::',
+								_0: {
+									ctor: '_Tuple2',
+									_0: 'track',
+									_1: _elm_lang$core$Json_Encode$int(song.track)
+								},
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				}
+			}
+		});
+};
 var _user$project$ApiHelpers$songDecoder = A7(
 	_elm_lang$core$Json_Decode$map6,
 	_user$project$MyModels$SongModel,
@@ -7,6 +59,19 @@ var _user$project$ApiHelpers$songDecoder = A7(
 	A2(_elm_lang$core$Json_Decode$field, 'artist', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'album', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'track', _elm_lang$core$Json_Decode$int));
+var _user$project$ApiHelpers$songsEncoder = function (songs) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'songs',
+				_1: _elm_lang$core$Json_Encode$list(
+					A2(_elm_lang$core$List$map, _user$project$ApiHelpers$songEncoder, songs))
+			},
+			_1: {ctor: '[]'}
+		});
+};
 var _user$project$ApiHelpers$songsDecoder = A2(
 	_elm_lang$core$Json_Decode$field,
 	'songs',
