@@ -1,3 +1,5 @@
+import Elmira.Factory
+
 defmodule Elmira.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
@@ -26,6 +28,7 @@ defmodule Elmira.ConnCase do
       import Ecto.Query
 
       import Elmira.Router.Helpers
+      import Elmira.ConnCaseHelper
 
       # The default endpoint for testing
       @endpoint Elmira.Endpoint

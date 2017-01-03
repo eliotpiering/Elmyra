@@ -82,12 +82,19 @@ initialSocket =
                 |> Socket.on "next_song" "queue:lobby" ReceiveNextSong
                 |> Socket.on "previous_song" "queue:lobby" ReceivePreviousSong
                 |> Socket.on "add_songs" "queue:lobby" ReceiveAddSongs
+                |> Socket.on "sync" "queue:lobby" ReceiveSync
                 |> Socket.join chatChannel
 
         ( socketMsg_, socketCmd_ ) =
             Socket.join queueChannel socketMsg
+        push_ =
+            Phoenix.Push.init "sync" "queue:lobby"
+
+        (socketMsg__, socketCmd__) =  Socket.push push_ socketMsg_
+
+
     in
-        ( socketMsg_, Cmd.batch [ socketCmd, socketCmd_ ] )
+        ( socketMsg__, Cmd.batch [ socketCmd__, socketCmd_, socketCmd ] )
 
 
 socketServer : String
@@ -134,6 +141,7 @@ type Msg
     | SendPreviousSong
     | ReceiveAddSongs JE.Value
     | SendAddSongs (List SongModel)
+    | ReceiveSync JE.Value
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -542,6 +550,23 @@ update action model =
                     Socket.push push_ model.socket
             in
                 ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
+
+        ReceiveSync raw ->
+            case ApiHelpers.decodeSongs raw of
+                Ok songs ->
+                    let
+                        queueItems =
+                            Debug.log "queue items" <| 
+                            Helpers.makeSongItemList songs
+
+                        queue_ =
+                            Queue.update (Queue.Drop queueItems) model.queue
+                    in
+                        ( { model | queue = queue_ }, Cmd.none )
+
+                Err a ->
+                    let balh = Debug.log " error " a  in
+                    ( model, Cmd.none )
 
 
 currentMouseLocation : Model -> MouseLocation

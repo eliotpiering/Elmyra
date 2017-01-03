@@ -13,7 +13,7 @@ config :logger, level: :warn
 config :elmira, Elmira.Repo,
   adapter: Ecto.Adapters.MySQL,
   username: "root",
-  password: "",
+  password: "welcome",
   database: "elmira_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
