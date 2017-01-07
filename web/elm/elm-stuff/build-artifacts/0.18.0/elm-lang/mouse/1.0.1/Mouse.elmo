@@ -68,15 +68,16 @@ var _elm_lang$mouse$Mouse$categorize = function (subs) {
 	return A2(_elm_lang$mouse$Mouse$categorizeHelp, subs, _elm_lang$core$Dict$empty);
 };
 var _elm_lang$mouse$Mouse$subscription = _elm_lang$core$Native_Platform.leaf('Mouse');
-var _elm_lang$mouse$Mouse$Position = F2(
-	function (a, b) {
-		return {x: a, y: b};
+var _elm_lang$mouse$Mouse$Position = F3(
+	function (a, b, c) {
+		return {x: a, y: b, button: c};
 	});
-var _elm_lang$mouse$Mouse$position = A3(
-	_elm_lang$core$Json_Decode$map2,
+var _elm_lang$mouse$Mouse$position = A4(
+	_elm_lang$core$Json_Decode$map3,
 	_elm_lang$mouse$Mouse$Position,
 	A2(_elm_lang$core$Json_Decode$field, 'pageX', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode$field, 'pageY', _elm_lang$core$Json_Decode$int));
+	A2(_elm_lang$core$Json_Decode$field, 'pageY', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'button', _elm_lang$core$Json_Decode$int));
 var _elm_lang$mouse$Mouse$Watcher = F2(
 	function (a, b) {
 		return {taggers: a, pid: b};

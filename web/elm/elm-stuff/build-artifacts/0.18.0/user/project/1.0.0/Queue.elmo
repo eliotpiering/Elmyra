@@ -6,10 +6,23 @@ var _user$project$Queue$getMaybeCurrentSong = function (model) {
 		return _elm_lang$core$Maybe$Nothing;
 	}
 };
+var _user$project$Queue$currentSelected = function (model) {
+	return _elm_lang$core$List$head(
+		A2(
+			_elm_lang$core$List$map,
+			_elm_lang$core$Tuple$first,
+			A2(
+				_elm_lang$core$List$filter,
+				function (_p1) {
+					var _p2 = _p1;
+					return _p2._1.isSelected;
+				},
+				_elm_lang$core$Array$toIndexedList(model.array))));
+};
 var _user$project$Queue$resetQueue = _elm_lang$core$Array$map(
-	function (_p1) {
+	function (_p3) {
 		return _elm_lang$core$Tuple$first(
-			A2(_user$project$QueueItem$update, _user$project$QueueItem$Reset, _p1));
+			A2(_user$project$QueueItem$update, _user$project$QueueItem$Reset, _p3));
 	});
 var _user$project$Queue$nextSong = function (model) {
 	var shouldReset = _elm_lang$core$Native_Utils.cmp(
@@ -28,8 +41,8 @@ var _user$project$Queue$nextSong = function (model) {
 };
 var _user$project$Queue$update = F2(
 	function (msg, model) {
-		var _p2 = msg;
-		switch (_p2.ctor) {
+		var _p4 = msg;
+		switch (_p4.ctor) {
 			case 'MouseEnter':
 				return _elm_lang$core$Native_Utils.update(
 					model,
@@ -39,35 +52,35 @@ var _user$project$Queue$update = F2(
 					model,
 					{mouseOver: false});
 			case 'QueueItemMsg':
-				var _p6 = _p2._0;
-				var _p3 = A2(_elm_lang$core$Array$get, _p6, model.array);
-				if (_p3.ctor === 'Just') {
-					var _p4 = A2(_user$project$QueueItem$update, _p2._1, _p3._0);
-					var song_ = _p4._0;
-					var queueItemCmd = _p4._1;
+				var _p8 = _p4._0;
+				var _p5 = A2(_elm_lang$core$Array$get, _p8, model.array);
+				if (_p5.ctor === 'Just') {
+					var _p6 = A2(_user$project$QueueItem$update, _p4._1, _p5._0);
+					var song_ = _p6._0;
+					var queueItemCmd = _p6._1;
 					var model_ = _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							array: A3(_elm_lang$core$Array$set, _p6, song_, model.array)
+							array: A3(_elm_lang$core$Array$set, _p8, song_, model.array)
 						});
-					var _p5 = queueItemCmd;
-					_v3_2:
+					var _p7 = queueItemCmd;
+					_v4_2:
 					do {
-						if (_p5.ctor === 'Just') {
-							switch (_p5._0.ctor) {
+						if (_p7.ctor === 'Just') {
+							switch (_p7._0.ctor) {
 								case 'MouseEntered':
 									return _elm_lang$core$Native_Utils.update(
 										model_,
-										{mouseOverItem: _p6});
+										{mouseOverItem: _p8});
 								case 'DoubleClicked':
 									return _elm_lang$core$Native_Utils.update(
 										model_,
-										{currentSong: _p6});
+										{currentSong: _p8});
 								default:
-									break _v3_2;
+									break _v4_2;
 							}
 						} else {
-							break _v3_2;
+							break _v4_2;
 						}
 					} while(false);
 					return model_;
@@ -75,8 +88,7 @@ var _user$project$Queue$update = F2(
 					return model;
 				}
 			case 'Drop':
-				var newArrayItems = _elm_lang$core$Array$fromList(
-					_user$project$SortSongs$byAlbumAndTrack(_p2._0));
+				var newArrayItems = _elm_lang$core$Array$fromList(_p4._0);
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
@@ -87,22 +99,22 @@ var _user$project$Queue$update = F2(
 				var maybeIndexedItemToReorder = _elm_lang$core$List$head(
 					A2(
 						_elm_lang$core$List$filter,
-						function (_p7) {
-							var _p8 = _p7;
-							return _p8._1.isSelected;
+						function (_p9) {
+							var _p10 = _p9;
+							return _p10._1.isSelected;
 						},
 						_elm_lang$core$Array$toIndexedList(model.array)));
 				var currentQueueIndex = model.currentSong;
-				var _p9 = maybeIndexedItemToReorder;
-				if (_p9.ctor === 'Just') {
-					var _p11 = _p9._0._0;
-					var newQueueIndex = ((_elm_lang$core$Native_Utils.cmp(currentQueueIndex, _p11) > 0) && (_elm_lang$core$Native_Utils.cmp(currentQueueIndex, model.mouseOverItem) < 0)) ? (currentQueueIndex - 1) : (((_elm_lang$core$Native_Utils.cmp(currentQueueIndex, _p11) < 0) && (_elm_lang$core$Native_Utils.cmp(currentQueueIndex, model.mouseOverItem) > 0)) ? (currentQueueIndex + 1) : currentQueueIndex);
+				var _p11 = maybeIndexedItemToReorder;
+				if (_p11.ctor === 'Just') {
+					var _p13 = _p11._0._0;
+					var newQueueIndex = ((_elm_lang$core$Native_Utils.cmp(currentQueueIndex, _p13) > 0) && (_elm_lang$core$Native_Utils.cmp(currentQueueIndex, model.mouseOverItem) < 0)) ? (currentQueueIndex - 1) : (((_elm_lang$core$Native_Utils.cmp(currentQueueIndex, _p13) < 0) && (_elm_lang$core$Native_Utils.cmp(currentQueueIndex, model.mouseOverItem) > 0)) ? (currentQueueIndex + 1) : currentQueueIndex);
 					var itemsToStayTheSame = A2(
 						_elm_lang$core$Array$filter,
-						function (_p10) {
+						function (_p12) {
 							return !function (_) {
 								return _.isSelected;
-							}(_p10);
+							}(_p12);
 						},
 						model.array);
 					var left = A3(_elm_lang$core$Array$slice, 0, model.mouseOverItem, itemsToStayTheSame);
@@ -110,7 +122,7 @@ var _user$project$Queue$update = F2(
 					var right = A3(_elm_lang$core$Array$slice, model.mouseOverItem, queueLength, itemsToStayTheSame);
 					var reorderedQueue = A2(
 						_elm_lang$core$Array$append,
-						A2(_elm_lang$core$Array$push, _p9._0._1, left),
+						A2(_elm_lang$core$Array$push, _p11._0._1, left),
 						right);
 					return _elm_lang$core$Native_Utils.update(
 						model,
@@ -122,26 +134,25 @@ var _user$project$Queue$update = F2(
 					return model;
 				}
 			case 'Remove':
-				var maybeItemToRemove = _elm_lang$core$List$head(
-					A2(
-						_elm_lang$core$List$filter,
-						function (_p12) {
-							var _p13 = _p12;
-							return _p13._1.isSelected;
-						},
-						_elm_lang$core$Array$toIndexedList(model.array)));
-				var currentQueueIndex = model.currentSong;
-				var _p14 = maybeItemToRemove;
-				if (_p14.ctor === 'Just') {
-					var _p15 = _p14._0._0;
-					var array_ = A2(_elm_community$array_extra$Array_Extra$removeAt, _p15, model.array);
-					var newQueueIndex = (_elm_lang$core$Native_Utils.cmp(_p15, currentQueueIndex) < 0) ? (currentQueueIndex - 1) : currentQueueIndex;
-					return _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							array: _user$project$Queue$resetQueue(array_),
-							currentSong: newQueueIndex
-						});
+				var _p14 = A2(
+					_elm_lang$core$Json_Decode$decodeValue,
+					A2(_elm_lang$core$Json_Decode$field, 'body', _elm_lang$core$Json_Decode$int),
+					_p4._0);
+				if (_p14.ctor === 'Ok') {
+					var _p16 = _p14._0;
+					var _p15 = A2(_elm_lang$core$Array$get, _p16, model.array);
+					if (_p15.ctor === 'Just') {
+						var array_ = A2(_elm_community$array_extra$Array_Extra$removeAt, _p16, model.array);
+						var newQueueIndex = (_elm_lang$core$Native_Utils.cmp(_p16, model.currentSong) < 0) ? (model.currentSong - 1) : model.currentSong;
+						return _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								array: _user$project$Queue$resetQueue(array_),
+								currentSong: newQueueIndex
+							});
+					} else {
+						return model;
+					}
 				} else {
 					return model;
 				}
@@ -161,7 +172,7 @@ var _user$project$Queue$update = F2(
 						{currentSong: newCurrentSong});
 				}
 			default:
-				var _p16 = _p2._0;
+				var _p17 = _p4._0;
 				return _user$project$Queue$nextSong(model);
 		}
 	});
@@ -171,7 +182,9 @@ var _user$project$Queue$Pos = F2(
 	});
 var _user$project$Queue$NextSong = {ctor: 'NextSong'};
 var _user$project$Queue$PreviousSong = {ctor: 'PreviousSong'};
-var _user$project$Queue$Remove = {ctor: 'Remove'};
+var _user$project$Queue$Remove = function (a) {
+	return {ctor: 'Remove', _0: a};
+};
 var _user$project$Queue$Reorder = {ctor: 'Reorder'};
 var _user$project$Queue$Drop = function (a) {
 	return {ctor: 'Drop', _0: a};
@@ -180,12 +193,12 @@ var _user$project$Queue$AudioMsg = function (a) {
 	return {ctor: 'AudioMsg', _0: a};
 };
 var _user$project$Queue$audioPlayer = function (maybeSong) {
-	var _p17 = maybeSong;
-	if (_p17.ctor === 'Just') {
+	var _p18 = maybeSong;
+	if (_p18.ctor === 'Just') {
 		return A2(
 			_elm_lang$html$Html$map,
 			_user$project$Queue$AudioMsg,
-			_user$project$Audio$view(_p17._0));
+			_user$project$Audio$view(_p18._0));
 	} else {
 		return A2(
 			_elm_lang$html$Html$div,
@@ -202,18 +215,18 @@ var _user$project$Queue$QueueItemMsg = F2(
 		return {ctor: 'QueueItemMsg', _0: a, _1: b};
 	});
 var _user$project$Queue$itemToHtml = F3(
-	function (maybePos, currentSong, _p18) {
-		var _p19 = _p18;
-		var _p20 = _p19._0;
+	function (maybePos, currentSong, _p19) {
+		var _p20 = _p19;
+		var _p21 = _p20._0;
 		return A2(
 			_elm_lang$html$Html$map,
-			_user$project$Queue$QueueItemMsg(_p20),
+			_user$project$Queue$QueueItemMsg(_p21),
 			A4(
 				_user$project$QueueItem$view,
 				maybePos,
-				_elm_lang$core$Native_Utils.eq(_p20, currentSong),
-				_elm_lang$core$Basics$toString(_p20),
-				_p19._1));
+				_elm_lang$core$Native_Utils.eq(_p21, currentSong),
+				_elm_lang$core$Basics$toString(_p21),
+				_p20._1));
 	});
 var _user$project$Queue$MouseLeave = {ctor: 'MouseLeave'};
 var _user$project$Queue$MouseEnter = {ctor: 'MouseEnter'};

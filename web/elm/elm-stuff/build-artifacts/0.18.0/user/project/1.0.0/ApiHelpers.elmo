@@ -94,6 +94,25 @@ var _user$project$ApiHelpers$albumsDecoder = A2(
 var _user$project$ApiHelpers$decodeSongs = function (raw) {
 	return A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$ApiHelpers$songsDecoder, raw);
 };
+var _user$project$ApiHelpers$decodeSync = function (raw) {
+	var currentSong = A2(
+		_elm_lang$core$Json_Decode$decodeValue,
+		A2(_elm_lang$core$Json_Decode$field, 'current_song', _elm_lang$core$Json_Decode$int),
+		raw);
+	var songs = _user$project$ApiHelpers$decodeSongs(raw);
+	var _p0 = songs;
+	if (_p0.ctor === 'Ok') {
+		var _p1 = currentSong;
+		if (_p1.ctor === 'Ok') {
+			return _elm_lang$core$Maybe$Just(
+				{ctor: '_Tuple2', _0: _p1._0, _1: _p0._0});
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
 var _user$project$ApiHelpers$apiEndpoint = 'http://localhost:4000/api/';
 var _user$project$ApiHelpers$fetchSongsFromArtist = F2(
 	function (id, groupAction) {
@@ -134,21 +153,21 @@ var _user$project$ApiHelpers$fetchSongsFromGroups = F2(
 		return A2(
 			_elm_lang$core$List$map,
 			function (item) {
-				var _p0 = item.data;
-				if (_p0.ctor === 'Group') {
-					var _p1 = _p0._0;
+				var _p2 = item.data;
+				if (_p2.ctor === 'Group') {
+					var _p3 = _p2._0;
 					var url = A2(
 						_elm_lang$core$Basics_ops['++'],
 						_user$project$ApiHelpers$apiEndpoint,
 						A2(
 							_elm_lang$core$Basics_ops['++'],
-							_p1.kind,
+							_p3.kind,
 							A2(
 								_elm_lang$core$Basics_ops['++'],
 								'/',
 								A2(
 									_elm_lang$core$Basics_ops['++'],
-									_elm_lang$core$Basics$toString(_p1.id),
+									_elm_lang$core$Basics$toString(_p3.id),
 									'/songs'))));
 					return A2(
 						_elm_lang$http$Http$send,

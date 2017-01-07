@@ -1,10 +1,21 @@
-module SortSongs exposing (byAlbumAndTrack, byGroupTitle)
+module SortSongs exposing (byAlbumAndTrackQ, byAlbumAndTrack, byGroupTitle)
 
 import MyModels exposing (..)
 
 
-byAlbumAndTrack : List QueueItemModel -> List QueueItemModel
 byAlbumAndTrack =
+    List.sortWith
+        (\item1 item2 ->
+            case compare item1.album item2.album of
+                EQ ->
+                    compare item1.track item2.track
+
+                greaterOrLess ->
+                    greaterOrLess
+        )
+
+byAlbumAndTrackQ : List QueueItemModel -> List QueueItemModel
+byAlbumAndTrackQ =
     List.sortWith
         (\item1 item2 ->
             case compare item1.song.album item2.song.album of

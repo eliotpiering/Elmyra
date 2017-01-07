@@ -6,10 +6,11 @@ import Html.Attributes as Attr
 import MyModels exposing (..)
 import MyStyle exposing (..)
 import Array exposing (Array)
-import SortSongs
 import Array.Extra
 import Audio
 import QueueItem
+import Json.Encode as JE
+import Json.Decode as JD
 
 
 type Msg
@@ -19,7 +20,7 @@ type Msg
     | AudioMsg Audio.Msg
     | Drop (List QueueItemModel)
     | Reorder
-    | Remove
+    | Remove JE.Value
     | PreviousSong
     | NextSong
 
@@ -62,8 +63,8 @@ update msg model =
 
         Drop newSongs ->
             let
-              newArrayItems =
-                Array.fromList <| SortSongs.byAlbumAndTrack newSongs
+                newArrayItems =
+                    Array.fromList newSongs
             in
                 { model | array = resetQueue <| Array.append model.array newArrayItems }
 
@@ -109,33 +110,31 @@ update msg model =
                     Nothing ->
                         model
 
-        Remove ->
-            let
-                currentQueueIndex =
-                    model.currentSong
+        Remove raw ->
+            case JD.decodeValue (JD.field "body" JD.int) raw of
+                Ok index ->
+                    case Array.get index model.array of
+                        Just item ->
+                            let
+                                newQueueIndex =
+                                    if index < model.currentSong then
+                                        model.currentSong - 1
+                                    else
+                                        model.currentSong
 
-                maybeItemToRemove =
-                    model.array |> Array.toIndexedList |> List.filter (\( i, item ) -> item.isSelected) |> List.head
-            in
-                case maybeItemToRemove of
-                    Just ( index, item ) ->
-                        let
-                            newQueueIndex =
-                                if index < currentQueueIndex then
-                                    currentQueueIndex - 1
-                                else
-                                    currentQueueIndex
+                                array_ =
+                                    Array.Extra.removeAt index model.array
+                            in
+                                { model
+                                    | array = resetQueue array_
+                                    , currentSong = newQueueIndex
+                                }
 
-                            array_ =
-                                Array.Extra.removeAt index model.array
-                        in
-                            { model
-                                | array = resetQueue array_
-                                , currentSong = newQueueIndex
-                            }
+                        Nothing ->
+                            model
 
-                    Nothing ->
-                        model
+                Err _ ->
+                    model
 
         NextSong ->
             nextSong model
@@ -191,6 +190,15 @@ nextSong model =
 resetQueue : Array QueueItemModel -> Array QueueItemModel
 resetQueue =
     Array.map (QueueItem.update QueueItem.Reset >> Tuple.first)
+
+
+currentSelected : QueueModel -> Maybe Int
+currentSelected model =
+    model.array
+        |> Array.toIndexedList
+        |> List.filter (\( index, item ) -> item.isSelected)
+        |> List.map Tuple.first
+        |> List.head
 
 
 itemToHtml : Maybe Pos -> Int -> ( Int, QueueItemModel ) -> Html Msg

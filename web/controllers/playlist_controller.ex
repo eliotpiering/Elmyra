@@ -2,6 +2,7 @@ defmodule Elmira.PlaylistController do
   use Elmira.Web, :controller
 
   alias Elmira.Playlist
+  alias Elmira.Song
   alias Elmira.PlaylistItem
 
   def index(conn, _params) do

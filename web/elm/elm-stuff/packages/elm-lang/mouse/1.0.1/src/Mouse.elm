@@ -37,16 +37,19 @@ very top left corner of the *whole* document.
 type alias Position =
   { x : Int
   , y : Int
+  , button : Int
   }
+
 
 
 {-| The decoder used to extract a `Position` from a JavaScript mouse event.
 -}
 position : Json.Decoder Position
 position =
-  Json.map2 Position
+  Json.map3 Position
     (Json.field "pageX" Json.int)
     (Json.field "pageY" Json.int)
+    (Json.field "button" Json.int)
 
 
 

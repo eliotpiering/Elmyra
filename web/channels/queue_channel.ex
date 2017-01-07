@@ -30,11 +30,19 @@ defmodule Elmira.QueueChannel do
     {:noreply, socket}
   end
 
+  def handle_in("remove_song", %{"body" => index}, socket) do
+    IO.puts "handle in --------------- remove song"
+    broadcast! socket, "remove_song", %{body: index}
+    remove_song_in_playlist(index)
+    {:noreply, socket}
+  end
+
   def handle_in("sync", %{}, socket) do
     IO.puts "handle in --------------- sync"
     songs = get_songs_in_playlist
+    current_song = get_current_song_in_playlist
     IO.inspect(songs)
-    push socket, "sync", %{songs: songs}
+    push socket, "sync", %{songs: songs, current_song: current_song }
     {:noreply, socket}
   end
 
@@ -80,6 +88,21 @@ defmodule Elmira.QueueChannel do
     end)
   end
 
+  defp remove_song_in_playlist(index) do
+    default_playlist_id = default_playlist.id
+
+    delete = "DELETE from playlist_items
+    where `order` = #{index}"
+
+    update = "UPDATE playlist_items set
+      `order` = `order` - 1
+      where `order` > #{index};"
+
+
+    Ecto.Adapters.SQL.query!(Elmira.Repo, delete, [])
+    Ecto.Adapters.SQL.query!(Elmira.Repo, update, [])
+  end
+
   def get_songs_in_playlist() do
     qry = "SELECT s.*, artists.title as 'artist', albums.title as 'album' FROM playlist_items i
     LEFT JOIN songs s on i.song_id = s.id
@@ -105,6 +128,11 @@ defmodule Elmira.QueueChannel do
       }
     end
 
+  end
+
+  defp get_current_song_in_playlist do
+    playlist = default_playlist
+    playlist.current_song
   end
 
 end
