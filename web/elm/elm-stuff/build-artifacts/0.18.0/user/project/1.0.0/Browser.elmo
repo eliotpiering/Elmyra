@@ -4,50 +4,37 @@ var _user$project$Browser$resetItems = _elm_lang$core$Dict$map(
 			return _elm_lang$core$Tuple$first(
 				A2(_user$project$Item$update, _user$project$Item$Reset, item));
 		}));
-var _user$project$Browser$initialModel = {isMouseOver: false, items: _elm_lang$core$Dict$empty};
+var _user$project$Browser$initialModel = {isMouseOver: false, items: _elm_lang$core$Dict$empty, isUploading: false};
 var _user$project$Browser$Pos = F2(
 	function (a, b) {
 		return {x: a, y: b};
 	});
 var _user$project$Browser$Upload = {ctor: 'Upload'};
+var _user$project$Browser$StartingUpload = {ctor: 'StartingUpload'};
 var _user$project$Browser$GroupBy = function (a) {
 	return {ctor: 'GroupBy', _0: a};
 };
-var _user$project$Browser$navigationView = A2(
-	_elm_lang$html$Html$ul,
-	{
-		ctor: '::',
-		_0: _elm_lang$html$Html_Attributes$id('navigation-view-container'),
-		_1: {ctor: '[]'}
-	},
-	{
-		ctor: '::',
-		_0: A2(
-			_elm_lang$html$Html$li,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Events$onClick(
-					_user$project$Browser$GroupBy('album')),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text('Albums'),
-				_1: {ctor: '[]'}
-			}),
-		_1: {
+var _user$project$Browser$navigationView = function (model) {
+	return A2(
+		_elm_lang$html$Html$ul,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$id('navigation-view-container'),
+			_1: {ctor: '[]'}
+		},
+		{
 			ctor: '::',
 			_0: A2(
 				_elm_lang$html$Html$li,
 				{
 					ctor: '::',
 					_0: _elm_lang$html$Html_Events$onClick(
-						_user$project$Browser$GroupBy('artist')),
+						_user$project$Browser$GroupBy('album')),
 					_1: {ctor: '[]'}
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('Artists'),
+					_0: _elm_lang$html$Html$text('Albums'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -57,12 +44,12 @@ var _user$project$Browser$navigationView = A2(
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html_Events$onClick(
-							_user$project$Browser$GroupBy('song')),
+							_user$project$Browser$GroupBy('artist')),
 						_1: {ctor: '[]'}
 					},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text('Songs'),
+						_0: _elm_lang$html$Html$text('Artists'),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
@@ -71,19 +58,72 @@ var _user$project$Browser$navigationView = A2(
 						_elm_lang$html$Html$li,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onClick(_user$project$Browser$Upload),
+							_0: _elm_lang$html$Html_Events$onClick(
+								_user$project$Browser$GroupBy('song')),
 							_1: {ctor: '[]'}
 						},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text('Upload (not working yet)'),
+							_0: _elm_lang$html$Html$text('Songs'),
 							_1: {ctor: '[]'}
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$li,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$input,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$type_('file'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$id('file-upload'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$multiple(true),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$action('/api/upload'),
+													_1: {
+														ctor: '::',
+														_0: A2(
+															_elm_lang$html$Html_Events$on,
+															'change',
+															_elm_lang$core$Json_Decode$succeed(_user$project$Browser$StartingUpload)),
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}
+									},
+									{ctor: '[]'}),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: model.isUploading ? A2(
+								_elm_lang$html$Html$li,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onClick(_user$project$Browser$Upload),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Start Upload'),
+									_1: {ctor: '[]'}
+								}) : _elm_lang$html$Html$text(''),
+							_1: {ctor: '[]'}
+						}
+					}
 				}
 			}
-		}
-	});
+		});
+};
 var _user$project$Browser$MouseLeave = {ctor: 'MouseLeave'};
 var _user$project$Browser$MouseEnter = {ctor: 'MouseEnter'};
 var _user$project$Browser$UpdateSongs = function (a) {
@@ -114,7 +154,7 @@ var _user$project$Browser$view = F2(
 			},
 			{
 				ctor: '::',
-				_0: _user$project$Browser$navigationView,
+				_0: _user$project$Browser$navigationView(model),
 				_1: {
 					ctor: '::',
 					_0: A2(
@@ -150,11 +190,12 @@ var _user$project$Browser$view = F2(
 			});
 	});
 var _user$project$Browser$None = {ctor: 'None'};
+var _user$project$Browser$SendUpload = {ctor: 'SendUpload'};
 var _user$project$Browser$ChangeRoute = function (a) {
 	return {ctor: 'ChangeRoute', _0: a};
 };
-var _user$project$Browser$AddSong = function (a) {
-	return {ctor: 'AddSong', _0: a};
+var _user$project$Browser$AddItemToQueue = function (a) {
+	return {ctor: 'AddItemToQueue', _0: a};
 };
 var _user$project$Browser$OpenGroup = function (a) {
 	return {ctor: 'OpenGroup', _0: a};
@@ -189,7 +230,7 @@ var _user$project$Browser$update = F3(
 								return {
 									ctor: '_Tuple2',
 									_0: model_,
-									_1: _user$project$Browser$AddSong(item_)
+									_1: _user$project$Browser$AddItemToQueue(item_)
 								};
 							}
 						case 'Clicked':
@@ -206,6 +247,12 @@ var _user$project$Browser$update = F3(
 									_1: _user$project$Browser$None
 								};
 							}
+						case 'AddToQueue':
+							return {
+								ctor: '_Tuple2',
+								_0: model_,
+								_1: _user$project$Browser$AddItemToQueue(item_)
+							};
 						default:
 							return {ctor: '_Tuple2', _0: model_, _1: _user$project$Browser$None};
 					}
@@ -270,7 +317,15 @@ var _user$project$Browser$update = F3(
 					default:
 						return {ctor: '_Tuple2', _0: model, _1: _user$project$Browser$None};
 				}
+			case 'StartingUpload':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{isUploading: true}),
+					_1: _user$project$Browser$None
+				};
 			default:
-				return {ctor: '_Tuple2', _0: model, _1: _user$project$Browser$None};
+				return {ctor: '_Tuple2', _0: model, _1: _user$project$Browser$SendUpload};
 		}
 	});

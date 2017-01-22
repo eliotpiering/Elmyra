@@ -1,3 +1,10 @@
+<%= form_for @conn, upload_path(@conn, :create), [multipart: true, as: :upload], fn f -> %>
+  <div>
+    <%= file_input f, :photo, class: "form-control", hidden: true %>
+    <%= submit "Submit", class: "btn btn-primary", hidden: true %>
+  </div>
+<% end %>
+
 <div id="elm-container">
 
 </div>

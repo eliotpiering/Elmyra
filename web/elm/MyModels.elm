@@ -34,6 +34,7 @@ type alias QueueModel =
 type alias BrowserModel =
     { isMouseOver : Bool
     , items : ItemDictionary
+    , isUploading : Bool
     }
 
 

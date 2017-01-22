@@ -9,6 +9,7 @@ import Dict exposing (Dict)
 import Item
 import SortSongs
 import NavigationParser exposing (..)
+import Json.Decode as JD
 
 
 type Msg
@@ -18,13 +19,15 @@ type Msg
     | MouseEnter
     | MouseLeave
     | GroupBy String
+    | StartingUpload
     | Upload
 
 
 type BrowserCmd
     = OpenGroup ItemModel
-    | AddSong ItemModel
+    | AddItemToQueue ItemModel
     | ChangeRoute Route
+    | SendUpload
     | None
 
 
@@ -34,7 +37,7 @@ type alias Pos =
 
 initialModel : BrowserModel
 initialModel =
-    { isMouseOver = False, items = Dict.empty }
+    { isMouseOver = False, items = Dict.empty, isUploading = False }
 
 
 update : Msg -> Bool -> BrowserModel -> ( BrowserModel, BrowserCmd )
@@ -52,12 +55,12 @@ update msg isShiftDown model =
                     in
                         case itemCmd of
                             Item.DoubleClicked ->
-                                case item_.data of
+                                 case item_.data of
                                     Group groupModel ->
                                         ( model_, OpenGroup item_ )
 
                                     Song _ ->
-                                        ( model_, AddSong item_ )
+                                        ( model_, AddItemToQueue item_ )
 
                             Item.Clicked ->
                                 if isShiftDown then
@@ -71,6 +74,9 @@ update msg isShiftDown model =
                                             Dict.insert id item_ cleanItems
                                     in
                                         ( { model | items = itemsWithOneSelected }, None )
+
+                            Item.AddToQueue ->
+                                (model_, AddItemToQueue item_)
 
                             Item.None ->
                                 ( model_, None )
@@ -103,8 +109,12 @@ update msg isShiftDown model =
 
                 _ ->
                     ( model, None )
+
+        StartingUpload ->
+            ( { model | isUploading = True }, None )
+
         Upload ->
-            (model, None)
+            ( model, SendUpload )
 
 
 resetItems : ItemDictionary -> ItemDictionary
@@ -117,7 +127,7 @@ view maybePos model =
     Html.div
         [ Attr.id "file-view-container"
         ]
-        [ navigationView
+        [ navigationView model
         , Html.ul
             [ Attr.class "scroll-box"
             , Attr.id "browser-list"
@@ -134,11 +144,26 @@ itemToHtml maybePos ( id, item ) =
     Html.map (ItemMsg id) (Item.view maybePos id item)
 
 
-navigationView : Html Msg
-navigationView =
+navigationView : BrowserModel -> Html Msg
+navigationView model =
     Html.ul [ Attr.id "navigation-view-container" ]
         [ Html.li [ Events.onClick (GroupBy "album") ] [ Html.text "Albums" ]
         , Html.li [ Events.onClick (GroupBy "artist") ] [ Html.text "Artists" ]
         , Html.li [ Events.onClick (GroupBy "song") ] [ Html.text "Songs" ]
-        , Html.li [ Events.onClick (Upload) ] [ Html.text "Upload (not working yet)" ]
+        , Html.li []
+            [ Html.input
+                [ Attr.type_ "file"
+                , Attr.id "file-upload"
+                , Attr.multiple True
+                , Attr.action "/api/upload"
+                , Events.on "change"
+                    (JD.succeed StartingUpload)
+                ]
+                []
+            ]
+        , (if model.isUploading then
+            Html.li [ Events.onClick Upload ] [ Html.text "Start Upload" ]
+           else
+            Html.text ""
+          )
         ]

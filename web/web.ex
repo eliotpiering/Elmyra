@@ -42,8 +42,7 @@ defmodule Elmira.Web do
   def view do
     quote do
       use Phoenix.View, root: "web/templates"
-
-      # Import convenience functions from controllers
+      use Phoenix.HTML
       import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
 
       import Elmira.Router.Helpers

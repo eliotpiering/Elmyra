@@ -15,3 +15,8 @@ var _user$project$Port$lookupAlbumArt = _elm_lang$core$Native_Platform.outgoingP
 		return v;
 	});
 var _user$project$Port$updateAlbumArt = _elm_lang$core$Native_Platform.incomingPort('updateAlbumArt', _elm_lang$core$Json_Decode$string);
+var _user$project$Port$upload = _elm_lang$core$Native_Platform.outgoingPort(
+	'upload',
+	function (v) {
+		return v;
+	});

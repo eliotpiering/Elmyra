@@ -1,20 +1,13 @@
 # Elmira
+A shared music player
 
-To start your Phoenix app:
+## Music library
+On the left there's a library of music.  You can on the top to click on a group and scroll through by album, artist or song.  If you double click it will show all the songs in whatever group.  And you can drag a group or an individual song to the right where there's a running playlist.
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
-  * Install Node.js dependencies with `npm install`
-  * Start Phoenix endpoint with `mix phoenix.server`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+## Playlist
+The playlist on the right is shared for everyone connected. You can change the current song using arrow keys left and right.  You also drag and double click songs on the playlist to remove songs.
 
-Ready to run in production? Please [check our deployment guides](http://www.phoenixframework.org/docs/deployment).
 
-## Learn more
-
-  * Official website: http://www.phoenixframework.org/
-  * Guides: http://phoenixframework.org/docs/overview
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+## Chat
+There's also a chat.

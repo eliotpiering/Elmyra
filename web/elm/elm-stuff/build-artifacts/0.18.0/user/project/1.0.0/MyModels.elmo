@@ -10,9 +10,9 @@ var _user$project$MyModels$QueueModel = F4(
 	function (a, b, c, d) {
 		return {array: a, mouseOver: b, mouseOverItem: c, currentSong: d};
 	});
-var _user$project$MyModels$BrowserModel = F2(
-	function (a, b) {
-		return {isMouseOver: a, items: b};
+var _user$project$MyModels$BrowserModel = F3(
+	function (a, b, c) {
+		return {isMouseOver: a, items: b, isUploading: c};
 	});
 var _user$project$MyModels$QueueItemModel = F3(
 	function (a, b, c) {

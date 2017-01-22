@@ -26,6 +26,7 @@ defmodule Elmira.Router do
     resources "/songs", SongController, only: [:index, :show]
 
     resources "/stream", StreamController, only: [:show]
+    resources "/upload", UploadController, only: [:create]
 
     resources "/albums", AlbumController, only: [:index, :show]
     get "/albums/:id/songs", AlbumController, :songs

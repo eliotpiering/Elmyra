@@ -219,7 +219,7 @@ update action model =
                     { model | browser = browser_ }
             in
                 case browserCmd of
-                    Browser.AddSong item ->
+                    Browser.AddItemToQueue item ->
                         case item.data of
                             Song songModel ->
                                 let
@@ -232,8 +232,15 @@ update action model =
                                     , Cmd.none
                                     )
 
-                            anythingElse ->
-                                ( model_, Cmd.none )
+                            Group _ ->
+                                let
+                                    -- selectedGroupItems =
+                                    --         [groupModel] |> List.filter .isSelected |> List.filter (not << Helpers.isSong)
+
+                                    updateGroupCmds =
+                                        Cmd.batch (ApiHelpers.fetchSongsFromGroups [item] AddSongsToQueue)
+                                in
+                                    ( model_, updateGroupCmds )
 
                     Browser.OpenGroup itemModel ->
                         case itemModel.data of
@@ -256,6 +263,9 @@ update action model =
 
                             _ ->
                                 ( model_, Cmd.none )
+
+                    Browser.SendUpload ->
+                        ( model_, Port.upload "now" )
 
                     Browser.None ->
                         ( model_, Cmd.none )
@@ -376,89 +386,88 @@ update action model =
 
         MouseDowns xy ->
             if xy.button == 1 then
-                (model, Cmd.none)
+                ( model, Cmd.none )
             else
-              ( { model
-                  | dragStart =
-                      Just <| currentMouseLocation model
-                }
-              , Cmd.none
-              )
+                ( { model
+                    | dragStart =
+                        Just <| currentMouseLocation model
+                  }
+                , Cmd.none
+                )
 
         MouseUps xy ->
             if xy.button == 1 then
-                (model, Cmd.none)
+                ( model, Cmd.none )
             else
+                let
+                    maybeDragStart =
+                        model.dragStart
 
-              let
-                  maybeDragStart =
-                      model.dragStart
+                    dragEnd =
+                        currentMouseLocation model
 
-                  dragEnd =
-                      currentMouseLocation model
+                    model_ =
+                        { model | dragStart = Nothing }
+                in
+                    case maybeDragStart of
+                        Just BrowserWindow ->
+                            case dragEnd of
+                                QueueWindow ->
+                                    -- Droping browser items into the Queue
+                                    let
+                                        selectedGroupItems =
+                                            model.browser.items |> Dict.values |> List.filter .isSelected |> List.filter (not << Helpers.isSong)
 
-                  model_ =
-                      { model | dragStart = Nothing }
-              in
-                  case maybeDragStart of
-                      Just BrowserWindow ->
-                          case dragEnd of
-                              QueueWindow ->
-                                  -- Droping browser items into the Queue
-                                  let
-                                      selectedGroupItems =
-                                          model.browser.items |> Dict.values |> List.filter .isSelected |> List.filter (not << Helpers.isSong)
+                                        selectedSongItems =
+                                            model.browser.items |> Dict.values |> List.filter .isSelected |> Helpers.itemListToSongModelList
 
-                                      selectedSongItems =
-                                          model.browser.items |> Dict.values |> List.filter .isSelected |> Helpers.itemListToSongModelList
+                                        ( model__, cmds_ ) =
+                                            update (SendAddSongs selectedSongItems) model_
 
-                                      ( model__, cmds_ ) =
-                                          update (SendAddSongs selectedSongItems) model_
+                                        updateGroupCmds =
+                                            Cmd.batch (ApiHelpers.fetchSongsFromGroups selectedGroupItems AddSongsToQueue)
 
-                                      updateGroupCmds =
-                                          Cmd.batch (ApiHelpers.fetchSongsFromGroups selectedGroupItems AddSongsToQueue)
+                                        -- -- queue_ =
+                                        --     Queue.update (Queue.Drop selectedSongItems) model.queue
+                                        ( browser_, _ ) =
+                                            Browser.update Browser.Reset False model__.browser
+                                    in
+                                        ( { model__
+                                            -- | queue = queue_
+                                            | browser = browser_
+                                          }
+                                        , Cmd.batch [ updateGroupCmds, cmds_ ]
+                                        )
 
-                                      -- -- queue_ =
-                                      --     Queue.update (Queue.Drop selectedSongItems) model.queue
-                                      ( browser_, _ ) =
-                                          Browser.update Browser.Reset False model__.browser
-                                  in
-                                      ( { model__
-                                          -- | queue = queue_
-                                          | browser = browser_
-                                        }
-                                      , Cmd.batch [ updateGroupCmds, cmds_ ]
-                                      )
+                                anythingElse ->
+                                    ( model_, Cmd.none )
 
-                              anythingElse ->
-                                  ( model_, Cmd.none )
+                        Just QueueWindow ->
+                            case dragEnd of
+                                QueueWindow ->
+                                    -- Reordering songs in the queue
+                                    let
+                                        queue_ =
+                                            Queue.update Queue.Reorder model.queue
+                                    in
+                                        ( { model_ | queue = queue_ }, Cmd.none )
 
-                      Just QueueWindow ->
-                          case dragEnd of
-                              QueueWindow ->
-                                  -- Reordering songs in the queue
-                                  let
-                                      queue_ =
-                                          Queue.update Queue.Reorder model.queue
-                                  in
-                                      ( { model_ | queue = queue_ }, Cmd.none )
+                                anythingElse ->
+                                    -- Removing songs from the queue
+                                    case Queue.currentSelected model.queue of
+                                        Just index ->
+                                            update (SendRemoveSong index) model_
 
-                              anythingElse ->
-                                  -- Removing songs from the queue
-                                  case Queue.currentSelected model.queue of
-                                      Just index ->
-                                          update (SendRemoveSong index) model_
+                                        Nothing ->
+                                            -- nothing was selected
+                                            ( model_, Cmd.none )
 
-                                      Nothing ->
-                                          -- nothing was selected
-                                          (model_, Cmd.none)
-
-                      anythingElse ->
-                          ( model_, Cmd.none )
+                        anythingElse ->
+                            ( model_, Cmd.none )
 
         MouseMoves xy ->
             ( { model
-                | currentMousePos =  {x = xy.x, y = xy.y }
+                | currentMousePos = { x = xy.x, y = xy.y }
               }
             , Cmd.none
             )
@@ -588,7 +597,7 @@ update action model =
 
         ReceiveSync raw ->
             case ApiHelpers.decodeSync raw of
-                Just (currentSong, songs) ->
+                Just ( currentSong, songs ) ->
                     let
                         queueItems =
                             Debug.log "queue items" <|
@@ -636,7 +645,6 @@ subscriptions model =
         , Mouse.moves MouseMoves
         , Socket.listen model.socket PhoenixMsg
         ]
-
 
 
 view : Model -> Html Msg
