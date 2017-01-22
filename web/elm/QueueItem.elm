@@ -21,9 +21,6 @@ type QueueItemCmd
     | Clicked
 
 
-type alias Pos =
-    { x : Int, y : Int }
-
 
 update : Msg -> QueueItemModel -> ( QueueItemModel, Maybe QueueItemCmd )
 update msg model =
@@ -44,8 +41,8 @@ update msg model =
             ( { model | isSelected = False }, Nothing )
 
 
-view : Maybe Pos -> Bool -> String -> QueueItemModel -> Html Msg
-view maybeDragPos isCurrentSong id model =
+view : Bool -> String -> QueueItemModel -> Html Msg
+view isCurrentSong id model =
     Html.li
         [ Attr.class "song-item"
         , MyStyle.currentSong isCurrentSong
@@ -57,5 +54,4 @@ view maybeDragPos isCurrentSong id model =
         , MyStyle.mouseOver model.isMouseOver
         ]
         [ Html.text model.song.title
-        , Html.span [ MyStyle.dragging maybeDragPos model.isSelected ] [ Html.text model.song.title ]
         ]

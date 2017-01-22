@@ -31,10 +31,6 @@ type BrowserCmd
     | None
 
 
-type alias Pos =
-    { x : Int, y : Int }
-
-
 initialModel : BrowserModel
 initialModel =
     { isMouseOver = False, items = Dict.empty, isUploading = False }
@@ -122,8 +118,8 @@ resetItems =
     Dict.map (\id item -> Item.update Item.Reset item |> Tuple.first)
 
 
-view : Maybe Pos -> BrowserModel -> Html Msg
-view maybePos model =
+view : BrowserModel -> Html Msg
+view model =
     Html.div
         [ Attr.id "file-view-container"
         ]
@@ -135,13 +131,13 @@ view maybePos model =
             , Events.onMouseLeave MouseLeave
             , MyStyle.mouseOver model.isMouseOver
             ]
-            (List.map (itemToHtml maybePos) <| SortSongs.byGroupTitle <| Dict.toList model.items)
+            (List.map itemToHtml  <| SortSongs.byGroupTitle <| Dict.toList model.items)
         ]
 
 
-itemToHtml : Maybe Pos -> ( String, ItemModel ) -> Html Msg
-itemToHtml maybePos ( id, item ) =
-    Html.map (ItemMsg id) (Item.view maybePos id item)
+itemToHtml : ( String, ItemModel ) -> Html Msg
+itemToHtml ( id, item ) =
+    Html.map (ItemMsg id) (Item.view id item)
 
 
 navigationView : BrowserModel -> Html Msg

@@ -1,14 +1,10 @@
-var _user$project$QueueItem$Pos = F2(
-	function (a, b) {
-		return {x: a, y: b};
-	});
 var _user$project$QueueItem$Reset = {ctor: 'Reset'};
 var _user$project$QueueItem$ItemDoubleClicked = {ctor: 'ItemDoubleClicked'};
 var _user$project$QueueItem$ItemClicked = {ctor: 'ItemClicked'};
 var _user$project$QueueItem$MouseLeave = {ctor: 'MouseLeave'};
 var _user$project$QueueItem$MouseEnter = {ctor: 'MouseEnter'};
-var _user$project$QueueItem$view = F4(
-	function (maybeDragPos, isCurrentSong, id, model) {
+var _user$project$QueueItem$view = F3(
+	function (isCurrentSong, id, model) {
 		return A2(
 			_elm_lang$html$Html$li,
 			{
@@ -47,22 +43,7 @@ var _user$project$QueueItem$view = F4(
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html$text(model.song.title),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$span,
-						{
-							ctor: '::',
-							_0: A2(_user$project$MyStyle$dragging, maybeDragPos, model.isSelected),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(model.song.title),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}
+				_1: {ctor: '[]'}
 			});
 	});
 var _user$project$QueueItem$Clicked = {ctor: 'Clicked'};

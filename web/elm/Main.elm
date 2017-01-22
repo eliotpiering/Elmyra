@@ -9,7 +9,7 @@ import String
 import Port
 import Keyboard
 import Char
-import Mouse
+-- import Mouse
 import MyModels exposing (..)
 import Queue
 import Browser
@@ -51,7 +51,6 @@ type alias Model =
     , chat : Chat.ChatModel
     , albumArt : String
     , currentMousePos : { x : Int, y : Int }
-    , dragStart : Maybe MouseLocation
     , keysBeingTyped : String
     , isShiftDown : Bool
     , socket : Socket Msg
@@ -65,7 +64,6 @@ initialModel socket =
     , chat = Chat.initialModel
     , albumArt = "nothing"
     , currentMousePos = { x = 0, y = 0 }
-    , dragStart = Nothing
     , keysBeingTyped = ""
     , isShiftDown = False
     , socket = socket
@@ -129,9 +127,9 @@ type Msg
     | UpdateGroups (Result Http.Error (List GroupModel))
     | KeyUp Keyboard.KeyCode
     | KeyDown Keyboard.KeyCode
-    | MouseDowns { x : Int, y : Int, button : Int }
-    | MouseUps { x : Int, y : Int, button : Int }
-    | MouseMoves { x : Int, y : Int, button : Int }
+    -- | MouseDowns { x : Int, y : Int, button : Int }
+    -- | MouseUps { x : Int, y : Int, button : Int }
+    -- | MouseMoves { x : Int, y : Int, button : Int }
     | UpdateAlbumArt String
     | ResetKeysBeingTyped String
     | UrlUpdate Location
@@ -345,7 +343,6 @@ update action model =
             in
                 ( { model_
                     | browser = Browser.update Browser.Reset False model_.browser |> Tuple.first
-                    , dragStart = Nothing
                   }
                 , socketCmds
                 )
@@ -360,7 +357,6 @@ update action model =
             in
                 ( { model_
                     | browser = Browser.update Browser.Reset False model.browser |> Tuple.first
-                    , dragStart = Nothing
                   }
                 , socketCmds
                 )
@@ -373,104 +369,101 @@ update action model =
                 newItems =
                     Helpers.makeSongItemDictionary songs
 
-                model_ =
-                    { model | dragStart = Nothing }
-
                 ( browser_, browserCmd ) =
-                    Browser.update (Browser.UpdateSongs newItems) model.isShiftDown model_.browser
+                    Browser.update (Browser.UpdateSongs newItems) model.isShiftDown model.browser
             in
-                ( { model_ | browser = browser_ }, Cmd.none )
+                ( { model | browser = browser_ }, Cmd.none )
 
         OpenSongsInBrowser (Err _) ->
             ( model, Cmd.none )
 
-        MouseDowns xy ->
-            if xy.button == 1 then
-                ( model, Cmd.none )
-            else
-                ( { model
-                    | dragStart =
-                        Just <| currentMouseLocation model
-                  }
-                , Cmd.none
-                )
+        -- MouseDowns xy ->
+        --     if xy.button == 1 then
+        --         ( model, Cmd.none )
+        --     else
+        --         ( { model
+        --             | dragStart =
+        --                 Just <| currentMouseLocation model
+        --           }
+        --         , Cmd.none
+        --         )
 
-        MouseUps xy ->
-            if xy.button == 1 then
-                ( model, Cmd.none )
-            else
-                let
-                    maybeDragStart =
-                        model.dragStart
+        -- MouseUps xy ->
+        --     if xy.button == 1 then
+        --         ( model, Cmd.none )
+        --     else
+        --         let
+        --             maybeDragStart =
+        --                 model.dragStart
 
-                    dragEnd =
-                        currentMouseLocation model
+        --             dragEnd =
+        --                 currentMouseLocation model
 
-                    model_ =
-                        { model | dragStart = Nothing }
-                in
-                    case maybeDragStart of
-                        Just BrowserWindow ->
-                            case dragEnd of
-                                QueueWindow ->
-                                    -- Droping browser items into the Queue
-                                    let
-                                        selectedGroupItems =
-                                            model.browser.items |> Dict.values |> List.filter .isSelected |> List.filter (not << Helpers.isSong)
+        --             model_ =
+        --                 { model | dragStart = Nothing }
+        --         in
+        --             case maybeDragStart of
+        --                 Just BrowserWindow ->
+        --                     case dragEnd of
+        --                         QueueWindow ->
+        --                             -- Droping browser items into the Queue
+        --                             let
+        --                                 selectedGroupItems =
+        --                                     model.browser.items |> Dict.values |> List.filter .isSelected |> List.filter (not << Helpers.isSong)
 
-                                        selectedSongItems =
-                                            model.browser.items |> Dict.values |> List.filter .isSelected |> Helpers.itemListToSongModelList
+        --                                 selectedSongItems =
+        --                                     model.browser.items |> Dict.values |> List.filter .isSelected |> Helpers.itemListToSongModelList
 
-                                        ( model__, cmds_ ) =
-                                            update (SendAddSongs selectedSongItems) model_
+        --                                 ( model__, cmds_ ) =
+        --                                     update (SendAddSongs selectedSongItems) model_
 
-                                        updateGroupCmds =
-                                            Cmd.batch (ApiHelpers.fetchSongsFromGroups selectedGroupItems AddSongsToQueue)
+        --                                 updateGroupCmds =
+        --                                     Cmd.batch (ApiHelpers.fetchSongsFromGroups selectedGroupItems AddSongsToQueue)
 
-                                        -- -- queue_ =
-                                        --     Queue.update (Queue.Drop selectedSongItems) model.queue
-                                        ( browser_, _ ) =
-                                            Browser.update Browser.Reset False model__.browser
-                                    in
-                                        ( { model__
-                                            -- | queue = queue_
-                                            | browser = browser_
-                                          }
-                                        , Cmd.batch [ updateGroupCmds, cmds_ ]
-                                        )
+        --                                 -- -- queue_ =
+        --                                 --     Queue.update (Queue.Drop selectedSongItems) model.queue
+        --                                 ( browser_, _ ) =
+        --                                     Browser.update Browser.Reset False model__.browser
+        --                             in
+        --                                 ( { model__
+        --                                     -- | queue = queue_
+        --                                     | browser = browser_
+        --                                   }
+        --                                 , Cmd.batch [ updateGroupCmds, cmds_ ]
+        --                                 )
 
-                                anythingElse ->
-                                    ( model_, Cmd.none )
+        --                         anythingElse ->
+        --                             ( model_, Cmd.none )
 
-                        Just QueueWindow ->
-                            case dragEnd of
-                                QueueWindow ->
-                                    -- Reordering songs in the queue
-                                    let
-                                        queue_ =
-                                            Queue.update Queue.Reorder model.queue
-                                    in
-                                        ( { model_ | queue = queue_ }, Cmd.none )
+        --                 Just QueueWindow ->
+        --                     case dragEnd of
+        --                         QueueWindow ->
+        --                             -- Reordering songs in the queue
+        --                             let
+        --                                 queue_ =
+        --                                     Queue.update Queue.Reorder model.queue
+        --                             in
+        --                                 ( { model_ | queue = queue_ }, Cmd.none )
 
-                                anythingElse ->
-                                    -- Removing songs from the queue
-                                    case Queue.currentSelected model.queue of
-                                        Just index ->
-                                            update (SendRemoveSong index) model_
+        --                         anythingElse ->
+        --                             -- Removing songs from the queue
+        --                             case Queue.currentSelected model.queue of
+        --                                 Just index ->
+        --                                     update (SendRemoveSong index) model_
 
-                                        Nothing ->
-                                            -- nothing was selected
-                                            ( model_, Cmd.none )
+        --                                 Nothing ->
+        --                                     -- nothing was selected
+        --                                     ( model_, Cmd.none )
 
-                        anythingElse ->
-                            ( model_, Cmd.none )
+        --                 anythingElse ->
+        --                     ( model_, Cmd.none )
 
-        MouseMoves xy ->
-            ( { model
-                | currentMousePos = { x = xy.x, y = xy.y }
-              }
-            , Cmd.none
-            )
+        -- MouseMoves xy ->
+        --     ( { model
+        --         | currentMousePos = { x = xy.x, y = xy.y }
+        --       }
+        --     , Cmd.none
+        --     )
 
         UpdateAlbumArt picture ->
             ( { model | albumArt = picture }, Cmd.none )
@@ -640,9 +633,9 @@ subscriptions model =
         , Port.updateAlbumArt UpdateAlbumArt
         , Keyboard.ups KeyUp
         , Keyboard.downs KeyDown
-        , Mouse.downs MouseDowns
-        , Mouse.ups MouseUps
-        , Mouse.moves MouseMoves
+        -- , Mouse.downs MouseDowns
+        -- , Mouse.ups MouseUps
+        -- , Mouse.moves MouseMoves
         , Socket.listen model.socket PhoenixMsg
         ]
 
@@ -658,30 +651,12 @@ view model =
 
 browserView : Model -> Html Msg
 browserView model =
-    let
-        maybeMousePos =
-            case model.dragStart of
-                Just BrowserWindow ->
-                    Just model.currentMousePos
-
-                anythingElse ->
-                    Nothing
-    in
-        Html.map BrowserMsg (Browser.view maybeMousePos model.browser)
+        Html.map BrowserMsg (Browser.view model.browser)
 
 
 queueView : Model -> Html Msg
 queueView model =
-    let
-        maybeMousePos =
-            case model.dragStart of
-                Just QueueWindow ->
-                    Just model.currentMousePos
-
-                anythingElse ->
-                    Nothing
-    in
-        Html.map QueueMsg (Queue.view maybeMousePos model.queue)
+        Html.map QueueMsg (Queue.view model.queue)
 
 
 chatView : Model -> Html Msg

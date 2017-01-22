@@ -43,12 +43,12 @@ update msg model =
             ( { model | isSelected = False }, AddToQueue )
 
 
-view : Maybe Pos -> String -> ItemModel -> Html Msg
-view maybeDragPos id model =
+view :String -> ItemModel -> Html Msg
+view id model =
     if model.isSelected then
         selectedItemHtml id model
     else
-        itemHtml maybeDragPos id model
+        itemHtml id model
 
 
 selectedItemHtml : String -> ItemModel -> Html Msg
@@ -105,16 +105,16 @@ selectedOptionsHtml model =
 -- commonHtml model maybeDragPos songModel
 
 
-itemHtml : Maybe Pos -> String -> ItemModel -> Html Msg
-itemHtml maybeDragPos id model =
+itemHtml : String -> ItemModel -> Html Msg
+itemHtml id model =
     case model.data of
         Song songModel ->
             Html.li (List.append [ Attr.class "song-item" ] <| commonAttrubutes model) <|
-                commonHtml model maybeDragPos songModel
+                commonHtml model songModel
 
         Group groupModel ->
             Html.li (List.append [ Attr.class "group-item", Attr.id <| "group-item-" ++ id ] <| commonAttrubutes model) <|
-                commonHtml model maybeDragPos groupModel
+                commonHtml model groupModel
 
 
 commonAttrubutes : ItemModel -> List (Html.Attribute Msg)
@@ -126,8 +126,7 @@ commonAttrubutes model =
     ]
 
 
-commonHtml : ItemModel -> Maybe Pos -> { a | title : String } -> List (Html Msg)
-commonHtml model maybeDragPos data =
+commonHtml : ItemModel -> { a | title : String } -> List (Html Msg)
+commonHtml model data =
     [ Html.text data.title
-    , Html.span [ MyStyle.dragging maybeDragPos model.isSelected ] [ Html.text data.title ]
     ]

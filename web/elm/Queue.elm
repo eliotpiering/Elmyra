@@ -201,13 +201,13 @@ currentSelected model =
         |> List.head
 
 
-itemToHtml : Maybe Pos -> Int -> ( Int, QueueItemModel ) -> Html Msg
-itemToHtml maybePos currentSong ( id, song ) =
-    Html.map (QueueItemMsg id) (QueueItem.view maybePos (id == currentSong) (toString id) song)
+itemToHtml : Int -> ( Int, QueueItemModel ) -> Html Msg
+itemToHtml currentSong ( id, song ) =
+    Html.map (QueueItemMsg id) (QueueItem.view (id == currentSong) (toString id) song)
 
 
-view : Maybe Pos -> QueueModel -> Html Msg
-view maybePos model =
+view : QueueModel -> Html Msg
+view model =
     Html.div
         [ Attr.id "queue-view-container" ]
         [ audioPlayer <| getMaybeCurrentSong model
@@ -221,7 +221,7 @@ view maybePos model =
           <|
             Array.toList <|
                 Array.indexedMap
-                    ((\id item -> itemToHtml maybePos model.currentSong ( id, item )))
+                    ((\id item -> itemToHtml model.currentSong ( id, item )))
                     model.array
         ]
 
