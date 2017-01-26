@@ -37,6 +37,13 @@ defmodule Elmira.QueueChannel do
     {:noreply, socket}
   end
 
+  def handle_in("swap_songs", %{"from" => from, "to" => to}, socket) do
+    IO.puts "handle in --------------- remove song"
+    swap_songs_in_playlist(from, to)
+    broadcast! socket, "swap_songs", %{from: from, to: to}
+    {:noreply, socket}
+  end
+
   def handle_in("sync", %{}, socket) do
     IO.puts "handle in --------------- sync"
     songs = get_songs_in_playlist
@@ -129,6 +136,18 @@ defmodule Elmira.QueueChannel do
     end
 
   end
+
+  defp swap_songs_in_playlist(from, to) do
+    default_playlist_id = default_playlist.id
+    update =
+      " UPDATE playlist_items
+        SET `order`=IF(`order`=#{to}, #{from}, #{to})
+        WHERE `order` in(#{to},#{from})
+        AND playlist_id = #{default_playlist_id}
+    "
+    Ecto.Adapters.SQL.query!(Elmira.Repo, update, [])
+  end
+
 
   defp get_current_song_in_playlist do
     playlist = default_playlist

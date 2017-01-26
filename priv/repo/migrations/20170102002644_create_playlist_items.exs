@@ -9,7 +9,8 @@ defmodule Elmira.Repo.Migrations.CreatePlaylistItems do
 
       timestamps
     end
-    create unique_index(:playlist_items, [:order])
+    #This should probably be a unique index for order but it broke the swap_songs function
+    create index(:playlist_items, [:order])
     create index(:playlist_items, [:song_id, :playlist_id])
   end
 end

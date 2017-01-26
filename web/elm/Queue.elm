@@ -19,24 +19,30 @@ type Msg
     | QueueItemMsg Int QueueItem.Msg
     | AudioMsg Audio.Msg
     | Drop (List QueueItemModel)
-    | Reorder
+    | Reorder JE.Value
     | Remove JE.Value
     | PreviousSong
     | NextSong
+
+
+type QueueCmd
+    = RemoveItem Int
+    | SwapItems ( Int, Int )
+    | None
 
 
 type alias Pos =
     { x : Int, y : Int }
 
 
-update : Msg -> QueueModel -> QueueModel
+update : Msg -> QueueModel -> ( QueueModel, QueueCmd )
 update msg model =
     case msg of
         MouseEnter ->
-            { model | mouseOver = True }
+            ( { model | mouseOver = True }, None )
 
         MouseLeave ->
-            { model | mouseOver = False }
+            ( { model | mouseOver = False }, None )
 
         QueueItemMsg id msg ->
             case Array.get id model.array of
@@ -48,68 +54,116 @@ update msg model =
                         model_ =
                             { model | array = Array.set id song_ model.array }
                     in
-                        case queueItemCmd of
-                            Just (QueueItem.MouseEntered) ->
-                                { model_ | mouseOverItem = id }
-
+                        case Debug.log "queueItemCmd" queueItemCmd of
                             Just (QueueItem.DoubleClicked) ->
-                                { model_ | currentSong = id }
+                                ( { model_ | currentSong = id }, None )
+
+                            Just (QueueItem.RemoveItem) ->
+                                ( { model_ | array = resetQueue model_.array }, RemoveItem id )
+
+                            Just (QueueItem.Clicked) ->
+                                let
+                                    newArray =
+                                        -- reset the queue and re add the selected song, there is probably a better way to do this
+                                        resetQueue model_.array |> Array.set id song_
+                                in
+                                    ( { model_ | array = newArray }, None )
+
+                            Just (QueueItem.ShiftItemUp) ->
+                                if id /= 0 then
+                                    ( model_, SwapItems ( id, id - 1 ) )
+                                else
+                                    ( model_, None )
+
+                            Just (QueueItem.ShiftItemDown) ->
+                                if id /= (Array.length model_.array - 1) then
+                                    ( model_, SwapItems ( id, id + 1 ) )
+                                else
+                                    ( model_, None )
 
                             anythingElse ->
-                                model_
+                                ( model_, None )
 
                 Nothing ->
-                    model
+                    ( model, None )
 
         Drop newSongs ->
             let
                 newArrayItems =
                     Array.fromList newSongs
             in
-                { model | array = resetQueue <| Array.append model.array newArrayItems }
+                ( { model | array = resetQueue <| Array.append model.array newArrayItems }, None )
 
-        Reorder ->
-            let
-                currentQueueIndex =
-                    model.currentSong
+        Reorder raw ->
+            case JD.decodeValue (JD.map2 (,) (JD.field "from" JD.int) (JD.field "to" JD.int)) raw of
+                Ok ( from, to ) ->
+                    let
+                        array =
+                            model.array
 
-                maybeIndexedItemToReorder =
-                    model.array |> Array.toIndexedList |> List.filter (\( i, song ) -> song.isSelected) |> List.head
-            in
-                case maybeIndexedItemToReorder of
-                    Just ( indexOfItemToReorder, itemToReorder ) ->
-                        let
-                            queueLength =
-                                Array.length model.array
+                        maybeFromItem =
+                            Array.get from array
 
-                            itemsToStayTheSame =
-                                model.array |> Array.filter (not << .isSelected)
+                        maybeToItem =
+                            Array.get to array
+                    in
+                        case maybeFromItem of
+                            Just fromItem ->
+                                case maybeToItem of
+                                    Just toItem ->
+                                        let
+                                            array_ =
+                                                array
+                                                    |> Array.set from toItem
+                                                    |> Array.set to fromItem
+                                        in
+                                            ( { model | array = array_ }, None )
 
-                            left =
-                                Array.slice 0 model.mouseOverItem itemsToStayTheSame
+                                    Nothing ->
+                                        ( model, None )
 
-                            right =
-                                Array.slice model.mouseOverItem queueLength itemsToStayTheSame
+                            Nothing ->
+                                ( model, None )
 
-                            reorderedQueue =
-                                Array.append (Array.push itemToReorder left) right
+                Err _ ->
+                    ( model, None )
 
-                            newQueueIndex =
-                                if currentQueueIndex > indexOfItemToReorder && currentQueueIndex < model.mouseOverItem then
-                                    currentQueueIndex - 1
-                                else if currentQueueIndex < indexOfItemToReorder && currentQueueIndex > model.mouseOverItem then
-                                    currentQueueIndex + 1
-                                else
-                                    currentQueueIndex
-                        in
-                            { model
-                                | array = resetQueue reorderedQueue
-                                , currentSong = newQueueIndex
-                            }
-
-                    Nothing ->
-                        model
-
+        -- in
+        -- let
+        --     currentQueueIndex =
+        --         model.currentSong
+        --     maybeIndexedItemToReorder =
+        --         model.array |> Array.toIndexedList |> List.filter (\( i, song ) -> song.isSelected) |> List.head
+        -- in
+        --     case maybeIndexedItemToReorder of
+        --         Just ( indexOfItemToReorder, itemToReorder ) ->
+        --             let
+        --                 queueLength =
+        --                     Array.length model.array
+        --                 itemsToStayTheSame =
+        --                     model.array |> Array.filter (not << .isSelected)
+        --                 left =
+        --                     Array.slice 0 model.mouseOverItem itemsToStayTheSame
+        --                 right =
+        --                     Array.slice model.mouseOverItem queueLength itemsToStayTheSame
+        --                 reorderedQueue =
+        --                     Array.append (Array.push itemToReorder left) right
+        --                 newQueueIndex =
+        --                     if currentQueueIndex > indexOfItemToReorder && currentQueueIndex < model.mouseOverItem then
+        --                         currentQueueIndex - 1
+        --                     else if currentQueueIndex < indexOfItemToReorder && currentQueueIndex > model.mouseOverItem then
+        --                         currentQueueIndex + 1
+        --                     else
+        --                         currentQueueIndex
+        --             in
+        --                 ( { model
+        --                     | array = resetQueue reorderedQueue
+        --                     , currentSong = newQueueIndex
+        --                   }
+        --                 , None
+        --                 )
+        --         Nothing ->
+        --             ( model, None )
         Remove raw ->
             case JD.decodeValue (JD.field "body" JD.int) raw of
                 Ok index ->
@@ -125,19 +179,21 @@ update msg model =
                                 array_ =
                                     Array.Extra.removeAt index model.array
                             in
-                                { model
+                                ( { model
                                     | array = resetQueue array_
                                     , currentSong = newQueueIndex
-                                }
+                                  }
+                                , None
+                                )
 
                         Nothing ->
-                            model
+                            ( model, None )
 
                 Err _ ->
-                    model
+                    ( model, None )
 
         NextSong ->
-            nextSong model
+            ( nextSong model, None )
 
         PreviousSong ->
             let
@@ -149,22 +205,26 @@ update msg model =
                         newCurrentSong =
                             (Array.length model.array - 1)
                     in
-                        { model
+                        ( { model
                             | currentSong = newCurrentSong
-                        }
+                          }
+                        , None
+                        )
                 else
                     let
                         newCurrentSong =
                             (model.currentSong - 1)
                     in
-                        { model
+                        ( { model
                             | currentSong = newCurrentSong
-                        }
+                          }
+                        , None
+                        )
 
         AudioMsg msg ->
             case msg of
                 Audio.NextSong ->
-                    nextSong model
+                    ( nextSong model, None )
 
 
 nextSong : QueueModel -> QueueModel

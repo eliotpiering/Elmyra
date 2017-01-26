@@ -51,7 +51,7 @@ table {
 }
 
 #browser-list {
-    height: 85vh;
+    height: 80vh;
     padding-left: 30px;
 }
 #browser-list ul>li:nth-child(even) {
@@ -89,11 +89,33 @@ table {
 }
 
 #queue-list {
-    height: 85vh;
+    height: 80vh;
 }
 
-#queue-list li {
-    padding-left: 2vw;
+.queue-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#queue-view-container ul>.queue-item.selected {
+    background-color: #565656;
+    color: white;
+}
+
+.queue-item-option {
+    background-color: #989898;
+    border-radius: 15px;
+    margin: 0 10px 0 10px;
+}
+
+.queue-item-option span {
+    padding: 0 20px 0 20px;
+}
+
+.queue-item-title {
+    flex: 1;
 }
 
 /* total height 15 vh */
@@ -147,7 +169,12 @@ table {
     overflow: scroll;
 }
 
-.song-item, .group-item {
+.song-item, .group-item, .queue-item {
+    /* margin-top: 5px; */
+    /* margin-bottom: 5px; */
+}
+.queue-item-title {
+
     padding-top: 5px;
     padding-bottom: 5px;
 }

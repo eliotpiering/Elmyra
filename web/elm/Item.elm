@@ -43,7 +43,7 @@ update msg model =
             ( { model | isSelected = False }, AddToQueue )
 
 
-view :String -> ItemModel -> Html Msg
+view : String -> ItemModel -> Html Msg
 view id model =
     if model.isSelected then
         selectedItemHtml id model
@@ -55,13 +55,14 @@ selectedItemHtml : String -> ItemModel -> Html Msg
 selectedItemHtml id model =
     Html.li
         [ Attr.class "selected group-item"
-        -- , Events.onMouseDown ItemClicked
+        , Events.onDoubleClick ItemDoubleClicked
+          -- , Events.onMouseDown ItemClicked
         , Attr.style
             [ ( "background-color", MyStyle.darkGrey )
             , ( "color", "white" )
             , ( "display", "flex" )
             , ( "flex-direction", "row" )
-            , ( "justify-content", "space-between" )
+            , ( "justify-content", "space-around" )
             , ( "align-items", "center" )
             ]
         , MyStyle.isSelected True
@@ -92,12 +93,13 @@ itemTitleHtml title =
 selectedOptionsHtml model =
     Html.p
         [ Attr.style
-            [ ( "backgroud-color", MyStyle.lightGrey )
+            [ ( "background-color", MyStyle.grey )
+            , ( "border-radius", "15px" )
             , ( "float", "right" )
             ]
         , Events.onClick RightArrow
         ]
-        [ FA.arrow_right Color.black 25
+        [ FA.arrow_right Color.white 25
         ]
 
 

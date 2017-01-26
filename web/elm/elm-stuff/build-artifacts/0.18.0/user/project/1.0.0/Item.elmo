@@ -47,11 +47,15 @@ var _user$project$Item$selectedOptionsHtml = function (model) {
 			_0: _elm_lang$html$Html_Attributes$style(
 				{
 					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 'backgroud-color', _1: _user$project$MyStyle$lightGrey},
+					_0: {ctor: '_Tuple2', _0: 'background-color', _1: _user$project$MyStyle$grey},
 					_1: {
 						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'float', _1: 'right'},
-						_1: {ctor: '[]'}
+						_0: {ctor: '_Tuple2', _0: 'border-radius', _1: '15px'},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'float', _1: 'right'},
+							_1: {ctor: '[]'}
+						}
 					}
 				}),
 			_1: {
@@ -62,10 +66,11 @@ var _user$project$Item$selectedOptionsHtml = function (model) {
 		},
 		{
 			ctor: '::',
-			_0: A2(_jystic$elm_font_awesome$FontAwesome$arrow_right, _elm_lang$core$Color$black, 25),
+			_0: A2(_jystic$elm_font_awesome$FontAwesome$arrow_right, _elm_lang$core$Color$white, 25),
 			_1: {ctor: '[]'}
 		});
 };
+var _user$project$Item$ItemDoubleClicked = {ctor: 'ItemDoubleClicked'};
 var _user$project$Item$selectedItemHtml = F2(
 	function (id, model) {
 		return A2(
@@ -75,36 +80,40 @@ var _user$project$Item$selectedItemHtml = F2(
 				_0: _elm_lang$html$Html_Attributes$class('selected group-item'),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$style(
-						{
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'background-color', _1: _user$project$MyStyle$darkGrey},
-							_1: {
+					_0: _elm_lang$html$Html_Events$onDoubleClick(_user$project$Item$ItemDoubleClicked),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$style(
+							{
 								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 'color', _1: 'white'},
+								_0: {ctor: '_Tuple2', _0: 'background-color', _1: _user$project$MyStyle$darkGrey},
 								_1: {
 									ctor: '::',
-									_0: {ctor: '_Tuple2', _0: 'display', _1: 'flex'},
+									_0: {ctor: '_Tuple2', _0: 'color', _1: 'white'},
 									_1: {
 										ctor: '::',
-										_0: {ctor: '_Tuple2', _0: 'flex-direction', _1: 'row'},
+										_0: {ctor: '_Tuple2', _0: 'display', _1: 'flex'},
 										_1: {
 											ctor: '::',
-											_0: {ctor: '_Tuple2', _0: 'justify-content', _1: 'space-between'},
+											_0: {ctor: '_Tuple2', _0: 'flex-direction', _1: 'row'},
 											_1: {
 												ctor: '::',
-												_0: {ctor: '_Tuple2', _0: 'align-items', _1: 'center'},
-												_1: {ctor: '[]'}
+												_0: {ctor: '_Tuple2', _0: 'justify-content', _1: 'space-around'},
+												_1: {
+													ctor: '::',
+													_0: {ctor: '_Tuple2', _0: 'align-items', _1: 'center'},
+													_1: {ctor: '[]'}
+												}
 											}
 										}
 									}
 								}
-							}
-						}),
-					_1: {
-						ctor: '::',
-						_0: _user$project$MyStyle$isSelected(true),
-						_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: _user$project$MyStyle$isSelected(true),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			},
@@ -118,7 +127,6 @@ var _user$project$Item$selectedItemHtml = F2(
 				}
 			});
 	});
-var _user$project$Item$ItemDoubleClicked = {ctor: 'ItemDoubleClicked'};
 var _user$project$Item$ItemClicked = {ctor: 'ItemClicked'};
 var _user$project$Item$commonAttrubutes = function (model) {
 	return {
