@@ -13,7 +13,7 @@ defmodule Elmira do
       # Start the endpoint when the application starts
       supervisor(Elmira.Endpoint, []),
       # Start your own worker by calling: Elmira.Worker.start_link(arg1, arg2, arg3)
-      # worker(Elmira.Worker, [arg1, arg2, arg3]),
+      worker(Elmira.Queue, [MyQueue]),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

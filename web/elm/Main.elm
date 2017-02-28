@@ -86,6 +86,7 @@ initialSocket =
                 |> Socket.on "add_songs" "queue:lobby" ReceiveAddSongs
                 |> Socket.on "remove_song" "queue:lobby" ReceiveRemoveSong
                 |> Socket.on "swap_songs" "queue:lobby" ReceiveSwapSongs
+                |> Socket.on "change_current_song" "queue:lobby" ReceiveChangeCurrentSong
                 |> Socket.on "sync" "queue:lobby" ReceiveSync
                 |> Socket.join chatChannel
 
@@ -150,6 +151,8 @@ type Msg
     | ReceiveSync JE.Value
     | ReceiveSwapSongs JE.Value
     | SendSwapSongs Int Int
+    | SendChangeCurrentSong Int
+    | ReceiveChangeCurrentSong JE.Value
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -217,12 +220,15 @@ update action model =
                             queue_
                     }
             in
-                case Debug.log "queueCmd" queueCmd of
+                case queueCmd of
                     Queue.RemoveItem index ->
                         update (SendRemoveSong index) model_
 
                     Queue.SwapItems ( i1, i2 ) ->
                         update (SendSwapSongs i1 i2) model_
+
+                    Queue.ChangeCurrentSong newIndex ->
+                        update (SendChangeCurrentSong newIndex) model_
 
                     Queue.None ->
                         ( model_
@@ -637,11 +643,12 @@ update action model =
                 ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
 
         ReceiveSwapSongs raw ->
-            let
-                ( queue_, queueCmd ) =
-                    Queue.update (Queue.Reorder raw) model.queue
-            in
-                ( { model | queue = queue_ }, Cmd.none )
+            replaceQueue raw model
+            -- let
+            --     ( queue_, queueCmd ) =
+            --         Queue.update (Queue.Reorder raw) model.queue
+            -- in
+            --     ( { model | queue = queue_ }, Cmd.none )
 
         SendSwapSongs from to ->
             let
@@ -650,6 +657,23 @@ update action model =
 
                 push_ =
                     Phoenix.Push.init "swap_songs" "queue:lobby"
+                        |> Phoenix.Push.withPayload payload
+
+                ( socket_, socketCmd ) =
+                    Socket.push push_ model.socket
+            in
+                ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
+
+        ReceiveChangeCurrentSong raw ->
+            replaceQueue raw model
+
+        SendChangeCurrentSong newCurrentSong ->
+            let
+                payload =
+                    JE.object [ ( "current_song", JE.int newCurrentSong ) ]
+
+                push_ =
+                    Phoenix.Push.init "change_current_song" "queue:lobby"
                         |> Phoenix.Push.withPayload payload
 
                 ( socket_, socketCmd ) =

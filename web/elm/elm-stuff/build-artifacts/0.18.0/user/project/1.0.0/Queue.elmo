@@ -154,6 +154,9 @@ var _user$project$Queue$None = {ctor: 'None'};
 var _user$project$Queue$SwapItems = function (a) {
 	return {ctor: 'SwapItems', _0: a};
 };
+var _user$project$Queue$ChangeCurrentSong = function (a) {
+	return {ctor: 'ChangeCurrentSong', _0: a};
+};
 var _user$project$Queue$RemoveItem = function (a) {
 	return {ctor: 'RemoveItem', _0: a};
 };
@@ -189,7 +192,7 @@ var _user$project$Queue$update = F2(
 						{
 							array: A3(_elm_lang$core$Array$set, _p12, song_, model.array)
 						});
-					var _p11 = A2(_elm_lang$core$Debug$log, 'queueItemCmd', queueItemCmd);
+					var _p11 = queueItemCmd;
 					if (_p11.ctor === 'Just') {
 						switch (_p11._0.ctor) {
 							case 'DoubleClicked':
@@ -197,8 +200,10 @@ var _user$project$Queue$update = F2(
 									ctor: '_Tuple2',
 									_0: _elm_lang$core$Native_Utils.update(
 										model_,
-										{currentSong: _p12}),
-									_1: _user$project$Queue$None
+										{
+											array: _user$project$Queue$resetQueue(model_.array)
+										}),
+									_1: _user$project$Queue$ChangeCurrentSong(_p12)
 								};
 							case 'RemoveItem':
 								return {

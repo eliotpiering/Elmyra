@@ -28,6 +28,7 @@ type Msg
 
 type QueueCmd
     = RemoveItem Int
+    | ChangeCurrentSong Int
     | SwapItems ( Int, Int )
     | None
 
@@ -55,9 +56,10 @@ update msg model =
                         model_ =
                             { model | array = Array.set id song_ model.array }
                     in
-                        case Debug.log "queueItemCmd" queueItemCmd of
+                        case queueItemCmd of
                             Just (QueueItem.DoubleClicked) ->
-                                ( { model_ | currentSong = id }, None )
+                                ( {model_ | array = resetQueue model_.array }, ChangeCurrentSong id )
+                                -- ( { model_ | currentSong = id }, None )
 
                             Just (QueueItem.RemoveItem) ->
                                 ( { model_ | array = resetQueue model_.array }, RemoveItem id )

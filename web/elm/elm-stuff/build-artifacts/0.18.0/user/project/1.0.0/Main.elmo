@@ -47,6 +47,12 @@ var _user$project$Main$Model = F8(
 	function (a, b, c, d, e, f, g, h) {
 		return {browser: a, queue: b, chat: c, albumArt: d, currentMousePos: e, keysBeingTyped: f, isShiftDown: g, socket: h};
 	});
+var _user$project$Main$ReceiveChangeCurrentSong = function (a) {
+	return {ctor: 'ReceiveChangeCurrentSong', _0: a};
+};
+var _user$project$Main$SendChangeCurrentSong = function (a) {
+	return {ctor: 'SendChangeCurrentSong', _0: a};
+};
 var _user$project$Main$SendSwapSongs = F2(
 	function (a, b) {
 		return {ctor: 'SendSwapSongs', _0: a, _1: b};
@@ -92,36 +98,41 @@ var _user$project$Main$initialSocket = function () {
 			_user$project$Main$ReceiveSync,
 			A4(
 				_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-				'swap_songs',
+				'change_current_song',
 				'queue:lobby',
-				_user$project$Main$ReceiveSwapSongs,
+				_user$project$Main$ReceiveChangeCurrentSong,
 				A4(
 					_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-					'remove_song',
+					'swap_songs',
 					'queue:lobby',
-					_user$project$Main$ReceiveRemoveSong,
+					_user$project$Main$ReceiveSwapSongs,
 					A4(
 						_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-						'add_songs',
+						'remove_song',
 						'queue:lobby',
-						_user$project$Main$ReceiveAddSongs,
+						_user$project$Main$ReceiveRemoveSong,
 						A4(
 							_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-							'previous_song',
+							'add_songs',
 							'queue:lobby',
-							_user$project$Main$ReceivePreviousSong,
+							_user$project$Main$ReceiveAddSongs,
 							A4(
 								_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-								'next_song',
+								'previous_song',
 								'queue:lobby',
-								_user$project$Main$ReceiveNextSong,
+								_user$project$Main$ReceivePreviousSong,
 								A4(
 									_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-									'new:msg',
-									'room:lobby',
-									_user$project$Main$ReceiveChatMessage,
-									_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
-										_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer))))))))));
+									'next_song',
+									'queue:lobby',
+									_user$project$Main$ReceiveNextSong,
+									A4(
+										_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
+										'new:msg',
+										'room:lobby',
+										_user$project$Main$ReceiveChatMessage,
+										_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
+											_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer)))))))))));
 	var socketMsg = _p3._0;
 	var socketCmd = _p3._1;
 	var _p4 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, _user$project$Main$queueChannel, socketMsg);
@@ -319,7 +330,7 @@ var _user$project$Main$update = F2(
 					var model_ = _elm_lang$core$Native_Utils.update(
 						model,
 						{queue: queue_});
-					var _p14 = A2(_elm_lang$core$Debug$log, 'queueCmd', queueCmd);
+					var _p14 = queueCmd;
 					switch (_p14.ctor) {
 						case 'RemoveItem':
 							var _v11 = _user$project$Main$SendRemoveSong(_p14._0),
@@ -332,6 +343,12 @@ var _user$project$Main$update = F2(
 								_v14 = model_;
 							action = _v13;
 							model = _v14;
+							continue update;
+						case 'ChangeCurrentSong':
+							var _v15 = _user$project$Main$SendChangeCurrentSong(_p14._0),
+								_v16 = model_;
+							action = _v15;
+							model = _v16;
 							continue update;
 						default:
 							return {ctor: '_Tuple2', _0: model_, _1: _elm_lang$core$Platform_Cmd$none};
@@ -724,19 +741,7 @@ var _user$project$Main$update = F2(
 						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, socketCmd)
 					};
 				case 'ReceiveSwapSongs':
-					var _p35 = A2(
-						_user$project$Queue$update,
-						_user$project$Queue$Reorder(_p7._0),
-						model.queue);
-					var queue_ = _p35._0;
-					var queueCmd = _p35._1;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{queue: queue_}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+					return A2(_user$project$Main$replaceQueue, _p7._0, model);
 				case 'SendSwapSongs':
 					var payload = _elm_lang$core$Json_Encode$object(
 						{
@@ -760,6 +765,33 @@ var _user$project$Main$update = F2(
 						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 						payload,
 						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'swap_songs', 'queue:lobby'));
+					var _p35 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
+					var socket_ = _p35._0;
+					var socketCmd = _p35._1;
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{socket: socket_}),
+						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, socketCmd)
+					};
+				case 'ReceiveChangeCurrentSong':
+					return A2(_user$project$Main$replaceQueue, _p7._0, model);
+				case 'SendChangeCurrentSong':
+					var payload = _elm_lang$core$Json_Encode$object(
+						{
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'current_song',
+								_1: _elm_lang$core$Json_Encode$int(_p7._0)
+							},
+							_1: {ctor: '[]'}
+						});
+					var push_ = A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+						payload,
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'change_current_song', 'queue:lobby'));
 					var _p36 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
 					var socket_ = _p36._0;
 					var socketCmd = _p36._1;
