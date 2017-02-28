@@ -13,5 +13,4 @@ defmodule Elmira.Playlist do
     struct
     |> cast(params, [:current_song])
   end
-
 end

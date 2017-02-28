@@ -88,6 +88,11 @@ decodeSongs raw =
     JD.decodeValue songsDecoder raw
 
 
+decodeQueue : JE.Value -> Result String { songs : List SongModel, currentSong : Int }
+decodeQueue raw =
+    JD.decodeValue queueDecoder raw
+
+
 albumsDecoder : Decoder (List GroupModel)
 albumsDecoder =
     JD.field "albums" <| JD.list groupDecoder
@@ -96,6 +101,11 @@ albumsDecoder =
 artistsDecoder : Decoder (List GroupModel)
 artistsDecoder =
     JD.field "artists" <| JD.list groupDecoder
+
+
+queueDecoder : Decoder { songs : List SongModel, currentSong : Int }
+queueDecoder =
+    JD.map2 (\songs current -> { songs = songs, currentSong = current }) (JD.field "songs" (JD.list songDecoder)) (JD.field "current_song" JD.int)
 
 
 songsDecoder : Decoder (List SongModel)

@@ -221,7 +221,7 @@ update action model =
                     Queue.RemoveItem index ->
                         update (SendRemoveSong index) model_
 
-                    Queue.SwapItems (i1, i2) ->
+                    Queue.SwapItems ( i1, i2 ) ->
                         update (SendSwapSongs i1 i2) model_
 
                     Queue.None ->
@@ -510,13 +510,25 @@ update action model =
             in
                 ( { model | chat = chat_ }, Cmd.none )
 
-        ReceiveNextSong _ ->
-            let
-                ( queue_, queueCmd ) =
-                    Queue.update (Queue.NextSong) model.queue
-            in
-                ( { model | queue = queue_ }, Cmd.none )
+        ReceiveNextSong raw ->
+            replaceQueue raw model
 
+        -- case ApiHelpers.decodeQueue raw of
+        --     Ok queue ->
+        --         let
+        --             queueItems =
+        --                 Helpers.makeSongItemList queue.songs
+        --             ( queue_, queueCmd ) =
+        --                 Queue.update (Queue.Replace queueItems queue.currentSong) model.queue
+        --         in
+        --             ( { model | queue = queue_ }, Cmd.none )
+        --     Err _ ->
+        --         ( model, Cmd.none )
+        -- let
+        --     ( queue_, queueCmd ) =
+        --         Queue.update (Queue.NextSong) model.queue
+        -- in
+        --     ( { model | queue = queue_ }, Cmd.none )
         SendNextSong ->
             let
                 push_ =
@@ -527,13 +539,25 @@ update action model =
             in
                 ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
 
-        ReceivePreviousSong _ ->
-            let
-                ( queue_, queueCmd ) =
-                    Queue.update (Queue.PreviousSong) model.queue
-            in
-                ( { model | queue = queue_ }, Cmd.none )
+        ReceivePreviousSong raw ->
+            replaceQueue raw model
 
+        -- case ApiHelpers.decodeSongs raw of
+        --     Ok songs ->
+        --         let
+        --             queueItems =
+        --                 Helpers.makeSongItemList songs
+        --             ( queue_, queueCmd ) =
+        --                 Queue.update (Queue.Replace queueItems) model.queue
+        --         in
+        --             ( { model | queue = queue_ }, Cmd.none )
+        --     Err _ ->
+        --         ( model, Cmd.none )
+        -- let
+        --     ( queue_, queueCmd ) =
+        --         Queue.update (Queue.PreviousSong) model.queue
+        -- in
+        --     ( { model | queue = queue_ }, Cmd.none )
         SendPreviousSong ->
             let
                 push_ =
@@ -545,20 +569,19 @@ update action model =
                 ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
 
         ReceiveAddSongs raw ->
-            case ApiHelpers.decodeSongs raw of
-                Ok songs ->
-                    let
-                        queueItems =
-                            Helpers.makeSongItemList songs
+            replaceQueue raw model
 
-                        ( queue_, queueCmd ) =
-                            Queue.update (Queue.Drop queueItems) model.queue
-                    in
-                        ( { model | queue = queue_ }, Cmd.none )
-
-                Err _ ->
-                    ( model, Cmd.none )
-
+        -- case ApiHelpers.decodeSongs raw of
+        --     Ok songs ->
+        --         let
+        --             queueItems =
+        --                 Helpers.makeSongItemList songs
+        --             ( queue_, queueCmd ) =
+        --                 Queue.update (Queue.Replace queueItems) model.queue
+        --         in
+        --             ( { model | queue = queue_ }, Cmd.none )
+        --     Err _ ->
+        --         ( model, Cmd.none )
         SendAddSongs songs ->
             let
                 json =
@@ -574,12 +597,31 @@ update action model =
                 ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
 
         ReceiveRemoveSong raw ->
-            let
-                ( queue_, queueCmd ) =
-                    Queue.update (Queue.Remove raw) model.queue
-            in
-                ( { model | queue = queue_ }, Cmd.none )
+            replaceQueue raw model
 
+        -- case Debug.log "decoded recieve" <| ApiHelpers.decodeSync raw of
+        --     Just ( currentSong, songs ) ->
+        --         let
+        --             queueItems =
+        --                 Debug.log "queue items" <|
+        --                     Helpers.makeSongItemList songs
+        --             ( queue_, queueCmd ) =
+        --                 Queue.update (Queue.Replace queueItems) model.queue
+        --             queue__ =
+        --                 { queue_ | currentSong = currentSong }
+        --         in
+        --             ( { model | queue = queue__ }, Cmd.none )
+        --     Nothing ->
+        --         let
+        --             balh =
+        --                 Debug.log " error "
+        --         in
+        --             ( model, Cmd.none )
+        -- let
+        --     ( queue_, queueCmd ) =
+        --         Queue.update (Queue.Remove raw) model.queue
+        -- in
+        --     ( { model | queue = queue_ }, Cmd.none )
         SendRemoveSong songNumber ->
             let
                 payload =
@@ -604,7 +646,7 @@ update action model =
         SendSwapSongs from to ->
             let
                 payload =
-                    JE.object [ ( "from", JE.int  from ), ("to", JE.int to) ]
+                    JE.object [ ( "from", JE.int from ), ( "to", JE.int to ) ]
 
                 push_ =
                     Phoenix.Push.init "swap_songs" "queue:lobby"
@@ -616,27 +658,49 @@ update action model =
                 ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
 
         ReceiveSync raw ->
-            case ApiHelpers.decodeSync raw of
-                Just ( currentSong, songs ) ->
-                    let
-                        queueItems =
-                            Debug.log "queue items" <|
-                                Helpers.makeSongItemList songs
+            replaceQueue raw model
 
-                        ( queue_, queueCmd ) =
-                            Queue.update (Queue.Drop queueItems) model.queue
 
-                        queue__ =
-                            { queue_ | currentSong = currentSong }
-                    in
-                        ( { model | queue = queue__ }, Cmd.none )
 
-                Nothing ->
-                    let
-                        balh =
-                            Debug.log " error "
-                    in
-                        ( model, Cmd.none )
+-- case ApiHelpers.decodeSync raw of
+--     Just ( currentSong, songs ) ->
+--         let
+--             queueItems =
+--                 Debug.log "queue items" <|
+--                     Helpers.makeSongItemList songs
+--             ( queue_, queueCmd ) =
+--                 Queue.update (Queue.Replace queueItems) model.queue
+--             queue__ =
+--                 { queue_ | currentSong = currentSong }
+--         in
+--             ( { model | queue = queue__ }, Cmd.none )
+--     Nothing ->
+--         let
+--             balh =
+--                 Debug.log " error "
+--         in
+--             ( model, Cmd.none )
+
+
+replaceQueue :
+    JE.Value
+    -> { a | queue : QueueModel }
+    -> ( { a | queue : QueueModel }, Cmd msg )
+replaceQueue raw model =
+    case ApiHelpers.decodeQueue raw of
+        Ok queue ->
+            let
+                queueItems =
+                    Debug.log "queue" <| Helpers.makeSongItemList queue.songs
+
+                ( queue_, queueCmd ) =
+                    Queue.update (Queue.Replace queueItems queue.currentSong) model.queue
+            in
+                ( { model | queue = queue_ }, Cmd.none )
+
+        Err e ->
+            let blah = Debug.log "hello" e in
+            ( model, Cmd.none )
 
 
 currentMouseLocation : Model -> MouseLocation

@@ -19,6 +19,7 @@ type Msg
     | QueueItemMsg Int QueueItem.Msg
     | AudioMsg Audio.Msg
     | Drop (List QueueItemModel)
+    | Replace (List QueueItemModel) Int
     | Reorder JE.Value
     | Remove JE.Value
     | PreviousSong
@@ -93,6 +94,18 @@ update msg model =
                     Array.fromList newSongs
             in
                 ( { model | array = resetQueue <| Array.append model.array newArrayItems }, None )
+
+        Replace newSongs currentSong ->
+            let
+                newArrayItems =
+                    Debug.log "array" <| Array.fromList newSongs
+            in
+                ( { model
+                    | array = newArrayItems
+                    , currentSong = currentSong
+                  }
+                , None
+                )
 
         Reorder raw ->
             case JD.decodeValue (JD.map2 (,) (JD.field "from" JD.int) (JD.field "to" JD.int)) raw of

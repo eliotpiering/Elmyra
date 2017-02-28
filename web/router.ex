@@ -23,6 +23,8 @@ defmodule Elmira.Router do
   scope "/api", Elmira do
     pipe_through :api
 
+    resources "/sessions", SessionController, only: [:create]
+
     resources "/songs", SongController, only: [:index, :show]
 
     resources "/stream", StreamController, only: [:show]

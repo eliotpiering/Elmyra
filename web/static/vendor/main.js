@@ -12742,6 +12742,17 @@ var _user$project$ApiHelpers$groupDecoder = A5(
 	A2(_elm_lang$core$Json_Decode$field, 'kind', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'title', _elm_lang$core$Json_Decode$string),
 	_user$project$ApiHelpers$songsDecoder);
+var _user$project$ApiHelpers$queueDecoder = A3(
+	_elm_lang$core$Json_Decode$map2,
+	F2(
+		function (songs, current) {
+			return {songs: songs, currentSong: current};
+		}),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'songs',
+		_elm_lang$core$Json_Decode$list(_user$project$ApiHelpers$songDecoder)),
+	A2(_elm_lang$core$Json_Decode$field, 'current_song', _elm_lang$core$Json_Decode$int));
 var _user$project$ApiHelpers$artistsDecoder = A2(
 	_elm_lang$core$Json_Decode$field,
 	'artists',
@@ -12750,6 +12761,9 @@ var _user$project$ApiHelpers$albumsDecoder = A2(
 	_elm_lang$core$Json_Decode$field,
 	'albums',
 	_elm_lang$core$Json_Decode$list(_user$project$ApiHelpers$groupDecoder));
+var _user$project$ApiHelpers$decodeQueue = function (raw) {
+	return A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$ApiHelpers$queueDecoder, raw);
+};
 var _user$project$ApiHelpers$decodeSongs = function (raw) {
 	return A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$ApiHelpers$songsDecoder, raw);
 };
@@ -14310,6 +14324,10 @@ var _user$project$Queue$Remove = function (a) {
 var _user$project$Queue$Reorder = function (a) {
 	return {ctor: 'Reorder', _0: a};
 };
+var _user$project$Queue$Replace = F2(
+	function (a, b) {
+		return {ctor: 'Replace', _0: a, _1: b};
+	});
 var _user$project$Queue$Drop = function (a) {
 	return {ctor: 'Drop', _0: a};
 };
@@ -14513,6 +14531,18 @@ var _user$project$Queue$update = F2(
 						}),
 					_1: _user$project$Queue$None
 				};
+			case 'Replace':
+				var newArrayItems = A2(
+					_elm_lang$core$Debug$log,
+					'array',
+					_elm_lang$core$Array$fromList(_p8._0));
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{array: newArrayItems, currentSong: _p8._1}),
+					_1: _user$project$Queue$None
+				};
 			case 'Reorder':
 				var _p13 = A2(
 					_elm_lang$core$Json_Decode$decodeValue,
@@ -14623,6 +14653,33 @@ var _user$project$Queue$update = F2(
 var _user$project$Main$currentMouseLocation = function (model) {
 	return model.browser.isMouseOver ? _user$project$MyModels$BrowserWindow : (model.queue.mouseOver ? _user$project$MyModels$QueueWindow : _user$project$MyModels$OtherWindow);
 };
+var _user$project$Main$replaceQueue = F2(
+	function (raw, model) {
+		var _p0 = _user$project$ApiHelpers$decodeQueue(raw);
+		if (_p0.ctor === 'Ok') {
+			var _p2 = _p0._0;
+			var queueItems = A2(
+				_elm_lang$core$Debug$log,
+				'queue',
+				_user$project$Helpers$makeSongItemList(_p2.songs));
+			var _p1 = A2(
+				_user$project$Queue$update,
+				A2(_user$project$Queue$Replace, queueItems, _p2.currentSong),
+				model.queue);
+			var queue_ = _p1._0;
+			var queueCmd = _p1._1;
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{queue: queue_}),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
+		} else {
+			var blah = A2(_elm_lang$core$Debug$log, 'hello', _p0._0);
+			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		}
+	});
 var _user$project$Main$queueChannel = _fbonetti$elm_phoenix_socket$Phoenix_Channel$init('queue:lobby');
 var _user$project$Main$chatChannel = _fbonetti$elm_phoenix_socket$Phoenix_Channel$init('room:lobby');
 var _user$project$Main$socketServer = 'ws://localhost:4000/socket/websocket';
@@ -14677,7 +14734,7 @@ var _user$project$Main$ReceiveChatMessage = function (a) {
 };
 var _user$project$Main$initialSocket = function () {
 	var push_ = A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'sync', 'queue:lobby');
-	var _p0 = A2(
+	var _p3 = A2(
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
 		_user$project$Main$chatChannel,
 		A4(
@@ -14717,14 +14774,14 @@ var _user$project$Main$initialSocket = function () {
 									_user$project$Main$ReceiveChatMessage,
 									_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
 										_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer))))))))));
-	var socketMsg = _p0._0;
-	var socketCmd = _p0._1;
-	var _p1 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, _user$project$Main$queueChannel, socketMsg);
-	var socketMsg_ = _p1._0;
-	var socketCmd_ = _p1._1;
-	var _p2 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, socketMsg_);
-	var socketMsg__ = _p2._0;
-	var socketCmd__ = _p2._1;
+	var socketMsg = _p3._0;
+	var socketCmd = _p3._1;
+	var _p4 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, _user$project$Main$queueChannel, socketMsg);
+	var socketMsg_ = _p4._0;
+	var socketCmd_ = _p4._1;
+	var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, socketMsg_);
+	var socketMsg__ = _p5._0;
+	var socketCmd__ = _p5._1;
 	return {
 		ctor: '_Tuple2',
 		_0: socketMsg__,
@@ -14748,9 +14805,9 @@ var _user$project$Main$PhoenixMsg = function (a) {
 	return {ctor: 'PhoenixMsg', _0: a};
 };
 var _user$project$Main$init = function (location) {
-	var _p3 = _user$project$Main$initialSocket;
-	var socket = _p3._0;
-	var socketCmd = _p3._1;
+	var _p6 = _user$project$Main$initialSocket;
+	var socket = _p6._0;
+	var socketCmd = _p6._1;
 	return {
 		ctor: '_Tuple2',
 		_0: _user$project$Main$initialModel(socket),
@@ -14815,26 +14872,26 @@ var _user$project$Main$update = F2(
 	function (action, model) {
 		update:
 		while (true) {
-			var _p4 = action;
-			switch (_p4.ctor) {
+			var _p7 = action;
+			switch (_p7.ctor) {
 				case 'KeyUp':
 					var textSearchUpdateHelper = function (code) {
 						var maybefirstMatch = _elm_lang$core$List$head(
 							A2(
 								_elm_lang$core$List$filter,
-								function (_p5) {
-									var _p6 = _p5;
+								function (_p8) {
+									var _p9 = _p8;
 									return A2(
 										_elm_lang$core$String$startsWith,
 										model.keysBeingTyped,
 										_elm_lang$core$String$toUpper(
-											_user$project$Helpers$getItemTitle(_p6._1)));
+											_user$project$Helpers$getItemTitle(_p9._1)));
 								},
 								_elm_lang$core$Dict$toList(model.browser.items)));
 						var cString = _elm_lang$core$String$fromChar(
 							_elm_lang$core$Char$fromCode(code));
-						var _p7 = maybefirstMatch;
-						if (_p7.ctor === 'Just') {
+						var _p10 = maybefirstMatch;
+						if (_p10.ctor === 'Just') {
 							return {
 								ctor: '_Tuple2',
 								_0: _elm_lang$core$Native_Utils.update(
@@ -14843,7 +14900,7 @@ var _user$project$Main$update = F2(
 										keysBeingTyped: A2(_elm_lang$core$Basics_ops['++'], model.keysBeingTyped, cString)
 									}),
 								_1: _user$project$Port$scrollToElement(
-									A2(_elm_lang$core$Basics_ops['++'], 'group-item-', _p7._0._0))
+									A2(_elm_lang$core$Basics_ops['++'], 'group-item-', _p10._0._0))
 							};
 						} else {
 							return {
@@ -14853,19 +14910,19 @@ var _user$project$Main$update = F2(
 							};
 						}
 					};
-					var _p8 = _p4._0;
-					switch (_p8) {
+					var _p11 = _p7._0;
+					switch (_p11) {
 						case 37:
-							var _v4 = _user$project$Main$SendPreviousSong,
-								_v5 = model;
-							action = _v4;
-							model = _v5;
+							var _v5 = _user$project$Main$SendPreviousSong,
+								_v6 = model;
+							action = _v5;
+							model = _v6;
 							continue update;
 						case 39:
-							var _v6 = _user$project$Main$SendNextSong,
-								_v7 = model;
-							action = _v6;
-							model = _v7;
+							var _v7 = _user$project$Main$SendNextSong,
+								_v8 = model;
+							action = _v7;
+							model = _v8;
 							continue update;
 						case 32:
 							return (_elm_lang$core$Native_Utils.cmp(
@@ -14884,11 +14941,11 @@ var _user$project$Main$update = F2(
 								_1: _elm_lang$core$Platform_Cmd$none
 							};
 						default:
-							return textSearchUpdateHelper(_p8);
+							return textSearchUpdateHelper(_p11);
 					}
 				case 'KeyDown':
-					var _p9 = _p4._0;
-					if (_p9 === 16) {
+					var _p12 = _p7._0;
+					if (_p12 === 16) {
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
@@ -14908,46 +14965,46 @@ var _user$project$Main$update = F2(
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				case 'QueueMsg':
-					var _p10 = A2(_user$project$Queue$update, _p4._0, model.queue);
-					var queue_ = _p10._0;
-					var queueCmd = _p10._1;
+					var _p13 = A2(_user$project$Queue$update, _p7._0, model.queue);
+					var queue_ = _p13._0;
+					var queueCmd = _p13._1;
 					var model_ = _elm_lang$core$Native_Utils.update(
 						model,
 						{queue: queue_});
-					var _p11 = A2(_elm_lang$core$Debug$log, 'queueCmd', queueCmd);
-					switch (_p11.ctor) {
+					var _p14 = A2(_elm_lang$core$Debug$log, 'queueCmd', queueCmd);
+					switch (_p14.ctor) {
 						case 'RemoveItem':
-							var _v10 = _user$project$Main$SendRemoveSong(_p11._0),
-								_v11 = model_;
-							action = _v10;
-							model = _v11;
+							var _v11 = _user$project$Main$SendRemoveSong(_p14._0),
+								_v12 = model_;
+							action = _v11;
+							model = _v12;
 							continue update;
 						case 'SwapItems':
-							var _v12 = A2(_user$project$Main$SendSwapSongs, _p11._0._0, _p11._0._1),
-								_v13 = model_;
-							action = _v12;
-							model = _v13;
+							var _v13 = A2(_user$project$Main$SendSwapSongs, _p14._0._0, _p14._0._1),
+								_v14 = model_;
+							action = _v13;
+							model = _v14;
 							continue update;
 						default:
 							return {ctor: '_Tuple2', _0: model_, _1: _elm_lang$core$Platform_Cmd$none};
 					}
 				case 'BrowserMsg':
-					var _p12 = A3(_user$project$Browser$update, _p4._0, model.isShiftDown, model.browser);
-					var browser_ = _p12._0;
-					var browserCmd = _p12._1;
+					var _p15 = A3(_user$project$Browser$update, _p7._0, model.isShiftDown, model.browser);
+					var browser_ = _p15._0;
+					var browserCmd = _p15._1;
 					var model_ = _elm_lang$core$Native_Utils.update(
 						model,
 						{browser: browser_});
-					var _p13 = browserCmd;
-					switch (_p13.ctor) {
+					var _p16 = browserCmd;
+					switch (_p16.ctor) {
 						case 'AddItemToQueue':
-							var _p15 = _p13._0;
-							var _p14 = _p15.data;
-							if (_p14.ctor === 'Song') {
+							var _p18 = _p16._0;
+							var _p17 = _p18.data;
+							if (_p17.ctor === 'Song') {
 								var songItemModels = _user$project$Helpers$makeSongItemList(
 									{
 										ctor: '::',
-										_0: _p14._0,
+										_0: _p17._0,
 										_1: {ctor: '[]'}
 									});
 								return {
@@ -14969,18 +15026,18 @@ var _user$project$Main$update = F2(
 										_user$project$ApiHelpers$fetchSongsFromGroups,
 										{
 											ctor: '::',
-											_0: _p15,
+											_0: _p18,
 											_1: {ctor: '[]'}
 										},
 										_user$project$Main$AddSongsToQueue));
 								return {ctor: '_Tuple2', _0: model_, _1: updateGroupCmds};
 							}
 						case 'OpenGroup':
-							var _p16 = _p13._0.data;
-							if (_p16.ctor === 'Song') {
+							var _p19 = _p16._0.data;
+							if (_p19.ctor === 'Song') {
 								return {ctor: '_Tuple2', _0: model_, _1: _elm_lang$core$Platform_Cmd$none};
 							} else {
-								var _p17 = _p16._0;
+								var _p20 = _p19._0;
 								return {
 									ctor: '_Tuple2',
 									_0: model_,
@@ -14990,16 +15047,16 @@ var _user$project$Main$update = F2(
 											'#',
 											A2(
 												_elm_lang$core$Basics_ops['++'],
-												_p17.kind,
+												_p20.kind,
 												A2(
 													_elm_lang$core$Basics_ops['++'],
 													'/',
-													_elm_lang$core$Basics$toString(_p17.id)))))
+													_elm_lang$core$Basics$toString(_p20.id)))))
 								};
 							}
 						case 'ChangeRoute':
-							var _p18 = _p13._0;
-							switch (_p18.ctor) {
+							var _p21 = _p16._0;
+							switch (_p21.ctor) {
 								case 'SongsRoute':
 									return {
 										ctor: '_Tuple2',
@@ -15031,18 +15088,18 @@ var _user$project$Main$update = F2(
 							return {ctor: '_Tuple2', _0: model_, _1: _elm_lang$core$Platform_Cmd$none};
 					}
 				case 'ChatMsg':
-					var _p19 = A2(_user$project$Chat$update, _p4._0, model.chat);
-					var chat_ = _p19._0;
-					var chatCmd = _p19._1;
-					var _p20 = chatCmd;
-					if (_p20.ctor === 'PushMessage') {
+					var _p22 = A2(_user$project$Chat$update, _p7._0, model.chat);
+					var chat_ = _p22._0;
+					var chatCmd = _p22._1;
+					var _p23 = chatCmd;
+					if (_p23.ctor === 'PushMessage') {
 						var payload = _elm_lang$core$Json_Encode$object(
 							{
 								ctor: '::',
 								_0: {
 									ctor: '_Tuple2',
 									_0: 'body',
-									_1: _elm_lang$core$Json_Encode$string(_p20._0)
+									_1: _elm_lang$core$Json_Encode$string(_p23._0)
 								},
 								_1: {ctor: '[]'}
 							});
@@ -15050,12 +15107,12 @@ var _user$project$Main$update = F2(
 							_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 							payload,
 							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'new:msg', 'room:lobby'));
-						var _p21 = A2(
+						var _p24 = A2(
 							_elm_lang$core$Debug$log,
 							'socket and cmd are ',
 							A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket));
-						var socket_ = _p21._0;
-						var socketCmd = _p21._1;
+						var socket_ = _p24._0;
+						var socketCmd = _p24._1;
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
@@ -15073,12 +15130,12 @@ var _user$project$Main$update = F2(
 						};
 					}
 				case 'UpdateSongs':
-					if (_p4._0.ctor === 'Ok') {
+					if (_p7._0.ctor === 'Ok') {
 						var browser = _user$project$Browser$initialModel;
 						var browser_ = _elm_lang$core$Native_Utils.update(
 							browser,
 							{
-								items: _user$project$Helpers$makeSongItemDictionary(_p4._0._0)
+								items: _user$project$Helpers$makeSongItemDictionary(_p7._0._0)
 							});
 						return {
 							ctor: '_Tuple2',
@@ -15091,12 +15148,12 @@ var _user$project$Main$update = F2(
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					}
 				case 'UpdateGroups':
-					if (_p4._0.ctor === 'Ok') {
+					if (_p7._0.ctor === 'Ok') {
 						var browser = _user$project$Browser$initialModel;
 						var browser_ = _elm_lang$core$Native_Utils.update(
 							browser,
 							{
-								items: _user$project$Helpers$makeGroupItemDictionary(_p4._0._0)
+								items: _user$project$Helpers$makeGroupItemDictionary(_p7._0._0)
 							});
 						return {
 							ctor: '_Tuple2',
@@ -15109,13 +15166,13 @@ var _user$project$Main$update = F2(
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					}
 				case 'AddSongsToQueue':
-					if (_p4._0.ctor === 'Ok') {
-						var _p22 = A2(
+					if (_p7._0.ctor === 'Ok') {
+						var _p25 = A2(
 							_user$project$Main$update,
-							_user$project$Main$SendAddSongs(_p4._0._0),
+							_user$project$Main$SendAddSongs(_p7._0._0),
 							model);
-						var model_ = _p22._0;
-						var socketCmds = _p22._1;
+						var model_ = _p25._0;
+						var socketCmds = _p25._1;
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
@@ -15130,18 +15187,18 @@ var _user$project$Main$update = F2(
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					}
 				case 'AddSongToQueue':
-					if (_p4._0.ctor === 'Ok') {
-						var _p23 = A2(
+					if (_p7._0.ctor === 'Ok') {
+						var _p26 = A2(
 							_user$project$Main$update,
 							_user$project$Main$SendAddSongs(
 								{
 									ctor: '::',
-									_0: _p4._0._0,
+									_0: _p7._0._0,
 									_1: {ctor: '[]'}
 								}),
 							model);
-						var model_ = _p23._0;
-						var socketCmds = _p23._1;
+						var model_ = _p26._0;
+						var socketCmds = _p26._1;
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
@@ -15156,15 +15213,15 @@ var _user$project$Main$update = F2(
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					}
 				case 'OpenSongsInBrowser':
-					if (_p4._0.ctor === 'Ok') {
-						var newItems = _user$project$Helpers$makeSongItemDictionary(_p4._0._0);
-						var _p24 = A3(
+					if (_p7._0.ctor === 'Ok') {
+						var newItems = _user$project$Helpers$makeSongItemDictionary(_p7._0._0);
+						var _p27 = A3(
 							_user$project$Browser$update,
 							_user$project$Browser$UpdateSongs(newItems),
 							model.isShiftDown,
 							model.browser);
-						var browser_ = _p24._0;
-						var browserCmd = _p24._1;
+						var browser_ = _p27._0;
+						var browserCmd = _p27._1;
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
@@ -15180,12 +15237,12 @@ var _user$project$Main$update = F2(
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{albumArt: _p4._0}),
+							{albumArt: _p7._0}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				case 'UrlUpdate':
-					var _p25 = _user$project$NavigationParser$urlParser(_p4._0);
-					switch (_p25.ctor) {
+					var _p28 = _user$project$NavigationParser$urlParser(_p7._0);
+					switch (_p28.ctor) {
 						case 'ArtistsRoute':
 							return {
 								ctor: '_Tuple2',
@@ -15208,21 +15265,21 @@ var _user$project$Main$update = F2(
 							return {
 								ctor: '_Tuple2',
 								_0: model,
-								_1: A2(_user$project$ApiHelpers$fetchSongsFromArtist, _p25._0, _user$project$Main$OpenSongsInBrowser)
+								_1: A2(_user$project$ApiHelpers$fetchSongsFromArtist, _p28._0, _user$project$Main$OpenSongsInBrowser)
 							};
 						case 'AlbumRoute':
 							return {
 								ctor: '_Tuple2',
 								_0: model,
-								_1: A2(_user$project$ApiHelpers$fetchSongsFromAlbum, _p25._0, _user$project$Main$OpenSongsInBrowser)
+								_1: A2(_user$project$ApiHelpers$fetchSongsFromAlbum, _p28._0, _user$project$Main$OpenSongsInBrowser)
 							};
 						default:
 							return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					}
 				case 'PhoenixMsg':
-					var _p26 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p4._0, model.socket);
-					var socket_ = _p26._0;
-					var phxCmd = _p26._1;
+					var _p29 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p7._0, model.socket);
+					var socket_ = _p29._0;
+					var phxCmd = _p29._1;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -15231,12 +15288,12 @@ var _user$project$Main$update = F2(
 						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
 					};
 				case 'ReceiveChatMessage':
-					var _p27 = A2(
+					var _p30 = A2(
 						_user$project$Chat$update,
-						_user$project$Chat$ReceiveMessage(_p4._0),
+						_user$project$Chat$ReceiveMessage(_p7._0),
 						model.chat);
-					var chat_ = _p27._0;
-					var chatCmd = _p27._1;
+					var chat_ = _p30._0;
+					var chatCmd = _p30._1;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -15245,41 +15302,9 @@ var _user$project$Main$update = F2(
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				case 'ReceiveNextSong':
-					var _p28 = A2(_user$project$Queue$update, _user$project$Queue$NextSong, model.queue);
-					var queue_ = _p28._0;
-					var queueCmd = _p28._1;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{queue: queue_}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+					return A2(_user$project$Main$replaceQueue, _p7._0, model);
 				case 'SendNextSong':
 					var push_ = A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'next_song', 'queue:lobby');
-					var _p29 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
-					var socket_ = _p29._0;
-					var socketCmd = _p29._1;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{socket: socket_}),
-						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, socketCmd)
-					};
-				case 'ReceivePreviousSong':
-					var _p30 = A2(_user$project$Queue$update, _user$project$Queue$PreviousSong, model.queue);
-					var queue_ = _p30._0;
-					var queueCmd = _p30._1;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{queue: queue_}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				case 'SendPreviousSong':
-					var push_ = A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'previous_song', 'queue:lobby');
 					var _p31 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
 					var socket_ = _p31._0;
 					var socketCmd = _p31._1;
@@ -15290,33 +15315,56 @@ var _user$project$Main$update = F2(
 							{socket: socket_}),
 						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, socketCmd)
 					};
+				case 'ReceivePreviousSong':
+					return A2(_user$project$Main$replaceQueue, _p7._0, model);
+				case 'SendPreviousSong':
+					var push_ = A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'previous_song', 'queue:lobby');
+					var _p32 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
+					var socket_ = _p32._0;
+					var socketCmd = _p32._1;
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{socket: socket_}),
+						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, socketCmd)
+					};
 				case 'ReceiveAddSongs':
-					var _p32 = _user$project$ApiHelpers$decodeSongs(_p4._0);
-					if (_p32.ctor === 'Ok') {
-						var queueItems = _user$project$Helpers$makeSongItemList(_p32._0);
-						var _p33 = A2(
-							_user$project$Queue$update,
-							_user$project$Queue$Drop(queueItems),
-							model.queue);
-						var queue_ = _p33._0;
-						var queueCmd = _p33._1;
-						return {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{queue: queue_}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					} else {
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					}
+					return A2(_user$project$Main$replaceQueue, _p7._0, model);
 				case 'SendAddSongs':
 					var json = _user$project$ApiHelpers$songsEncoder(
-						_user$project$SortSongs$byAlbumAndTrack(_p4._0));
+						_user$project$SortSongs$byAlbumAndTrack(_p7._0));
 					var push_ = A2(
 						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 						json,
 						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'add_songs', 'queue:lobby'));
+					var _p33 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
+					var socket_ = _p33._0;
+					var socketCmd = _p33._1;
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{socket: socket_}),
+						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, socketCmd)
+					};
+				case 'ReceiveRemoveSong':
+					return A2(_user$project$Main$replaceQueue, _p7._0, model);
+				case 'SendRemoveSong':
+					var payload = _elm_lang$core$Json_Encode$object(
+						{
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'body',
+								_1: _elm_lang$core$Json_Encode$int(_p7._0)
+							},
+							_1: {ctor: '[]'}
+						});
+					var push_ = A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+						payload,
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'remove_song', 'queue:lobby'));
 					var _p34 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
 					var socket_ = _p34._0;
 					var socketCmd = _p34._1;
@@ -15327,52 +15375,13 @@ var _user$project$Main$update = F2(
 							{socket: socket_}),
 						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, socketCmd)
 					};
-				case 'ReceiveRemoveSong':
+				case 'ReceiveSwapSongs':
 					var _p35 = A2(
 						_user$project$Queue$update,
-						_user$project$Queue$Remove(_p4._0),
+						_user$project$Queue$Reorder(_p7._0),
 						model.queue);
 					var queue_ = _p35._0;
 					var queueCmd = _p35._1;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{queue: queue_}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				case 'SendRemoveSong':
-					var payload = _elm_lang$core$Json_Encode$object(
-						{
-							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 'body',
-								_1: _elm_lang$core$Json_Encode$int(_p4._0)
-							},
-							_1: {ctor: '[]'}
-						});
-					var push_ = A2(
-						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
-						payload,
-						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'remove_song', 'queue:lobby'));
-					var _p36 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
-					var socket_ = _p36._0;
-					var socketCmd = _p36._1;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{socket: socket_}),
-						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, socketCmd)
-					};
-				case 'ReceiveSwapSongs':
-					var _p37 = A2(
-						_user$project$Queue$update,
-						_user$project$Queue$Reorder(_p4._0),
-						model.queue);
-					var queue_ = _p37._0;
-					var queueCmd = _p37._1;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -15387,14 +15396,14 @@ var _user$project$Main$update = F2(
 							_0: {
 								ctor: '_Tuple2',
 								_0: 'from',
-								_1: _elm_lang$core$Json_Encode$int(_p4._0)
+								_1: _elm_lang$core$Json_Encode$int(_p7._0)
 							},
 							_1: {
 								ctor: '::',
 								_0: {
 									ctor: '_Tuple2',
 									_0: 'to',
-									_1: _elm_lang$core$Json_Encode$int(_p4._1)
+									_1: _elm_lang$core$Json_Encode$int(_p7._1)
 								},
 								_1: {ctor: '[]'}
 							}
@@ -15403,9 +15412,9 @@ var _user$project$Main$update = F2(
 						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 						payload,
 						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'swap_songs', 'queue:lobby'));
-					var _p38 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
-					var socket_ = _p38._0;
-					var socketCmd = _p38._1;
+					var _p36 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
+					var socket_ = _p36._0;
+					var socketCmd = _p36._1;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -15414,32 +15423,7 @@ var _user$project$Main$update = F2(
 						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, socketCmd)
 					};
 				default:
-					var _p39 = _user$project$ApiHelpers$decodeSync(_p4._0);
-					if (_p39.ctor === 'Just') {
-						var queueItems = A2(
-							_elm_lang$core$Debug$log,
-							'queue items',
-							_user$project$Helpers$makeSongItemList(_p39._0._1));
-						var _p40 = A2(
-							_user$project$Queue$update,
-							_user$project$Queue$Drop(queueItems),
-							model.queue);
-						var queue_ = _p40._0;
-						var queueCmd = _p40._1;
-						var queue__ = _elm_lang$core$Native_Utils.update(
-							queue_,
-							{currentSong: _p39._0._0});
-						return {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{queue: queue__}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					} else {
-						var balh = _elm_lang$core$Debug$log(' error ');
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					}
+					return A2(_user$project$Main$replaceQueue, _p7._0, model);
 			}
 		}
 	});

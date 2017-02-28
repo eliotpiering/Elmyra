@@ -51,6 +51,10 @@ var _user$project$Queue$Remove = function (a) {
 var _user$project$Queue$Reorder = function (a) {
 	return {ctor: 'Reorder', _0: a};
 };
+var _user$project$Queue$Replace = F2(
+	function (a, b) {
+		return {ctor: 'Replace', _0: a, _1: b};
+	});
 var _user$project$Queue$Drop = function (a) {
 	return {ctor: 'Drop', _0: a};
 };
@@ -252,6 +256,18 @@ var _user$project$Queue$update = F2(
 							array: _user$project$Queue$resetQueue(
 								A2(_elm_lang$core$Array$append, model.array, newArrayItems))
 						}),
+					_1: _user$project$Queue$None
+				};
+			case 'Replace':
+				var newArrayItems = A2(
+					_elm_lang$core$Debug$log,
+					'array',
+					_elm_lang$core$Array$fromList(_p8._0));
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{array: newArrayItems, currentSong: _p8._1}),
 					_1: _user$project$Queue$None
 				};
 			case 'Reorder':

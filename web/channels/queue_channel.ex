@@ -4,52 +4,54 @@ defmodule Elmira.QueueChannel do
   def join("queue:lobby", message, socket) do
     IO.puts("joined queue:lobby -------------")
     IO.inspect(message)
-    maybe_create_new_playlist
+    # {:ok, pid} = Elmira.Queue.start_link
+    {:ok, _pid} = GenServer.start_link(Elmira.Queue, :ok, name: MyQueue)
+
+    # IO.inspect(pid)
+
+    # maybe_create_new_playlist
     {:ok, socket}
   end
 
   def handle_in("next_song", %{}, socket) do
-    broadcast! socket, "next_song", %{}
-    change_playlist_current_song("next")
     IO.puts "handle in --------------- next_song"
+    new_queue = GenServer.call(MyQueue, :next)
+    broadcast! socket, "next_song", new_queue
     {:noreply, socket}
   end
 
   def handle_in("previous_song", %{}, socket) do
-    broadcast! socket, "previous_song", %{}
-    change_playlist_current_song("previous")
     IO.puts "handle in --------------- previous_song"
+    new_queue = GenServer.call(MyQueue, :previous)
+    broadcast! socket, "previous_song", new_queue
     {:noreply, socket}
   end
 
   def handle_in("add_songs", %{"songs" => songs}, socket) do
     IO.puts "handle in --------------- add_songs"
-    broadcast! socket, "add_songs", %{songs: songs}
-    add_songs_to_playlist(songs)
-    IO.inspect(songs)
+    new_queue = GenServer.call(MyQueue, {:add, songs})
+    broadcast! socket, "add_songs", new_queue
     {:noreply, socket}
   end
 
   def handle_in("remove_song", %{"body" => index}, socket) do
     IO.puts "handle in --------------- remove song"
-    broadcast! socket, "remove_song", %{body: index}
-    remove_song_in_playlist(index)
+    new_queue = GenServer.call(MyQueue, {:remove, index})
+    broadcast! socket, "remove_song", new_queue
     {:noreply, socket}
   end
 
   def handle_in("swap_songs", %{"from" => from, "to" => to}, socket) do
     IO.puts "handle in --------------- remove song"
-    swap_songs_in_playlist(from, to)
+    # swap_songs_in_playlist(from, to)
     broadcast! socket, "swap_songs", %{from: from, to: to}
     {:noreply, socket}
   end
 
   def handle_in("sync", %{}, socket) do
     IO.puts "handle in --------------- sync"
-    songs = get_songs_in_playlist
-    current_song = get_current_song_in_playlist
-    IO.inspect(songs)
-    push socket, "sync", %{songs: songs, current_song: current_song }
+    new_queue = GenServer.call(MyQueue, :read)
+    push socket, "sync", new_queue
     {:noreply, socket}
   end
 

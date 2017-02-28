@@ -83,6 +83,17 @@ var _user$project$ApiHelpers$groupDecoder = A5(
 	A2(_elm_lang$core$Json_Decode$field, 'kind', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'title', _elm_lang$core$Json_Decode$string),
 	_user$project$ApiHelpers$songsDecoder);
+var _user$project$ApiHelpers$queueDecoder = A3(
+	_elm_lang$core$Json_Decode$map2,
+	F2(
+		function (songs, current) {
+			return {songs: songs, currentSong: current};
+		}),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'songs',
+		_elm_lang$core$Json_Decode$list(_user$project$ApiHelpers$songDecoder)),
+	A2(_elm_lang$core$Json_Decode$field, 'current_song', _elm_lang$core$Json_Decode$int));
 var _user$project$ApiHelpers$artistsDecoder = A2(
 	_elm_lang$core$Json_Decode$field,
 	'artists',
@@ -91,6 +102,9 @@ var _user$project$ApiHelpers$albumsDecoder = A2(
 	_elm_lang$core$Json_Decode$field,
 	'albums',
 	_elm_lang$core$Json_Decode$list(_user$project$ApiHelpers$groupDecoder));
+var _user$project$ApiHelpers$decodeQueue = function (raw) {
+	return A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$ApiHelpers$queueDecoder, raw);
+};
 var _user$project$ApiHelpers$decodeSongs = function (raw) {
 	return A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$ApiHelpers$songsDecoder, raw);
 };
