@@ -299,8 +299,8 @@ update action model =
                             _ ->
                                 ( model_, Cmd.none )
 
-                    Browser.SendUpload ->
-                        ( model_, Port.upload "now" )
+                    -- Browser.SendUpload ->
+                    --     ( model_, Port.upload "now" )
 
                     Browser.None ->
                         ( model_, Cmd.none )

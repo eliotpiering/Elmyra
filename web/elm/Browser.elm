@@ -19,15 +19,15 @@ type Msg
     | MouseEnter
     | MouseLeave
     | GroupBy String
-    | StartingUpload
-    | Upload
+    -- | StartingUpload
+    -- | Upload
 
 
 type BrowserCmd
     = OpenGroup ItemModel
     | AddItemToQueue ItemModel
     | ChangeRoute Route
-    | SendUpload
+    -- | SendUpload
     | None
 
 
@@ -106,11 +106,11 @@ update msg isShiftDown model =
                 _ ->
                     ( model, None )
 
-        StartingUpload ->
-            ( { model | isUploading = True }, None )
+        -- StartingUpload ->
+        --     ( { model | isUploading = True }, None )
 
-        Upload ->
-            ( model, SendUpload )
+        -- Upload ->
+        --     ( model, SendUpload )
 
 
 resetItems : ItemDictionary -> ItemDictionary
@@ -152,14 +152,13 @@ navigationView model =
                 , Attr.id "file-upload"
                 , Attr.multiple True
                 , Attr.action "/api/upload"
-                , Events.on "change"
-                    (JD.succeed StartingUpload)
-                ]
-                []
+                -- , Events.on "change"
+                --     (JD.succeed StartingUpload)
+                ] []
             ]
-        , (if model.isUploading then
-            Html.li [ Events.onClick Upload ] [ Html.text "Start Upload" ]
-           else
-            Html.text ""
-          )
+        -- , (if model.isUploading then
+        --     Html.li [ Events.onClick Upload ] [ Html.text "Start Upload" ]
+        --    else
+            -- , Html.text ""
+          -- )
         ]

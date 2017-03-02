@@ -40,12 +40,12 @@ var app = Elm.Main.embed(elmDiv);
 //     }, 1000);
 // });
 
-app.ports.upload.subscribe(function(value){
-    var files = document.getElementById("file-upload");
-    ajaxPost(files, function(res){
-        console.log(res);
-    });
-});
+// app.ports.upload.subscribe(function(value){
+//     var files = document.getElementById("file-upload");
+//     ajaxPost(files, function(res){
+//         console.log(res);
+//     });
+// });
 
 // function ajaxPost (form, callback) {
 //     var url = form.action,

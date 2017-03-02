@@ -19,4 +19,4 @@ port lookupAlbumArt : String -> Cmd msg
 port updateAlbumArt : (String -> msg) -> Sub msg
 
 
-port upload : String -> Cmd msg
+-- port upload : String -> Cmd msg
