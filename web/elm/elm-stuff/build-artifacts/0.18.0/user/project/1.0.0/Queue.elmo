@@ -24,21 +24,6 @@ var _user$project$Queue$resetQueue = _elm_lang$core$Array$map(
 		return _elm_lang$core$Tuple$first(
 			A2(_user$project$QueueItem$update, _user$project$QueueItem$Reset, _p3));
 	});
-var _user$project$Queue$nextSong = function (model) {
-	var shouldReset = _elm_lang$core$Native_Utils.cmp(
-		model.currentSong,
-		_elm_lang$core$Array$length(model.array) - 1) > -1;
-	if (shouldReset) {
-		return _elm_lang$core$Native_Utils.update(
-			model,
-			{currentSong: 0});
-	} else {
-		var newCurrentSong = model.currentSong + 1;
-		return _elm_lang$core$Native_Utils.update(
-			model,
-			{currentSong: newCurrentSong});
-	}
-};
 var _user$project$Queue$Pos = F2(
 	function (a, b) {
 		return {x: a, y: b};
@@ -156,6 +141,14 @@ var _user$project$Queue$SwapItems = function (a) {
 };
 var _user$project$Queue$ChangeCurrentSong = function (a) {
 	return {ctor: 'ChangeCurrentSong', _0: a};
+};
+var _user$project$Queue$nextSong = function (model) {
+	var newCurrentSong = model.currentSong + 1;
+	return {
+		ctor: '_Tuple2',
+		_0: model,
+		_1: _user$project$Queue$ChangeCurrentSong(newCurrentSong)
+	};
 };
 var _user$project$Queue$RemoveItem = function (a) {
 	return {ctor: 'RemoveItem', _0: a};
@@ -346,38 +339,16 @@ var _user$project$Queue$update = F2(
 					return {ctor: '_Tuple2', _0: model, _1: _user$project$Queue$None};
 				}
 			case 'NextSong':
+				return _user$project$Queue$nextSong(model);
+			case 'PreviousSong':
+				var newCurrentSong = model.currentSong - 1;
 				return {
 					ctor: '_Tuple2',
-					_0: _user$project$Queue$nextSong(model),
-					_1: _user$project$Queue$None
+					_0: model,
+					_1: _user$project$Queue$ChangeCurrentSong(newCurrentSong)
 				};
-			case 'PreviousSong':
-				var shouldReset = _elm_lang$core$Native_Utils.eq(model.currentSong, 0);
-				if (shouldReset) {
-					var newCurrentSong = _elm_lang$core$Array$length(model.array) - 1;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{currentSong: newCurrentSong}),
-						_1: _user$project$Queue$None
-					};
-				} else {
-					var newCurrentSong = model.currentSong - 1;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{currentSong: newCurrentSong}),
-						_1: _user$project$Queue$None
-					};
-				}
 			default:
 				var _p21 = _p8._0;
-				return {
-					ctor: '_Tuple2',
-					_0: _user$project$Queue$nextSong(model),
-					_1: _user$project$Queue$None
-				};
+				return _user$project$Queue$nextSong(model);
 		}
 	});

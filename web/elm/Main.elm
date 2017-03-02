@@ -247,15 +247,25 @@ update action model =
                     Browser.AddItemToQueue item ->
                         case item.data of
                             Song songModel ->
-                                let
-                                    songItemModels =
-                                        Helpers.makeSongItemList [ songModel ]
-                                in
-                                    ( { model_
-                                        | queue = Tuple.first <| Queue.update (Queue.Drop songItemModels) model.queue
-                                      }
-                                    , Cmd.none
-                                    )
+                                -- TODO this code is repeated
+                              let
+                                  ( model_, socketCmds ) =
+                                      update (SendAddSongs [songModel]) model
+                              in
+                                  ( { model_
+                                      | browser = Browser.update Browser.Reset False model_.browser |> Tuple.first
+                                    }
+                                  , socketCmds
+                                  )
+                                -- let
+                                --     songItemModels =
+                                --         Helpers.makeSongItemList [ songModel ]
+                                -- in
+                                --     ( { model_
+                                --         | queue = Tuple.first <| Queue.update (Queue.Drop songItemModels) model.queue
+                                --       }
+                                --     , Cmd.none
+                                --     )
 
                             Group _ ->
                                 let
@@ -364,8 +374,9 @@ update action model =
 
         AddSongsToQueue (Ok songs) ->
             let
+                sortedSongs = SortSongs.byAlbumAndTrack songs
                 ( model_, socketCmds ) =
-                    update (SendAddSongs songs) model
+                    update (SendAddSongs sortedSongs) model
             in
                 ( { model_
                     | browser = Browser.update Browser.Reset False model_.browser |> Tuple.first

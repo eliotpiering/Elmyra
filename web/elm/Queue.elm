@@ -208,58 +208,63 @@ update msg model =
                     ( model, None )
 
         NextSong ->
-            ( nextSong model, None )
+            nextSong model
 
         PreviousSong ->
-            let
-                shouldReset =
-                    model.currentSong == 0
+            let newCurrentSong = model.currentSong - 1
             in
-                if shouldReset then
-                    let
-                        newCurrentSong =
-                            (Array.length model.array - 1)
-                    in
-                        ( { model
-                            | currentSong = newCurrentSong
-                          }
-                        , None
-                        )
-                else
-                    let
-                        newCurrentSong =
-                            (model.currentSong - 1)
-                    in
-                        ( { model
-                            | currentSong = newCurrentSong
-                          }
-                        , None
-                        )
+            (model, ChangeCurrentSong newCurrentSong)
+            -- let
+            --     shouldReset =
+            --         model.currentSong == 0
+            -- in
+            --     if shouldReset then
+            --         let
+            --             newCurrentSong =
+            --                 (Array.length model.array - 1)
+            --         in
+            --             ( { model
+            --                 | currentSong = newCurrentSong
+            --               }
+            --             , None
+            --             )
+            --     else
+            --         let
+            --             newCurrentSong =
+            --                 (model.currentSong - 1)
+            --         in
+            --             ( { model
+            --                 | currentSong = newCurrentSong
+            --               }
+            --             , None
+            --             )
 
         AudioMsg msg ->
             case msg of
                 Audio.NextSong ->
-                    ( nextSong model, None )
+                    nextSong model
 
 
-nextSong : QueueModel -> QueueModel
+nextSong : QueueModel -> (QueueModel, QueueCmd)
 nextSong model =
-    let
-        shouldReset =
-            model.currentSong >= (Array.length model.array) - 1
-    in
-        if shouldReset then
-            { model
-                | currentSong = 0
-            }
-        else
-            let
-                newCurrentSong =
-                    model.currentSong + 1
-            in
-                { model
-                    | currentSong = newCurrentSong
-                }
+    let newCurrentSong = model.currentSong + 1 in
+    ( model, ChangeCurrentSong newCurrentSong)
+    -- let
+    --     shouldReset =
+    --         model.currentSong >= (Array.length model.array) - 1
+    -- in
+    --     if shouldReset then
+    --         { model
+    --             | currentSong = 0
+    --         }
+    --     else
+    --         let
+    --             newCurrentSong =
+    --                 model.currentSong + 1
+    --         in
+    --             { model
+    --                 | currentSong = newCurrentSong
+    --             }
 
 
 resetQueue : Array QueueItemModel -> Array QueueItemModel
