@@ -1,4 +1,4 @@
-# Elmira
+# Elmyra
 A shared music player
 
 ## Music library
