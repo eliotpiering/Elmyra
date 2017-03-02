@@ -19,15 +19,19 @@ type Msg
     | MouseEnter
     | MouseLeave
     | GroupBy String
-    -- | StartingUpload
-    -- | Upload
+    | Up
+
+
+
+-- | StartingUpload
+-- | Upload
 
 
 type BrowserCmd
     = OpenGroup ItemModel
     | AddItemToQueue ItemModel
     | ChangeRoute Route
-    -- | SendUpload
+      -- | SendUpload
     | None
 
 
@@ -51,7 +55,7 @@ update msg isShiftDown model =
                     in
                         case itemCmd of
                             Item.DoubleClicked ->
-                                 case item_.data of
+                                case item_.data of
                                     Group groupModel ->
                                         ( model_, OpenGroup item_ )
 
@@ -72,7 +76,7 @@ update msg isShiftDown model =
                                         ( { model | items = itemsWithOneSelected }, None )
 
                             Item.AddToQueue ->
-                                (model_, AddItemToQueue item_)
+                                ( model_, AddItemToQueue item_ )
 
                             Item.None ->
                                 ( model_, None )
@@ -82,6 +86,18 @@ update msg isShiftDown model =
 
         Reset ->
             ( { model | items = resetItems model.items }, None )
+
+        Up ->
+            let
+                oldId =
+                        model.items
+                            |> Dict.toList
+                            |> List.filter (Tuple.second >> .isSelected)
+                            |> List.map (Tuple.first)
+                            |> List.head
+                            |> Maybe.withDefault "-1"
+            in
+                ( { model | items = resetItems model.items }, None )
 
         UpdateSongs itemModels ->
             ( { model | items = itemModels }, None )
@@ -106,11 +122,12 @@ update msg isShiftDown model =
                 _ ->
                     ( model, None )
 
-        -- StartingUpload ->
-        --     ( { model | isUploading = True }, None )
 
-        -- Upload ->
-        --     ( model, SendUpload )
+
+-- StartingUpload ->
+--     ( { model | isUploading = True }, None )
+-- Upload ->
+--     ( model, SendUpload )
 
 
 resetItems : ItemDictionary -> ItemDictionary
@@ -131,7 +148,7 @@ view model =
             , Events.onMouseLeave MouseLeave
             , MyStyle.mouseOver model.isMouseOver
             ]
-            (List.map itemToHtml  <| SortSongs.byGroupTitle <| Dict.toList model.items)
+            (List.map itemToHtml <| SortSongs.byGroupTitle <| Dict.toList model.items)
         ]
 
 
@@ -152,13 +169,14 @@ navigationView model =
                 , Attr.id "file-upload"
                 , Attr.multiple True
                 , Attr.action "/api/upload"
-                -- , Events.on "change"
-                --     (JD.succeed StartingUpload)
-                ] []
+                  -- , Events.on "change"
+                  --     (JD.succeed StartingUpload)
+                ]
+                []
             ]
-        -- , (if model.isUploading then
-        --     Html.li [ Events.onClick Upload ] [ Html.text "Start Upload" ]
-        --    else
-            -- , Html.text ""
+          -- , (if model.isUploading then
+          --     Html.li [ Events.onClick Upload ] [ Html.text "Start Upload" ]
+          --    else
+          -- , Html.text ""
           -- )
         ]
