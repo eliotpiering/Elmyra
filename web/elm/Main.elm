@@ -4,11 +4,11 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 import Http
 import Array exposing (Array)
-import Dict exposing (Dict)
-import String
+-- import Dict exposing (Dict)
+-- import String
 import Port
 import Keyboard
-import Char
+-- import Char
 
 
 -- import Mouse
@@ -761,9 +761,9 @@ currentMouseLocation model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Port.resetKeysBeingTyped ResetKeysBeingTyped
-        , Port.updateAlbumArt UpdateAlbumArt
-        , Keyboard.ups KeyUp
+        [ Keyboard.ups KeyUp
+          -- , Port.updateAlbumArt UpdateAlbumArt
+          -- , Port.resetKeysBeingTyped ResetKeysBeingTyped
         , Keyboard.downs KeyDown
           -- , Mouse.downs MouseDowns
           -- , Mouse.ups MouseUps

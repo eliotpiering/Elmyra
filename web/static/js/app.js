@@ -24,21 +24,21 @@ var elmDiv = document.getElementById("elm-container");
 var app = Elm.Main.embed(elmDiv);
 
 /* Text search helpers */
-var lastTimeoutId;
-app.ports.scrollToElement.subscribe(function(value){
-    if (lastTimeoutId) {
-        window.clearTimeout(lastTimeoutId);
-    }
-    var element = document.getElementById(value);
+// var lastTimeoutId;
+// app.ports.scrollToElement.subscribe(function(value){
+//     if (lastTimeoutId) {
+//         window.clearTimeout(lastTimeoutId);
+//     }
+//     var element = document.getElementById(value);
 
-    if (element) {
-        element.scrollIntoView();
-    }
+//     if (element) {
+//         element.scrollIntoView();
+//     }
 
-    lastTimeoutId = window.setTimeout(function(){
-        app.ports.resetKeysBeingTyped.send("nothing");
-    }, 1000);
-});
+//     lastTimeoutId = window.setTimeout(function(){
+//         app.ports.resetKeysBeingTyped.send("nothing");
+//     }, 1000);
+// });
 
 app.ports.upload.subscribe(function(value){
     var files = document.getElementById("file-upload");
@@ -47,48 +47,48 @@ app.ports.upload.subscribe(function(value){
     });
 });
 
-function ajaxPost (form, callback) {
-    var url = form.action,
-        xhr = new XMLHttpRequest();
+// function ajaxPost (form, callback) {
+//     var url = form.action,
+//         xhr = new XMLHttpRequest();
 
-    //This is a bit tricky, [].fn.call(form.elements, ...) allows us to call .fn
-    //on the form's elements, even though it's not an array. Effectively
-    //Filtering all of the fields on the form
-    // var params = [].filter.call(form.elements, function(el) {
-    //     //Allow only elements that don't have the 'checked' property
-    //     //Or those who have it, and it's checked for them.
-    //     return typeof(el.checked) === 'undefined' || el.checked;
-    //     //Practically, filter out checkboxes/radios which aren't checekd.
-    // })
-    //     // .filter(function(el) { return !!el.name; }) //Nameless elements die.
-    //     //     .filter(function(el) { return el.disabled; }) //Disabled elements die.
-    // .map(function(el) {
-    //     //Map each field into a name=value string, make sure to properly escape!
-    //     return encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value);
-    // }).join('&'); //Then join all the strings by &
+//     //This is a bit tricky, [].fn.call(form.elements, ...) allows us to call .fn
+//     //on the form's elements, even though it's not an array. Effectively
+//     //Filtering all of the fields on the form
+//     // var params = [].filter.call(form.elements, function(el) {
+//     //     //Allow only elements that don't have the 'checked' property
+//     //     //Or those who have it, and it's checked for them.
+//     //     return typeof(el.checked) === 'undefined' || el.checked;
+//     //     //Practically, filter out checkboxes/radios which aren't checekd.
+//     // })
+//     //     // .filter(function(el) { return !!el.name; }) //Nameless elements die.
+//     //     //     .filter(function(el) { return el.disabled; }) //Disabled elements die.
+//     // .map(function(el) {
+//     //     //Map each field into a name=value string, make sure to properly escape!
+//     //     return encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value);
+//     // }).join('&'); //Then join all the strings by &
 
-    xhr.open("POST", url);
-    xhr.setRequestHeader("Content-type", "application/x-form-urlencoded");
+//     xhr.open("POST", url);
+//     xhr.setRequestHeader("Content-type", "application/x-form-urlencoded");
 
-    //.bind ensures that this inside of the function is the XHR object.
-    xhr.onload = callback.bind(xhr); 
+//     //.bind ensures that this inside of the function is the XHR object.
+//     xhr.onload = callback.bind(xhr); 
 
-    //All preperations are clear, send the request!
-    // xhr.send();
-    xhr.send(params);
-}
+//     //All preperations are clear, send the request!
+//     // xhr.send();
+//     xhr.send(params);
+// }
 
 
-// /* Pause */
-// app.ports.pause.subscribe(function(){
-//     var player = document.getElementsByTagName("audio")[0];
-//     if (!player)  {return;}
-//     if (player.paused) {
-//         player.play();
-//     } else {
-//         player.pause();
-//     }
-// });
+/* Pause */
+app.ports.pause.subscribe(function(){
+    var player = document.getElementsByTagName("audio")[0];
+    if (!player)  {return;}
+    if (player.paused) {
+        player.play();
+    } else {
+        player.pause();
+    }
+});
 
 // /* Album Art */
 // app.ports.lookupAlbumArt.subscribe(function(albumName){

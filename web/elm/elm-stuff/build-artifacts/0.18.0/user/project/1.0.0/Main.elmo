@@ -192,22 +192,14 @@ var _user$project$Main$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$batch(
 		{
 			ctor: '::',
-			_0: _user$project$Port$resetKeysBeingTyped(_user$project$Main$ResetKeysBeingTyped),
+			_0: _elm_lang$keyboard$Keyboard$ups(_user$project$Main$KeyUp),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Port$updateAlbumArt(_user$project$Main$UpdateAlbumArt),
+				_0: _elm_lang$keyboard$Keyboard$downs(_user$project$Main$KeyDown),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$keyboard$Keyboard$ups(_user$project$Main$KeyUp),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$keyboard$Keyboard$downs(_user$project$Main$KeyDown),
-						_1: {
-							ctor: '::',
-							_0: A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.socket, _user$project$Main$PhoenixMsg),
-							_1: {ctor: '[]'}
-						}
-					}
+					_0: A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.socket, _user$project$Main$PhoenixMsg),
+					_1: {ctor: '[]'}
 				}
 			}
 		});
