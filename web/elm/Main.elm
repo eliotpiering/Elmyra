@@ -159,45 +159,46 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
     case action of
         KeyUp keyCode ->
-            let
-                textSearchUpdateHelper code =
-                    let
-                        cString =
-                            String.fromChar <| Char.fromCode code
+            -- let
+            --     textSearchUpdateHelper code =
+            --         let
+            --             cString =
+            --                 String.fromChar <| Char.fromCode code
+            --             maybefirstMatch =
+            --                 List.head <| List.filter (\( id, item ) ->
+            --                     String.startsWith model.keysBeingTyped (String.toUpper <| Helpers.getItemTitle item))
+            --                         <| Dict.toList model.browser.items
+            --         in
+            --             case maybefirstMatch of
+            --                 Just ( id, groupModel ) ->
+            --                     ( { model
+            --                         | keysBeingTyped = model.keysBeingTyped ++ cString
+            --                       }
+            --                     , Port.scrollToElement <| "group-item-" ++ id
+            --                     )
+            --                 Nothing ->
+            --                     ( model, Port.scrollToElement "no-id" )
+            -- in
+            case keyCode of
+                37 ->
+                    update (SendPreviousSong) model
 
-                        maybefirstMatch =
-                            List.head <| List.filter (\( id, item ) -> String.startsWith model.keysBeingTyped (String.toUpper <| Helpers.getItemTitle item)) <| Dict.toList model.browser.items
-                    in
-                        case maybefirstMatch of
-                            Just ( id, groupModel ) ->
-                                ( { model
-                                    | keysBeingTyped = model.keysBeingTyped ++ cString
-                                  }
-                                , Port.scrollToElement <| "group-item-" ++ id
-                                )
+                39 ->
+                    update (SendNextSong) model
 
-                            Nothing ->
-                                ( model, Port.scrollToElement "no-id" )
-            in
-                case keyCode of
-                    37 ->
-                        update (SendPreviousSong) model
+                32 ->
+                    -- if (String.length model.keysBeingTyped > 0) then
+                    --     textSearchUpdateHelper 32
+                    -- else
+                    ( model, Port.pause "null" )
 
-                    39 ->
-                        update (SendNextSong) model
+                16 ->
+                    ( { model | isShiftDown = False }, Cmd.none )
 
-                    32 ->
-                        if (String.length model.keysBeingTyped > 0) then
-                            textSearchUpdateHelper 32
-                        else
-                            ( model, Port.pause "null" )
+                _ ->
+                    ( model, Cmd.none )
 
-                    16 ->
-                        ( { model | isShiftDown = False }, Cmd.none )
-
-                    c ->
-                        textSearchUpdateHelper c
-
+        -- textSearchUpdateHelper c
         KeyDown keyCode ->
             case keyCode of
                 16 ->
@@ -248,25 +249,25 @@ update action model =
                         case item.data of
                             Song songModel ->
                                 -- TODO this code is repeated
-                              let
-                                  ( model_, socketCmds ) =
-                                      update (SendAddSongs [songModel]) model
-                              in
-                                  ( { model_
-                                      | browser = Browser.update Browser.Reset False model_.browser |> Tuple.first
-                                    }
-                                  , socketCmds
-                                  )
-                                -- let
-                                --     songItemModels =
-                                --         Helpers.makeSongItemList [ songModel ]
-                                -- in
-                                --     ( { model_
-                                --         | queue = Tuple.first <| Queue.update (Queue.Drop songItemModels) model.queue
-                                --       }
-                                --     , Cmd.none
-                                --     )
+                                let
+                                    ( model_, socketCmds ) =
+                                        update (SendAddSongs [ songModel ]) model
+                                in
+                                    ( { model_
+                                        | browser = Browser.update Browser.Reset False model_.browser |> Tuple.first
+                                      }
+                                    , socketCmds
+                                    )
 
+                            -- let
+                            --     songItemModels =
+                            --         Helpers.makeSongItemList [ songModel ]
+                            -- in
+                            --     ( { model_
+                            --         | queue = Tuple.first <| Queue.update (Queue.Drop songItemModels) model.queue
+                            --       }
+                            --     , Cmd.none
+                            --     )
                             Group _ ->
                                 let
                                     -- selectedGroupItems =
@@ -374,7 +375,9 @@ update action model =
 
         AddSongsToQueue (Ok songs) ->
             let
-                sortedSongs = SortSongs.byAlbumAndTrack songs
+                sortedSongs =
+                    SortSongs.byAlbumAndTrack songs
+
                 ( model_, socketCmds ) =
                     update (SendAddSongs sortedSongs) model
             in
@@ -655,12 +658,12 @@ update action model =
 
         ReceiveSwapSongs raw ->
             replaceQueue raw model
-            -- let
-            --     ( queue_, queueCmd ) =
-            --         Queue.update (Queue.Reorder raw) model.queue
-            -- in
-            --     ( { model | queue = queue_ }, Cmd.none )
 
+        -- let
+        --     ( queue_, queueCmd ) =
+        --         Queue.update (Queue.Reorder raw) model.queue
+        -- in
+        --     ( { model | queue = queue_ }, Cmd.none )
         SendSwapSongs from to ->
             let
                 payload =
@@ -734,8 +737,11 @@ replaceQueue raw model =
                 ( { model | queue = queue_ }, Cmd.none )
 
         Err e ->
-            let blah = Debug.log "hello" e in
-            ( model, Cmd.none )
+            let
+                blah =
+                    Debug.log "hello" e
+            in
+                ( model, Cmd.none )
 
 
 currentMouseLocation : Model -> MouseLocation
