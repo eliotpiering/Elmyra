@@ -10,11 +10,12 @@ import Item
 import SortSongs
 import NavigationParser exposing (..)
 import Json.Decode as JD
+import Array exposing (Array)
 
 
 type Msg
-    = ItemMsg String Item.Msg
-    | Reset
+    -- = ItemMsg String Item.Msg
+    = Reset
     | UpdateSongs ItemDictionary
     | MouseEnter
     | MouseLeave
@@ -35,67 +36,79 @@ type BrowserCmd
     | None
 
 
+initialItemTree : ItemTree SongTag
+initialItemTree =
+    let
+        stubs =
+            [ SongNode { id = 1, artist = "artist", album = "album", title = "title" }
+            , SongNode { id = 2, artist = "artist", album = "album", title = "title" }
+            ]
+    in
+        GroupNode (Array.fromList stubs)
+
+
 initialModel : BrowserModel
 initialModel =
-    { isMouseOver = False, items = Dict.empty, isUploading = False }
+    { isMouseOver = False, items = initialItemTree, isUploading = False }
 
 
 update : Msg -> Bool -> BrowserModel -> ( BrowserModel, BrowserCmd )
 update msg isShiftDown model =
     case msg of
-        ItemMsg id msg ->
-            case Dict.get id model.items of
-                Just item ->
-                    let
-                        ( item_, itemCmd ) =
-                            Item.update msg item
+        -- ItemMsg id msg ->
+        --     case Dict.get id model.items of
+        --         Just item ->
+        --             let
+        --                 ( item_, itemCmd ) =
+        --                     Item.update msg item
 
-                        model_ =
-                            { model | items = Dict.insert id item_ model.items }
-                    in
-                        case itemCmd of
-                            Item.DoubleClicked ->
-                                case item_.data of
-                                    Group groupModel ->
-                                        ( model_, OpenGroup item_ )
+        --                 model_ =
+        --                     { model | items = Dict.insert id item_ model.items }
+        --             in
+        --                 case itemCmd of
+        --                     Item.DoubleClicked ->
+        --                         case item_.data of
+        --                             Group groupModel ->
+        --                                 ( model_, OpenGroup item_ )
 
-                                    Song _ ->
-                                        ( model_, AddItemToQueue item_ )
+        --                             Song _ ->
+        --                                 ( model_, AddItemToQueue item_ )
 
-                            Item.Clicked ->
-                                if isShiftDown then
-                                    ( model_, None )
-                                else
-                                    let
-                                        cleanItems =
-                                            resetItems model.items
+        --                     Item.Clicked ->
+        --                         if isShiftDown then
+        --                             ( model_, None )
+        --                         else
+        --                             let
+        --                                 cleanItems =
+        --                                     resetItems model.items
 
-                                        itemsWithOneSelected =
-                                            Dict.insert id item_ cleanItems
-                                    in
-                                        ( { model | items = itemsWithOneSelected }, None )
+        --                                 itemsWithOneSelected =
+        --                                     Dict.insert id item_ cleanItems
+        --                             in
+        --                                 ( { model | items = itemsWithOneSelected }, None )
 
-                            Item.AddToQueue ->
-                                ( model_, AddItemToQueue item_ )
+        --                     Item.AddToQueue ->
+        --                         ( model_, AddItemToQueue item_ )
 
-                            Item.None ->
-                                ( model_, None )
+        --                     Item.None ->
+        --                         ( model_, None )
 
-                Nothing ->
-                    ( model, None )
+        --         Nothing ->
+        --             ( model, None )
 
         Reset ->
-            ( { model | items = resetItems model.items }, None )
+            -- ( { model | items = resetItems model.items }, None )
+            (model, None)
 
         Up ->
             let
                 oldId =
-                        model.items
-                            |> Dict.toList
-                            |> List.filter (Tuple.second >> .isSelected)
-                            |> List.map (Tuple.first)
-                            |> List.head
-                            |> Maybe.withDefault "-1"
+                    model.items
+                        |> Dict.toList
+                        |> List.filter (Tuple.second >> .isSelected)
+                        |> List.map (Tuple.first)
+                        |> List.head
+                        |> Maybe.withDefault "-1"
             in
                 ( { model | items = resetItems model.items }, None )
 
@@ -137,24 +150,25 @@ resetItems =
 
 view : BrowserModel -> Html Msg
 view model =
-    Html.div
-        [ Attr.id "file-view-container"
-        ]
-        [ navigationView model
-        , Html.ul
-            [ Attr.class "scroll-box"
-            , Attr.id "browser-list"
-            , Events.onMouseEnter MouseEnter
-            , Events.onMouseLeave MouseLeave
-            , MyStyle.mouseOver model.isMouseOver
-            ]
-            (List.map itemToHtml <| SortSongs.byGroupTitle <| Dict.toList model.items)
-        ]
+    Html.div [] []
+    -- Html.div
+    --     [ Attr.id "file-view-container"
+    --     ]
+    --     [ navigationView model
+    --     , Html.ul
+    --         [ Attr.class "scroll-box"
+    --         , Attr.id "browser-list"
+    --         , Events.onMouseEnter MouseEnter
+    --         , Events.onMouseLeave MouseLeave
+    --         , MyStyle.mouseOver model.isMouseOver
+    --         ]
+    --         (List.map itemToHtml <| SortSongs.byGroupTitle <| Dict.toList model.items)
+    --     ]
 
 
-itemToHtml : ( String, ItemModel ) -> Html Msg
-itemToHtml ( id, item ) =
-    Html.map (ItemMsg id) (Item.view id item)
+-- itemToHtml : ( String, ItemModel ) -> Html Msg
+-- itemToHtml ( id, item ) =
+--     Html.map (ItemMsg id) (Item.view id item)
 
 
 navigationView : BrowserModel -> Html Msg
