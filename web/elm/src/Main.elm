@@ -4,13 +4,16 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 import Http
 import Array exposing (Array)
+
+
 -- import Dict exposing (Dict)
 -- import String
+
 import Port
 import Keyboard
+
+
 -- import Char
-
-
 -- import Mouse
 
 import MyModels exposing (..)
@@ -188,12 +191,10 @@ update action model =
 
                 39 ->
                     let
-                      (browser, browserCmd) = Browser.update Browser.Up model.isShiftDown model.browser
+                        ( browser, browserCmd ) =
+                            Browser.update Browser.Up model.isShiftDown model.browser
                     in
-                        ({model | browser = browser}, Cmd.none)
-
-
-
+                        ( { model | browser = browser }, Cmd.none )
 
                 40 ->
                     -- Down
@@ -314,7 +315,6 @@ update action model =
 
                     -- Browser.SendUpload ->
                     --     ( model_, Port.upload "now" )
-
                     Browser.None ->
                         ( model_, Cmd.none )
 
@@ -355,12 +355,13 @@ update action model =
                 browser =
                     Browser.initialModel
 
-                browser_ =
-                    { browser | items = Helpers.makeSongItemDictionary songs }
+                -- browser_ =
+                --     { browser | items = Helpers.makeSongItemDictionary songs }
             in
                 ( { model
                     | browser =
-                        browser_
+                        browser
+                        -- browser_
                   }
                 , Cmd.none
                 )
@@ -373,12 +374,13 @@ update action model =
                 browser =
                     Browser.initialModel
 
-                browser_ =
-                    { browser | items = Helpers.makeGroupItemDictionary groups }
+                -- browser_ =
+                --     { browser | items = Helpers.makeGroupItemDictionary groups }
             in
                 ( { model
                     | browser =
-                        browser_
+                        browser
+                        -- browser_
                   }
                 , Cmd.none
                 )

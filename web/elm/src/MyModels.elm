@@ -33,7 +33,7 @@ type alias QueueModel =
 
 type alias BrowserModel =
     { isMouseOver : Bool
-    , items : ItemTree SongTag
+    , items : ItemTree SongTag GroupTag
     , isUploading : Bool
     }
 
@@ -42,13 +42,31 @@ type alias ItemDictionary =
     Dict String ItemModel
 
 
-type ItemTree a
+type ItemTree a b
     = SongNode a
-    | GroupNode (Array (ItemTree a))
+    | GroupNode b (Array (ItemTree a b))
+
+
+type alias GroupTag =
+    { name : String
+    , isExpanded : Bool
+    , location : TreeLocation
+    , isSelected : Bool
+    }
 
 
 type alias SongTag =
-    { id : Int, album : String, artist : String, title : String }
+    { id : Int
+    , album : String
+    , artist : String
+    , title : String
+    , isSelected : Bool
+    , location : TreeLocation
+    }
+
+
+type alias TreeLocation =
+    List Int
 
 
 type alias QueueItemModel =

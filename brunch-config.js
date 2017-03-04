@@ -54,7 +54,7 @@ exports.config = {
   plugins: {
     elmBrunch: {
         elmFolder: "web/elm",
-        mainModules: ["Main.elm"],
+        mainModules: ["src/Main.elm"],
         outputFolder: '../static/vendor',
         makeParameters: ['--warn']
     },
