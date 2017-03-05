@@ -92,6 +92,10 @@ decodeQueue : JE.Value -> Result String { songs : List SongModel, currentSong : 
 decodeQueue raw =
     JD.decodeValue queueDecoder raw
 
+decodeBrowserAndQueue : JE.Value -> Result String { queue : List SongModel, currentSong : Int, browser : List SongModel }
+decodeBrowserAndQueue raw =
+    JD.decodeValue (JD.map3 (\queue current browser-> { queue = queue, currentSong = current, browser = browser }) (JD.field "songs" (JD.list songDecoder)) (JD.field "current_song" JD.int) (JD.field "browser" (JD.list songDecoder)) ) raw
+
 
 albumsDecoder : Decoder (List GroupModel)
 albumsDecoder =

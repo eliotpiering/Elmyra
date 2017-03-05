@@ -1,6 +1,11 @@
 defmodule Elmira.QueueChannel do
   use Phoenix.Channel
 
+  alias Elmira.Repo
+  import Ecto
+  import Ecto.Query
+
+
   def join("queue:lobby", message, socket) do
     IO.puts("joined queue:lobby -------------")
     IO.inspect(message)
@@ -53,6 +58,19 @@ defmodule Elmira.QueueChannel do
   def handle_in("sync", %{}, socket) do
     IO.puts "handle in --------------- sync"
     new_queue = GenServer.call(MyQueue, :read)
+    query = from s in Elmira.Song, preload: [:album, :artist] #, limit: 1000
+    songs = Repo.all(query)
+    songs = Enum.map(songs, (fn s -> %{
+      id: s.id || -1,
+      path: s.path || "no path",
+      title: s.title || "title",
+      artist: s.artist.title || "no artist",
+      album: s.album.title || "no album",
+      track: s.track || -1
+    }
+    end))
+    new_queue = Map.put(new_queue, :browser, songs)
+    IO.inspect(new_queue)
     push socket, "sync", new_queue
     {:noreply, socket}
   end

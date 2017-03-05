@@ -18,6 +18,7 @@ type
     Msg
     -- = ItemMsg String Item.Msg
     = Reset
+    | ReplaceSongs (ItemTree SongTag GroupTag)
     | UpdateSongs ItemDictionary
     | MouseEnter
     | MouseLeave
@@ -115,7 +116,10 @@ update msg isShiftDown model =
         --             |> Maybe.withDefault "-1"
         -- in
         --     ( { model | items = resetItems model.items }, None )
-        UpdateSongs itemModels ->
+        ReplaceSongs tree ->
+            ( { model | items = tree }, None )
+
+        UpdateSongs tree ->
             ( model, None )
 
         -- ( { model | items = itemModels }, None )
@@ -158,13 +162,13 @@ update msg isShiftDown model =
                                         GroupNode { tags | isExpanded = not tags.isExpanded } arr
                                     else
                                         node
+
                                 songNode ->
-                                  songNode
+                                    songNode
                         )
                         model.items
             in
                 ( { model | items = newTree }, None )
-
 
         GroupBy key ->
             case key of

@@ -29,6 +29,7 @@ import Phoenix.Channel
 import Phoenix.Push
 import Json.Encode as JE
 import SortSongs
+import BrowserTreeHelpers
 
 
 main : Program Never Model Msg
@@ -711,7 +712,29 @@ update action model =
                 ( { model | socket = socket_ }, Cmd.map PhoenixMsg socketCmd )
 
         ReceiveSync raw ->
-            replaceQueue raw model
+            case ApiHelpers.decodeBrowserAndQueue raw of
+                Ok browserAndQueue ->
+                    let
+                        queueItems =
+                            Debug.log "queue" <| Helpers.makeSongItemList browserAndQueue.queue
+
+                        ( queue_, queueCmd ) =
+                            Queue.update (Queue.Replace queueItems browserAndQueue.currentSong) model.queue
+
+                        ( browser_, browserCmd ) =
+                            Browser.update
+                                (Browser.ReplaceSongs <| BrowserTreeHelpers.fromSongList browserAndQueue.browser)
+                                model.isShiftDown
+                                model.browser
+                    in
+                         ({ model
+                             | queue = queue_
+                             , browser = browser_
+                         }, Cmd.none )
+
+                Err e ->
+                    let e_ = Debug.log "error " e in
+                    ( model, Cmd.none )
 
 
 
