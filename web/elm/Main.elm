@@ -4,23 +4,14 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 import Http
 import Array exposing (Array)
--- import Dict exposing (Dict)
--- import String
 import Port
 import Keyboard
--- import Char
-
-
--- import Mouse
-
 import MyModels exposing (..)
 import Queue
 import Browser
 import Chat
 import Helpers
 import ApiHelpers
-import Navigation exposing (Location)
-import NavigationParser exposing (..)
 import Phoenix.Socket as Socket exposing (Socket)
 import Phoenix.Channel
 import Phoenix.Push
@@ -30,8 +21,7 @@ import SortSongs
 
 main : Program Never Model Msg
 main =
-    Navigation.program
-        UrlUpdate
+    Html.program
         { init = init
         , view = view
         , update = update
@@ -39,8 +29,8 @@ main =
         }
 
 
-init : Location -> ( Model, Cmd Msg )
-init location =
+init : ( Model, Cmd Msg )
+init =
     let
         ( socket, socketCmd ) =
             initialSocket
@@ -137,7 +127,6 @@ type Msg
       -- | MouseMoves { x : Int, y : Int, button : Int }
     | UpdateAlbumArt String
     | ResetKeysBeingTyped String
-    | UrlUpdate Location
     | PhoenixMsg (Socket.Msg Msg)
     | ReceiveChatMessage JE.Value
     | ReceiveNextSong JE.Value
@@ -188,12 +177,10 @@ update action model =
 
                 39 ->
                     let
-                      (browser, browserCmd) = Browser.update Browser.Up model.isShiftDown model.browser
+                        ( browser, browserCmd ) =
+                            Browser.update Browser.Up model.isShiftDown model.browser
                     in
-                        ({model | browser = browser}, Cmd.none)
-
-
-
+                        ( { model | browser = browser }, Cmd.none )
 
                 40 ->
                     -- Down
@@ -296,24 +283,7 @@ update action model =
                                 ( model_, Cmd.none )
 
                             Group groupModel ->
-                                ( model_, Navigation.newUrl <| "#" ++ groupModel.kind ++ "/" ++ (toString groupModel.id) )
-
-                    Browser.ChangeRoute route ->
-                        case route of
-                            SongsRoute ->
-                                ( model_, Navigation.newUrl "#songs" )
-
-                            AlbumsRoute ->
-                                ( model_, Navigation.newUrl "#albums" )
-
-                            ArtistsRoute ->
-                                ( model_, Navigation.newUrl "#artists" )
-
-                            _ ->
                                 ( model_, Cmd.none )
-
-                    -- Browser.SendUpload ->
-                    --     ( model_, Port.upload "now" )
 
                     Browser.None ->
                         ( model_, Cmd.none )
@@ -506,26 +476,6 @@ update action model =
         --     )
         UpdateAlbumArt picture ->
             ( { model | albumArt = picture }, Cmd.none )
-
-        UrlUpdate location ->
-            case urlParser location of
-                ArtistsRoute ->
-                    ( model, ApiHelpers.fetchAllArtists UpdateGroups )
-
-                AlbumsRoute ->
-                    ( model, ApiHelpers.fetchAllAlbums UpdateGroups )
-
-                SongsRoute ->
-                    ( model, ApiHelpers.fetchAllSongs UpdateSongs )
-
-                ArtistRoute id ->
-                    ( model, ApiHelpers.fetchSongsFromArtist id OpenSongsInBrowser )
-
-                AlbumRoute id ->
-                    ( model, ApiHelpers.fetchSongsFromAlbum id OpenSongsInBrowser )
-
-                NotFoundRoute ->
-                    ( model, Cmd.none )
 
         PhoenixMsg msg ->
             let

@@ -8,8 +8,6 @@ import MyStyle exposing (..)
 import Dict exposing (Dict)
 import Item
 import SortSongs
-import NavigationParser exposing (..)
-import Json.Decode as JD
 
 
 type Msg
@@ -30,7 +28,6 @@ type Msg
 type BrowserCmd
     = OpenGroup ItemModel
     | AddItemToQueue ItemModel
-    | ChangeRoute Route
       -- | SendUpload
     | None
 
@@ -90,12 +87,12 @@ update msg isShiftDown model =
         Up ->
             let
                 oldId =
-                        model.items
-                            |> Dict.toList
-                            |> List.filter (Tuple.second >> .isSelected)
-                            |> List.map (Tuple.first)
-                            |> List.head
-                            |> Maybe.withDefault "-1"
+                    model.items
+                        |> Dict.toList
+                        |> List.filter (Tuple.second >> .isSelected)
+                        |> List.map (Tuple.first)
+                        |> List.head
+                        |> Maybe.withDefault "-1"
             in
                 ( { model | items = resetItems model.items }, None )
 
@@ -111,13 +108,13 @@ update msg isShiftDown model =
         GroupBy key ->
             case key of
                 "song" ->
-                    ( model, ChangeRoute SongsRoute )
+                    ( model, None )
 
                 "album" ->
-                    ( model, ChangeRoute AlbumsRoute )
+                    ( model, None )
 
                 "artist" ->
-                    ( model, ChangeRoute ArtistsRoute )
+                    ( model, None )
 
                 _ ->
                     ( model, None )
