@@ -56,7 +56,6 @@ selectedItemHtml id model =
     Html.li
         [ Attr.class "selected group-item"
         , Events.onDoubleClick ItemDoubleClicked
-          -- , Events.onMouseDown ItemClicked
         , Attr.style
             [ ( "background-color", MyStyle.darkGrey )
             , ( "color", "white" )
@@ -101,10 +100,6 @@ selectedOptionsHtml model =
         ]
         [ FA.arrow_right Color.white 25
         ]
-
-
-
--- commonHtml model maybeDragPos songModel
 
 
 itemHtml : String -> ItemModel -> Html Msg

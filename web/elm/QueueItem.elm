@@ -54,7 +54,6 @@ view isCurrentSong id model =
         [ Attr.class "queue-item"
         , MyStyle.currentSong isCurrentSong
         , Events.onDoubleClick ItemDoubleClicked
-          -- , MyStyle.isSelected model.isSelected
         , MyStyle.mouseOver model.isMouseOver
         , if model.isSelected then
             Attr.class "selected"

@@ -122,9 +122,6 @@ type Msg
     | UpdateGroups (Result Http.Error (List GroupModel))
     | KeyUp Keyboard.KeyCode
     | KeyDown Keyboard.KeyCode
-      -- | MouseDowns { x : Int, y : Int, button : Int }
-      -- | MouseUps { x : Int, y : Int, button : Int }
-      -- | MouseMoves { x : Int, y : Int, button : Int }
     | UpdateAlbumArt String
     | ResetKeysBeingTyped String
     | PhoenixMsg (Socket.Msg Msg)
@@ -148,26 +145,6 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
     case action of
         KeyUp keyCode ->
-            -- let
-            --     textSearchUpdateHelper code =
-            --         let
-            --             cString =
-            --                 String.fromChar <| Char.fromCode code
-            --             maybefirstMatch =
-            --                 List.head <| List.filter (\( id, item ) ->
-            --                     String.startsWith model.keysBeingTyped (String.toUpper <| Helpers.getItemTitle item))
-            --                         <| Dict.toList model.browser.items
-            --         in
-            --             case maybefirstMatch of
-            --                 Just ( id, groupModel ) ->
-            --                     ( { model
-            --                         | keysBeingTyped = model.keysBeingTyped ++ cString
-            --                       }
-            --                     , Port.scrollToElement <| "group-item-" ++ id
-            --                     )
-            --                 Nothing ->
-            --                     ( model, Port.scrollToElement "no-id" )
-            -- in
             case keyCode of
                 37 ->
                     update (SendPreviousSong) model
@@ -187,9 +164,6 @@ update action model =
                     update (SendNextSong) model
 
                 32 ->
-                    -- if (String.length model.keysBeingTyped > 0) then
-                    --     textSearchUpdateHelper 32
-                    -- else
                     ( model, Port.pause "null" )
 
                 16 ->
@@ -198,7 +172,6 @@ update action model =
                 _ ->
                     ( model, Cmd.none )
 
-        -- textSearchUpdateHelper c
         KeyDown keyCode ->
             case keyCode of
                 16 ->
@@ -259,19 +232,8 @@ update action model =
                                     , socketCmds
                                     )
 
-                            -- let
-                            --     songItemModels =
-                            --         Helpers.makeSongItemList [ songModel ]
-                            -- in
-                            --     ( { model_
-                            --         | queue = Tuple.first <| Queue.update (Queue.Drop songItemModels) model.queue
-                            --       }
-                            --     , Cmd.none
-                            --     )
                             Group _ ->
                                 let
-                                    -- selectedGroupItems =
-                                    --         [groupModel] |> List.filter .isSelected |> List.filter (not << Helpers.isSong)
                                     updateGroupCmds =
                                         Cmd.batch (ApiHelpers.fetchSongsFromGroups [ item ] AddSongsToQueue)
                                 in
@@ -400,80 +362,6 @@ update action model =
         OpenSongsInBrowser (Err _) ->
             ( model, Cmd.none )
 
-        -- MouseDowns xy ->
-        --     if xy.button == 1 then
-        --         ( model, Cmd.none )
-        --     else
-        --         ( { model
-        --             | dragStart =
-        --                 Just <| currentMouseLocation model
-        --           }
-        --         , Cmd.none
-        --         )
-        -- MouseUps xy ->
-        --     if xy.button == 1 then
-        --         ( model, Cmd.none )
-        --     else
-        --         let
-        --             maybeDragStart =
-        --                 model.dragStart
-        --             dragEnd =
-        --                 currentMouseLocation model
-        --             model_ =
-        --                 { model | dragStart = Nothing }
-        --         in
-        --             case maybeDragStart of
-        --                 Just BrowserWindow ->
-        --                     case dragEnd of
-        --                         QueueWindow ->
-        --                             -- Droping browser items into the Queue
-        --                             let
-        --                                 selectedGroupItems =
-        --                                     model.browser.items |> Dict.values |> List.filter .isSelected |> List.filter (not << Helpers.isSong)
-        --                                 selectedSongItems =
-        --                                     model.browser.items |> Dict.values |> List.filter .isSelected |> Helpers.itemListToSongModelList
-        --                                 ( model__, cmds_ ) =
-        --                                     update (SendAddSongs selectedSongItems) model_
-        --                                 updateGroupCmds =
-        --                                     Cmd.batch (ApiHelpers.fetchSongsFromGroups selectedGroupItems AddSongsToQueue)
-        --                                 -- -- queue_ =
-        --                                 --     Queue.update (Queue.Drop selectedSongItems) model.queue
-        --                                 ( browser_, _ ) =
-        --                                     Browser.update Browser.Reset False model__.browser
-        --                             in
-        --                                 ( { model__
-        --                                     -- | queue = queue_
-        --                                     | browser = browser_
-        --                                   }
-        --                                 , Cmd.batch [ updateGroupCmds, cmds_ ]
-        --                                 )
-        --                         anythingElse ->
-        --                             ( model_, Cmd.none )
-        --                 Just QueueWindow ->
-        --                     case dragEnd of
-        --                         QueueWindow ->
-        --                             -- Reordering songs in the queue
-        --                             let
-        --                                 queue_ =
-        --                                     Queue.update Queue.Reorder model.queue
-        --                             in
-        --                                 ( { model_ | queue = queue_ }, Cmd.none )
-        --                         anythingElse ->
-        --                             -- Removing songs from the queue
-        --                             case Queue.currentSelected model.queue of
-        --                                 Just index ->
-        --                                     update (SendRemoveSong index) model_
-        --                                 Nothing ->
-        --                                     -- nothing was selected
-        --                                     ( model_, Cmd.none )
-        --                 anythingElse ->
-        --                     ( model_, Cmd.none )
-        -- MouseMoves xy ->
-        --     ( { model
-        --         | currentMousePos = { x = xy.x, y = xy.y }
-        --       }
-        --     , Cmd.none
-        --     )
         UpdateAlbumArt picture ->
             ( { model | albumArt = picture }, Cmd.none )
 
@@ -496,22 +384,6 @@ update action model =
         ReceiveNextSong raw ->
             replaceQueue raw model
 
-        -- case ApiHelpers.decodeQueue raw of
-        --     Ok queue ->
-        --         let
-        --             queueItems =
-        --                 Helpers.makeSongItemList queue.songs
-        --             ( queue_, queueCmd ) =
-        --                 Queue.update (Queue.Replace queueItems queue.currentSong) model.queue
-        --         in
-        --             ( { model | queue = queue_ }, Cmd.none )
-        --     Err _ ->
-        --         ( model, Cmd.none )
-        -- let
-        --     ( queue_, queueCmd ) =
-        --         Queue.update (Queue.NextSong) model.queue
-        -- in
-        --     ( { model | queue = queue_ }, Cmd.none )
         SendNextSong ->
             let
                 push_ =
@@ -525,22 +397,6 @@ update action model =
         ReceivePreviousSong raw ->
             replaceQueue raw model
 
-        -- case ApiHelpers.decodeSongs raw of
-        --     Ok songs ->
-        --         let
-        --             queueItems =
-        --                 Helpers.makeSongItemList songs
-        --             ( queue_, queueCmd ) =
-        --                 Queue.update (Queue.Replace queueItems) model.queue
-        --         in
-        --             ( { model | queue = queue_ }, Cmd.none )
-        --     Err _ ->
-        --         ( model, Cmd.none )
-        -- let
-        --     ( queue_, queueCmd ) =
-        --         Queue.update (Queue.PreviousSong) model.queue
-        -- in
-        --     ( { model | queue = queue_ }, Cmd.none )
         SendPreviousSong ->
             let
                 push_ =
@@ -554,17 +410,6 @@ update action model =
         ReceiveAddSongs raw ->
             replaceQueue raw model
 
-        -- case ApiHelpers.decodeSongs raw of
-        --     Ok songs ->
-        --         let
-        --             queueItems =
-        --                 Helpers.makeSongItemList songs
-        --             ( queue_, queueCmd ) =
-        --                 Queue.update (Queue.Replace queueItems) model.queue
-        --         in
-        --             ( { model | queue = queue_ }, Cmd.none )
-        --     Err _ ->
-        --         ( model, Cmd.none )
         SendAddSongs songs ->
             let
                 json =
@@ -582,29 +427,6 @@ update action model =
         ReceiveRemoveSong raw ->
             replaceQueue raw model
 
-        -- case Debug.log "decoded recieve" <| ApiHelpers.decodeSync raw of
-        --     Just ( currentSong, songs ) ->
-        --         let
-        --             queueItems =
-        --                 Debug.log "queue items" <|
-        --                     Helpers.makeSongItemList songs
-        --             ( queue_, queueCmd ) =
-        --                 Queue.update (Queue.Replace queueItems) model.queue
-        --             queue__ =
-        --                 { queue_ | currentSong = currentSong }
-        --         in
-        --             ( { model | queue = queue__ }, Cmd.none )
-        --     Nothing ->
-        --         let
-        --             balh =
-        --                 Debug.log " error "
-        --         in
-        --             ( model, Cmd.none )
-        -- let
-        --     ( queue_, queueCmd ) =
-        --         Queue.update (Queue.Remove raw) model.queue
-        -- in
-        --     ( { model | queue = queue_ }, Cmd.none )
         SendRemoveSong songNumber ->
             let
                 payload =
@@ -622,11 +444,6 @@ update action model =
         ReceiveSwapSongs raw ->
             replaceQueue raw model
 
-        -- let
-        --     ( queue_, queueCmd ) =
-        --         Queue.update (Queue.Reorder raw) model.queue
-        -- in
-        --     ( { model | queue = queue_ }, Cmd.none )
         SendSwapSongs from to ->
             let
                 payload =
@@ -662,25 +479,6 @@ update action model =
             replaceQueue raw model
 
 
-
--- case ApiHelpers.decodeSync raw of
---     Just ( currentSong, songs ) ->
---         let
---             queueItems =
---                 Debug.log "queue items" <|
---                     Helpers.makeSongItemList songs
---             ( queue_, queueCmd ) =
---                 Queue.update (Queue.Replace queueItems) model.queue
---             queue__ =
---                 { queue_ | currentSong = currentSong }
---         in
---             ( { model | queue = queue__ }, Cmd.none )
---     Nothing ->
---         let
---             balh =
---                 Debug.log " error "
---         in
---             ( model, Cmd.none )
 
 
 replaceQueue :
@@ -725,12 +523,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Keyboard.ups KeyUp
-          -- , Port.updateAlbumArt UpdateAlbumArt
-          -- , Port.resetKeysBeingTyped ResetKeysBeingTyped
         , Keyboard.downs KeyDown
-          -- , Mouse.downs MouseDowns
-          -- , Mouse.ups MouseUps
-          -- , Mouse.moves MouseMoves
         , Socket.listen model.socket PhoenixMsg
         ]
 

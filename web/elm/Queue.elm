@@ -58,8 +58,7 @@ update msg model =
                     in
                         case queueItemCmd of
                             Just (QueueItem.DoubleClicked) ->
-                                ( {model_ | array = resetQueue model_.array }, ChangeCurrentSong id )
-                                -- ( { model_ | currentSong = id }, None )
+                                ( { model_ | array = resetQueue model_.array }, ChangeCurrentSong id )
 
                             Just (QueueItem.RemoveItem) ->
                                 ( { model_ | array = resetQueue model_.array }, RemoveItem id )
@@ -67,7 +66,6 @@ update msg model =
                             Just (QueueItem.Clicked) ->
                                 let
                                     newArray =
-                                        -- reset the queue and re add the selected song, there is probably a better way to do this
                                         resetQueue model_.array |> Array.set id song_
                                 in
                                     ( { model_ | array = newArray }, None )
@@ -143,42 +141,6 @@ update msg model =
                 Err _ ->
                     ( model, None )
 
-        -- in
-        -- let
-        --     currentQueueIndex =
-        --         model.currentSong
-        --     maybeIndexedItemToReorder =
-        --         model.array |> Array.toIndexedList |> List.filter (\( i, song ) -> song.isSelected) |> List.head
-        -- in
-        --     case maybeIndexedItemToReorder of
-        --         Just ( indexOfItemToReorder, itemToReorder ) ->
-        --             let
-        --                 queueLength =
-        --                     Array.length model.array
-        --                 itemsToStayTheSame =
-        --                     model.array |> Array.filter (not << .isSelected)
-        --                 left =
-        --                     Array.slice 0 model.mouseOverItem itemsToStayTheSame
-        --                 right =
-        --                     Array.slice model.mouseOverItem queueLength itemsToStayTheSame
-        --                 reorderedQueue =
-        --                     Array.append (Array.push itemToReorder left) right
-        --                 newQueueIndex =
-        --                     if currentQueueIndex > indexOfItemToReorder && currentQueueIndex < model.mouseOverItem then
-        --                         currentQueueIndex - 1
-        --                     else if currentQueueIndex < indexOfItemToReorder && currentQueueIndex > model.mouseOverItem then
-        --                         currentQueueIndex + 1
-        --                     else
-        --                         currentQueueIndex
-        --             in
-        --                 ( { model
-        --                     | array = resetQueue reorderedQueue
-        --                     , currentSong = newQueueIndex
-        --                   }
-        --                 , None
-        --                 )
-        --         Nothing ->
-        --             ( model, None )
         Remove raw ->
             case JD.decodeValue (JD.field "body" JD.int) raw of
                 Ok index ->
@@ -211,33 +173,11 @@ update msg model =
             nextSong model
 
         PreviousSong ->
-            let newCurrentSong = model.currentSong - 1
+            let
+                newCurrentSong =
+                    model.currentSong - 1
             in
-            (model, ChangeCurrentSong newCurrentSong)
-            -- let
-            --     shouldReset =
-            --         model.currentSong == 0
-            -- in
-            --     if shouldReset then
-            --         let
-            --             newCurrentSong =
-            --                 (Array.length model.array - 1)
-            --         in
-            --             ( { model
-            --                 | currentSong = newCurrentSong
-            --               }
-            --             , None
-            --             )
-            --     else
-            --         let
-            --             newCurrentSong =
-            --                 (model.currentSong - 1)
-            --         in
-            --             ( { model
-            --                 | currentSong = newCurrentSong
-            --               }
-            --             , None
-            --             )
+                ( model, ChangeCurrentSong newCurrentSong )
 
         AudioMsg msg ->
             case msg of
@@ -245,26 +185,13 @@ update msg model =
                     nextSong model
 
 
-nextSong : QueueModel -> (QueueModel, QueueCmd)
+nextSong : QueueModel -> ( QueueModel, QueueCmd )
 nextSong model =
-    let newCurrentSong = model.currentSong + 1 in
-    ( model, ChangeCurrentSong newCurrentSong)
-    -- let
-    --     shouldReset =
-    --         model.currentSong >= (Array.length model.array) - 1
-    -- in
-    --     if shouldReset then
-    --         { model
-    --             | currentSong = 0
-    --         }
-    --     else
-    --         let
-    --             newCurrentSong =
-    --                 model.currentSong + 1
-    --         in
-    --             { model
-    --                 | currentSong = newCurrentSong
-    --             }
+    let
+        newCurrentSong =
+            model.currentSong + 1
+    in
+        ( model, ChangeCurrentSong newCurrentSong )
 
 
 resetQueue : Array QueueItemModel -> Array QueueItemModel
