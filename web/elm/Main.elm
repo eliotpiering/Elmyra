@@ -43,8 +43,6 @@ type alias Model =
     , queue : QueueModel
     , chat : Chat.ChatModel
     , albumArt : String
-    , currentMousePos : { x : Int, y : Int }
-    , keysBeingTyped : String
     , isShiftDown : Bool
     , socket : Socket Msg
     }
@@ -56,8 +54,6 @@ initialModel socket =
     , browser = Browser.initialModel
     , chat = Chat.initialModel
     , albumArt = "nothing"
-    , currentMousePos = { x = 0, y = 0 }
-    , keysBeingTyped = ""
     , isShiftDown = False
     , socket = socket
     }
@@ -116,14 +112,13 @@ type Msg
     | BrowserMsg Browser.Msg
     | ChatMsg Chat.Msg
     | UpdateSongs (Result Http.Error (List SongModel))
-    | AddSongsToQueue (Result Http.Error (List SongModel))
     | AddSongToQueue (Result Http.Error SongModel)
+    | AddSongsToQueue (Result Http.Error (List SongModel))
     | OpenSongsInBrowser (Result Http.Error (List SongModel))
     | UpdateGroups (Result Http.Error (List GroupModel))
     | KeyUp Keyboard.KeyCode
     | KeyDown Keyboard.KeyCode
     | UpdateAlbumArt String
-    | ResetKeysBeingTyped String
     | PhoenixMsg (Socket.Msg Msg)
     | ReceiveChatMessage JE.Value
     | ReceiveNextSong JE.Value
@@ -180,9 +175,6 @@ update action model =
                 anythingElse ->
                     ( model, Cmd.none )
 
-        ResetKeysBeingTyped str ->
-            ( { model | keysBeingTyped = "" }, Cmd.none )
-
         QueueMsg msg ->
             let
                 ( queue_, queueCmd ) =
@@ -217,7 +209,7 @@ update action model =
                 model_ =
                     { model | browser = browser_ }
             in
-                case browserCmd of
+                case Debug.log "browser cmd" browserCmd of
                     Browser.AddItemToQueue item ->
                         case item.data of
                             Song songModel ->
@@ -239,13 +231,16 @@ update action model =
                                 in
                                     ( model_, updateGroupCmds )
 
-                    Browser.OpenGroup itemModel ->
-                        case itemModel.data of
-                            Song songModel ->
-                                ( model_, Cmd.none )
+                    Browser.LoadGroup groupType ->
+                        case groupType of
+                            Browser.Album ->
+                                ( model, ApiHelpers.fetchAllAlbums UpdateGroups )
 
-                            Group groupModel ->
-                                ( model_, Cmd.none )
+                            Browser.Artist ->
+                                ( model, ApiHelpers.fetchAllArtists UpdateGroups )
+
+                            Browser.Song ->
+                                ( model, ApiHelpers.fetchAllSongs UpdateSongs )
 
                     Browser.None ->
                         ( model_, Cmd.none )
@@ -347,6 +342,7 @@ update action model =
                 )
 
         AddSongToQueue (Err _) ->
+            -- TODO delete this
             ( model, Cmd.none )
 
         OpenSongsInBrowser (Ok songs) ->
@@ -477,8 +473,6 @@ update action model =
 
         ReceiveSync raw ->
             replaceQueue raw model
-
-
 
 
 replaceQueue :

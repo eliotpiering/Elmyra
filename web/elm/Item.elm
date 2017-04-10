@@ -11,14 +11,12 @@ import Color
 
 type Msg
     = ItemClicked
-    | ItemDoubleClicked
     | RightArrow
     | Reset
 
 
 type ItemCmd
-    = DoubleClicked
-    | Clicked
+    = Clicked
     | AddToQueue
     | None
 
@@ -32,9 +30,6 @@ update msg model =
     case msg of
         ItemClicked ->
             ( { model | isSelected = not model.isSelected }, Clicked )
-
-        ItemDoubleClicked ->
-            ( model, DoubleClicked )
 
         Reset ->
             ( { model | isSelected = False }, None )
@@ -55,7 +50,6 @@ selectedItemHtml : String -> ItemModel -> Html Msg
 selectedItemHtml id model =
     Html.li
         [ Attr.class "selected group-item"
-        , Events.onDoubleClick ItemDoubleClicked
         , Attr.style
             [ ( "background-color", MyStyle.darkGrey )
             , ( "color", "white" )
@@ -117,7 +111,6 @@ itemHtml id model =
 commonAttrubutes : ItemModel -> List (Html.Attribute Msg)
 commonAttrubutes model =
     [ Events.onMouseDown ItemClicked
-    , Events.onDoubleClick ItemDoubleClicked
     , MyStyle.isSelected model.isSelected
     , MyStyle.mouseOver model.isMouseOver
     ]

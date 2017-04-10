@@ -16,14 +16,20 @@ type Msg
     | UpdateSongs ItemDictionary
     | MouseEnter
     | MouseLeave
-    | GroupBy String
+    | Open GroupType
     | Up
 
 
 type BrowserCmd
-    = OpenGroup ItemModel
+    = LoadGroup GroupType
     | AddItemToQueue ItemModel
     | None
+
+
+type GroupType
+    = Album
+    | Artist
+    | Song
 
 
 initialModel : BrowserModel
@@ -45,14 +51,6 @@ update msg isShiftDown model =
                             { model | items = Dict.insert id item_ model.items }
                     in
                         case itemCmd of
-                            Item.DoubleClicked ->
-                                case item_.data of
-                                    Group groupModel ->
-                                        ( model_, OpenGroup item_ )
-
-                                    Song _ ->
-                                        ( model_, AddItemToQueue item_ )
-
                             Item.Clicked ->
                                 if isShiftDown then
                                     ( model_, None )
@@ -99,19 +97,16 @@ update msg isShiftDown model =
         MouseLeave ->
             ( { model | isMouseOver = False }, None )
 
-        GroupBy key ->
+        Open key ->
             case key of
-                "song" ->
-                    ( model, None )
+                Song ->
+                    ( model, LoadGroup Song )
 
-                "album" ->
-                    ( model, None )
+                Album ->
+                    ( model, LoadGroup Album )
 
-                "artist" ->
-                    ( model, None )
-
-                _ ->
-                    ( model, None )
+                Artist ->
+                    ( model, LoadGroup Artist )
 
 
 resetItems : ItemDictionary -> ItemDictionary
@@ -144,9 +139,9 @@ itemToHtml ( id, item ) =
 navigationView : BrowserModel -> Html Msg
 navigationView model =
     Html.ul [ Attr.id "navigation-view-container" ]
-        [ Html.li [ Events.onClick (GroupBy "album") ] [ Html.text "Albums" ]
-        , Html.li [ Events.onClick (GroupBy "artist") ] [ Html.text "Artists" ]
-        , Html.li [ Events.onClick (GroupBy "song") ] [ Html.text "Songs" ]
+        [ Html.li [ Events.onClick (Open Album) ] [ Html.text "Albums" ]
+        , Html.li [ Events.onClick (Open Artist) ] [ Html.text "Artists" ]
+        , Html.li [ Events.onClick (Open Song) ] [ Html.text "Songs" ]
         , Html.li []
             [ Html.input
                 [ Attr.type_ "file"
