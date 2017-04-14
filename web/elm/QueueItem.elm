@@ -24,28 +24,29 @@ type QueueItemCmd
     | RemoveItem
     | ShiftItemUp
     | ShiftItemDown
+    | None
 
 
-update : Msg -> QueueItemModel -> ( QueueItemModel, Maybe QueueItemCmd )
+update : Msg -> QueueItemModel -> ( QueueItemModel, QueueItemCmd )
 update msg model =
     case msg of
         ItemClicked ->
-            ( { model | isSelected = not model.isSelected }, Just Clicked )
+            ( { model | isSelected = not model.isSelected }, Clicked )
 
         ItemDoubleClicked ->
-            ( model, Just DoubleClicked )
+            ( model, DoubleClicked )
 
         Reset ->
-            ( { model | isSelected = False }, Nothing )
+            ( { model | isSelected = False }, None )
 
         Remove ->
-            ( model, Just RemoveItem )
+            ( model, RemoveItem )
 
         ShiftUp ->
-            ( model, Just ShiftItemUp )
+            ( model, ShiftItemUp )
 
         ShiftDown ->
-            ( model, Just ShiftItemDown )
+            ( model, ShiftItemDown )
 
 
 view : Bool -> String -> QueueItemModel -> Html Msg

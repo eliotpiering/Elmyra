@@ -18,7 +18,6 @@ type Msg
     | MouseLeave
     | QueueItemMsg Int QueueItem.Msg
     | AudioMsg Audio.Msg
-    | Drop (List QueueItemModel)
     | Replace (List QueueItemModel) Int
     | Reorder JE.Value
     | Remove JE.Value
@@ -31,10 +30,6 @@ type QueueCmd
     | ChangeCurrentSong Int
     | SwapItems ( Int, Int )
     | None
-
-
-type alias Pos =
-    { x : Int, y : Int }
 
 
 update : Msg -> QueueModel -> ( QueueModel, QueueCmd )
@@ -57,48 +52,41 @@ update msg model =
                             { model | array = Array.set id song_ model.array }
                     in
                         case queueItemCmd of
-                            Just (QueueItem.DoubleClicked) ->
+                            QueueItem.DoubleClicked ->
                                 ( { model_ | array = resetQueue model_.array }, ChangeCurrentSong id )
 
-                            Just (QueueItem.RemoveItem) ->
+                            QueueItem.RemoveItem ->
                                 ( { model_ | array = resetQueue model_.array }, RemoveItem id )
 
-                            Just (QueueItem.Clicked) ->
+                            QueueItem.Clicked ->
                                 let
                                     newArray =
                                         resetQueue model_.array |> Array.set id song_
                                 in
                                     ( { model_ | array = newArray }, None )
 
-                            Just (QueueItem.ShiftItemUp) ->
+                            QueueItem.ShiftItemUp ->
                                 if id /= 0 then
                                     ( model_, SwapItems ( id, id - 1 ) )
                                 else
                                     ( model_, None )
 
-                            Just (QueueItem.ShiftItemDown) ->
+                            QueueItem.ShiftItemDown ->
                                 if id /= (Array.length model_.array - 1) then
                                     ( model_, SwapItems ( id, id + 1 ) )
                                 else
                                     ( model_, None )
 
-                            anythingElse ->
+                            QueueItem.None ->
                                 ( model_, None )
 
                 Nothing ->
                     ( model, None )
 
-        Drop newSongs ->
-            let
-                newArrayItems =
-                    Array.fromList newSongs
-            in
-                ( { model | array = resetQueue <| Array.append model.array newArrayItems }, None )
-
         Replace newSongs currentSong ->
             let
                 newArrayItems =
-                    Debug.log "array" <| Array.fromList newSongs
+                    Array.fromList newSongs
             in
                 ( { model
                     | array = newArrayItems
@@ -198,21 +186,6 @@ resetQueue : Array QueueItemModel -> Array QueueItemModel
 resetQueue =
     Array.map (QueueItem.update QueueItem.Reset >> Tuple.first)
 
-
-currentSelected : QueueModel -> Maybe Int
-currentSelected model =
-    model.array
-        |> Array.toIndexedList
-        |> List.filter (\( index, item ) -> item.isSelected)
-        |> List.map Tuple.first
-        |> List.head
-
-
-itemToHtml : Int -> ( Int, QueueItemModel ) -> Html Msg
-itemToHtml currentSong ( id, song ) =
-    Html.map (QueueItemMsg id) (QueueItem.view (id == currentSong) (toString id) song)
-
-
 view : QueueModel -> Html Msg
 view model =
     Html.div
@@ -231,6 +204,11 @@ view model =
                     ((\id item -> itemToHtml model.currentSong ( id, item )))
                     model.array
         ]
+
+
+itemToHtml : Int -> ( Int, QueueItemModel ) -> Html Msg
+itemToHtml currentSong ( id, song ) =
+    Html.map (QueueItemMsg id) (QueueItem.view (id == currentSong) (toString id) song)
 
 
 audioPlayer : Maybe SongModel -> Html Msg
