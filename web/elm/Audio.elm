@@ -61,9 +61,11 @@ currentSongInfo model =
         ]
 
 
+tableItem : String -> Html msg
 tableHeaderItem str =
     Html.th [] [ Html.text str ]
 
 
+tableHeaderItem : String -> Html msg
 tableItem str =
     Html.td [] [ Html.text str ]

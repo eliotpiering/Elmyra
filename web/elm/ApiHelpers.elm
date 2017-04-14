@@ -11,24 +11,10 @@ apiEndpoint =
     "http://localhost:4000/api/"
 
 
-fetchSongsFromArtist id groupAction =
-    let
-        url =
-            apiEndpoint ++ "artists/" ++ (toString id) ++ "/songs"
-    in
-        Http.send groupAction <|
-            Http.get url songsDecoder
-
-
-fetchSongsFromAlbum id groupAction =
-    let
-        url =
-            apiEndpoint ++ "albums/" ++ (toString id) ++ "/songs"
-    in
-        Http.send groupAction <|
-            Http.get url songsDecoder
-
-
+fetchSongsFromGroups :
+    List { a | data : ItemData }
+    -> (Result Http.Error (List SongModel) -> msg)
+    -> List (Cmd msg)
 fetchSongsFromGroups items groupAction =
     -- TODO ideally this only takes groups and there is a separate path to add songs to a queue
     items
@@ -48,6 +34,7 @@ fetchSongsFromGroups items groupAction =
             )
 
 
+fetchAllSongs : (Result Http.Error (List SongModel) -> msg) -> Cmd msg
 fetchAllSongs successAction =
     let
         url =
@@ -57,10 +44,7 @@ fetchAllSongs successAction =
             Http.get url songsDecoder
 
 
-
--- fetchAllArtists : Msg -> Msg -> Cmd Msg
-
-
+fetchAllArtists : (Result Http.Error (List GroupModel) -> msg) -> Cmd msg
 fetchAllArtists successAction =
     let
         url =
@@ -70,10 +54,7 @@ fetchAllArtists successAction =
             Http.get url artistsDecoder
 
 
-
--- fetchAllAlbums : Msg -> Msg -> Cmd Msg
-
-
+fetchAllAlbums : (Result Http.Error (List GroupModel) -> msg) -> Cmd msg
 fetchAllAlbums successAction =
     let
         url =
@@ -148,27 +129,3 @@ songEncoder song =
         , ( "album", JE.string song.album )
         , ( "track", JE.int song.track )
         ]
-
-
-decodeSync : JE.Value -> Maybe ( Int, List SongModel )
-decodeSync raw =
-    -- TODO this a stupid way to decode this json that looks like
-    --  {"songs": songs, "current_song": int}
-    let
-        songs =
-            decodeSongs raw
-
-        currentSong =
-            JD.decodeValue (JD.field "current_song" JD.int) raw
-    in
-        case songs of
-            Ok songs ->
-                case currentSong of
-                    Ok currentSong ->
-                        Just ( currentSong, songs )
-
-                    Err _ ->
-                        Nothing
-
-            Err _ ->
-                Nothing

@@ -2,7 +2,6 @@ module MyModels exposing (..)
 
 import Array exposing (Array)
 import Dict exposing (Dict)
-import Phoenix.Socket as Socket exposing (Socket)
 
 
 type alias SongModel =

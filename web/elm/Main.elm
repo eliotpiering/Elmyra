@@ -491,7 +491,7 @@ replaceQueue raw model =
         Ok queue ->
             let
                 queueItems =
-                    Debug.log "queue" <| Helpers.makeSongItemList queue.songs
+                    Helpers.makeSongItemList queue.songs
 
                 ( queue_, queueCmd ) =
                     Queue.update (Queue.Replace queueItems queue.currentSong) model.queue

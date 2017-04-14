@@ -1,27 +1,10 @@
-module Helpers exposing (itemListToSongModelList, makeSongItemDictionary, makeGroupItemDictionary, getItemTitle, lookupAlbumArt, makeSongItemList, isSong)
+module Helpers exposing (makeSongItemDictionary, makeGroupItemDictionary, makeSongItemList, isSong)
 
 import Dict exposing (Dict)
-import Array exposing (Array)
 import MyModels exposing (..)
-import Port
 
 
 -- Public
-
-itemListToSongModelList : List ItemModel -> List SongModel
-itemListToSongModelList =
-    List.foldl
-        (\item acc ->
-            case item.data of
-                Song s ->
-                    s :: acc
-
-                Group _ ->
-                    acc
-        )
-        []
-
-
 
 
 makeSongItemList : List SongModel -> List QueueItemModel
@@ -39,16 +22,6 @@ makeGroupItemDictionary groups =
     makeItemDictionary <| List.map Group groups
 
 
-getItemTitle : ItemModel -> String
-getItemTitle item =
-    case item.data of
-        Song songModel ->
-            songModel.title
-
-        Group groupModel ->
-            groupModel.title
-
-
 isSong : ItemModel -> Bool
 isSong item =
     case item.data of
@@ -57,21 +30,6 @@ isSong item =
 
         _ ->
             False
-
-
-lookupAlbumArt : Int -> Array ItemModel -> Cmd js
-lookupAlbumArt currentSong queueList =
-    case (Array.get currentSong queueList) of
-        Just item ->
-            case item.data of
-                Song songModel ->
-                    Port.lookupAlbumArt songModel.album
-
-                anythingElse ->
-                    Cmd.none
-
-        Nothing ->
-            Cmd.none
 
 
 
@@ -98,4 +56,4 @@ generateIdList len list =
     if len == 0 then
         list
     else
-        (generateIdList (len - 1) list) ++ [len]
+        (generateIdList (len - 1) list) ++ [ len ]
