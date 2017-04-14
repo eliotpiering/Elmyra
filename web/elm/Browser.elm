@@ -11,7 +11,7 @@ import SortSongs
 
 
 type Msg
-    = ItemMsg String Item.Msg
+    = ItemMsg Int Item.Msg
     | Reset
     | UpdateSongs ItemDictionary
     | MouseEnter
@@ -23,6 +23,7 @@ type Msg
 type BrowserCmd
     = LoadGroup GroupType
     | AddItemToQueue ItemModel
+    | OpenItem ItemModel
     | None
 
 
@@ -50,7 +51,7 @@ update msg isShiftDown model =
                         model_ =
                             { model | items = Dict.insert id item_ model.items }
                     in
-                        case itemCmd of
+                        case Debug.log "item cmd" itemCmd of
                             Item.Clicked ->
                                 if isShiftDown then
                                     ( model_, None )
@@ -66,6 +67,9 @@ update msg isShiftDown model =
 
                             Item.AddToQueue ->
                                 ( model_, AddItemToQueue item_ )
+
+                            Item.Open ->
+                                ( model_, OpenItem item_ )
 
                             Item.None ->
                                 ( model_, None )
@@ -84,7 +88,7 @@ update msg isShiftDown model =
                         |> List.filter (Tuple.second >> .isSelected)
                         |> List.map (Tuple.first)
                         |> List.head
-                        |> Maybe.withDefault "-1"
+                        |> Maybe.withDefault -1
             in
                 ( { model | items = resetItems model.items }, None )
 
@@ -131,7 +135,7 @@ view model =
         ]
 
 
-itemToHtml : ( String, ItemModel ) -> Html Msg
+itemToHtml : ( Int, ItemModel ) -> Html Msg
 itemToHtml ( id, item ) =
     Html.map (ItemMsg id) (Item.view id item)
 

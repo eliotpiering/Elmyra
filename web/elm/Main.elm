@@ -242,6 +242,13 @@ update action model =
                             Browser.Song ->
                                 ( model, ApiHelpers.fetchAllSongs UpdateSongs )
 
+                    Browser.OpenItem item ->
+                        let
+                            updateGroupCmds =
+                                Cmd.batch (ApiHelpers.fetchSongsFromGroups [ item ] UpdateSongs)
+                        in
+                            ( model_, updateGroupCmds )
+
                     Browser.None ->
                         ( model_, Cmd.none )
 
@@ -283,7 +290,7 @@ update action model =
                     Browser.initialModel
 
                 browser_ =
-                    { browser | items = Helpers.makeSongItemDictionary songs }
+                    { browser | items = Helpers.makeSongItemDictionary <| SortSongs.byAlbumAndTrack songs }
             in
                 ( { model
                     | browser =

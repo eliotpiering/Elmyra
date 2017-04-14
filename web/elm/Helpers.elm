@@ -82,7 +82,7 @@ makeItemDictionary : List ItemData -> ItemDictionary
 makeItemDictionary itemDatas =
     let
         ids =
-            List.map toString <| generateIdList (List.length itemDatas) []
+            generateIdList (List.length itemDatas) []
 
         pairs =
             List.map2 (,) ids itemDatas
@@ -98,4 +98,4 @@ generateIdList len list =
     if len == 0 then
         list
     else
-        len :: (generateIdList (len - 1) list)
+        (generateIdList (len - 1) list) ++ [len]

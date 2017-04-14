@@ -31,7 +31,7 @@ byAlbumAndTrackQ =
 -- Only works for items that are groups
 
 
-byGroupTitle : List ( String, ItemModel ) -> List ( String, ItemModel )
+byGroupTitle : List ( Int, ItemModel ) -> List ( Int, ItemModel )
 byGroupTitle =
     List.sortWith
         (\( _, item1 ) ( _, item2 ) ->

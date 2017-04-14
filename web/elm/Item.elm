@@ -11,12 +11,14 @@ import Color
 
 type Msg
     = ItemClicked
+    | ItemDoubleClicked
     | RightArrow
     | Reset
 
 
 type ItemCmd
     = Clicked
+    | Open
     | AddToQueue
     | None
 
@@ -31,6 +33,12 @@ update msg model =
         ItemClicked ->
             ( { model | isSelected = not model.isSelected }, Clicked )
 
+        ItemDoubleClicked ->
+            let
+                blah = Debug.log "blah" "blah"
+            in
+            ( model, Open )
+
         Reset ->
             ( { model | isSelected = False }, None )
 
@@ -38,7 +46,7 @@ update msg model =
             ( { model | isSelected = False }, AddToQueue )
 
 
-view : String -> ItemModel -> Html Msg
+view : Int -> ItemModel -> Html Msg
 view id model =
     if model.isSelected then
         selectedItemHtml id model
@@ -46,7 +54,7 @@ view id model =
         itemHtml id model
 
 
-selectedItemHtml : String -> ItemModel -> Html Msg
+selectedItemHtml : Int -> ItemModel -> Html Msg
 selectedItemHtml id model =
     Html.li
         [ Attr.class "selected group-item"
@@ -59,6 +67,7 @@ selectedItemHtml id model =
             , ( "align-items", "center" )
             ]
         , MyStyle.isSelected True
+        , Events.onDoubleClick ItemDoubleClicked
         ]
         [ itemTitle model
         , selectedOptionsHtml model
@@ -96,7 +105,7 @@ selectedOptionsHtml model =
         ]
 
 
-itemHtml : String -> ItemModel -> Html Msg
+itemHtml : Int -> ItemModel -> Html Msg
 itemHtml id model =
     case model.data of
         Song songModel ->
@@ -104,13 +113,14 @@ itemHtml id model =
                 commonHtml model songModel
 
         Group groupModel ->
-            Html.li (List.append [ Attr.class "group-item", Attr.id <| "group-item-" ++ id ] <| commonAttrubutes model) <|
+            Html.li (List.append [ Attr.class "group-item", Attr.id <| "group-item-" ++ (toString id) ] <| commonAttrubutes model) <|
                 commonHtml model groupModel
 
 
 commonAttrubutes : ItemModel -> List (Html.Attribute Msg)
 commonAttrubutes model =
     [ Events.onMouseDown ItemClicked
+    , Events.onDoubleClick ItemDoubleClicked
     , MyStyle.isSelected model.isSelected
     , MyStyle.mouseOver model.isMouseOver
     ]

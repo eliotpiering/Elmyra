@@ -39,7 +39,7 @@ type alias BrowserModel =
 
 
 type alias ItemDictionary =
-    Dict String ItemModel
+    Dict Int ItemModel
 
 
 type alias QueueItemModel =
