@@ -17,7 +17,6 @@ type Msg
     | MouseEnter
     | MouseLeave
     | Open GroupType
-    | Up
 
 
 type BrowserCmd
@@ -79,18 +78,6 @@ update msg isShiftDown model =
 
         Reset ->
             ( { model | items = resetItems model.items }, None )
-
-        Up ->
-            let
-                oldId =
-                    model.items
-                        |> Dict.toList
-                        |> List.filter (Tuple.second >> .isSelected)
-                        |> List.map (Tuple.first)
-                        |> List.head
-                        |> Maybe.withDefault -1
-            in
-                ( { model | items = resetItems model.items }, None )
 
         UpdateSongs itemModels ->
             ( { model | items = itemModels }, None )

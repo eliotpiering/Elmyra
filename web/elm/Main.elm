@@ -147,17 +147,6 @@ update action model =
                 38 ->
                     update (SendNextSong) model
 
-                39 ->
-                    let
-                        ( browser, browserCmd ) =
-                            Browser.update Browser.Up model.isShiftDown model.browser
-                    in
-                        ( { model | browser = browser }, Cmd.none )
-
-                40 ->
-                    -- Down
-                    update (SendNextSong) model
-
                 32 ->
                     ( model, Port.pause "null" )
 
